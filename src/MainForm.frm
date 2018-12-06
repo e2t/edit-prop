@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} MainForm 
    Caption         =   "Редактор свойств"
-   ClientHeight    =   6990
+   ClientHeight    =   6945
    ClientLeft      =   45
    ClientTop       =   375
    ClientWidth     =   15150
@@ -13,7 +13,6 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
 'Written in 2014-2017 by Eduard E. Tikhenko <aquaried@gmail.com>
 '
 'To the extent possible under law, the author(s) have dedicated all copyright
@@ -31,6 +30,10 @@ Dim gItems As Dictionary
 Dim gCutItems As Dictionary 'of Dictionary
 Dim isShiftPressed As Boolean
  
+Private Sub chkUpdateStd_Click()
+    SaveBoolSetting "UpdateStd", Me.chkUpdateStd.value
+End Sub
+
 Private Sub lenLab_Click()
     Me.lenBox.text = ""
 End Sub
@@ -646,8 +649,9 @@ Private Sub Execute()
     If gIsDrawing Then
         WriteDrawingProperties
         SetSpeedformat
-        '''Disabled for the foreign drawings
-        '''ReloadStandard
+        If Me.chkUpdateStd.value Then
+            ReloadStandard
+        End If
         ChangeLineStyles
     End If
     gDoc.ForceRebuild3 True
@@ -787,12 +791,14 @@ Private Sub InitWidgets()
     End If
 
     If gIsDrawing Then
+        Me.chkUpdateStd.value = GetBoolSetting("UpdateStd")
         MiniSignBox.AddItem sEmpty
         InitWidgetFrom MiniSignBox, userDrawingTypes.Keys
         InitWidgetFrom OrgBox, userOrganization
         InitWidgetFrom DraftBox, userDrafter
         InitRealFormatBox '''установка основных надписей
     Else
+        chkUpdateStd.Enabled = False
         MiniSignBox.Enabled = False
         MiniSignLab.Enabled = False
         OrgLab.Enabled = False

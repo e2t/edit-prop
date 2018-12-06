@@ -8,6 +8,9 @@ Attribute VB_Name = "Main"
 'with this software.
 'If not, see <http://creativecommons.org/publicdomain/zero/1.0/>
 
+Public Const macroName As String = "EditProp"
+Public Const macroSection As String = "Main"
+
 Public Const pDesignation As String = "Обозначение"
 Public Const pName As String = "Наименование"
 Public Const pShortDrawingType As String = "Пометка"
@@ -207,7 +210,7 @@ Function IsArrayEmpty(anArray As Variant) As Boolean
   
     On Error Resume Next
         i = UBound(anArray, 1)
-    IsArrayEmpty = Err.Number <> 0
+    IsArrayEmpty = Err.number <> 0
 End Function
 
 Sub InitWidgetFrom(widget As Object, values As Variant)
@@ -784,7 +787,7 @@ Function GetEquationThickness(conf As String, toAll As Boolean, nameModel As Str
         thName = thName_
         SetProp mgr, temp, Equal(thName, toAll, conf, gNameModel)
         mgr.Get5 temp, False, rawValue, resolvedValue, False
-        If IsNumeric(resolvedValue) Then
+        If IsNumeric(StrConv(resolvedValue, vbUnicode)) Then  'IsNumeric make error with raw 'resolvedValue' without StrConv
             GetEquationThickness = rawValue
             Exit For
         End If

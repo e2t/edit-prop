@@ -13,6 +13,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 'Written in 2014-2017 by Eduard E. Tikhenko <aquaried@gmail.com>
 '
 'To the extent possible under law, the author(s) have dedicated all copyright
@@ -378,24 +379,31 @@ Sub ReloadForm(conf As String)
     readOldAfterChecked = True
 End Sub
 
-Private Sub ConfBox_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    Dim items As Dictionary
-    
-    Set items = SelectItems(gCurConf)
-    If items.Exists(gCurConf) Then
-        ReadForm gCurConf
-    End If
-End Sub
+'Private Sub ConfBox_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+'    Dim items As Dictionary
+'
+'    Set items = SelectItems(gCurConf)
+'    If items.Exists(gCurConf) Then
+'        ReadForm gCurConf
+'    End If
+'End Sub
 
 Private Sub ConfBox_Change()
     '''''''''Refactoring
     If ConfBox.text = "" Then Exit Sub
-    
-    gCurConf = ConfBox.text
+        
     If Me.tabConfAndCuts.value = tabNumberConf Then
+        Dim items As Dictionary
+        Set items = SelectItems(gCurConf)
+        If items.Exists(gCurConf) Then
+            ReadForm gCurConf
+        End If
+
+        gCurConf = ConfBox.text
         ReadProp gModelExt.CustomPropertyManager(gCurConf), gCurConf, modelProps
         ReloadForm gCurConf
     Else
+        gCurConf = ConfBox.text
         ' gModel is PartDoc if the cuts
         Dim part As PartDoc
         Set part = gModel
@@ -604,42 +612,52 @@ End Sub
 
 Private Sub SignChk_Change()
     TrySetPropToAll SignBox, SignChk, pDesignation
+    Me.ConfBox.SetFocus
 End Sub
 
 Private Sub NameChk_Change()
     TrySetPropToAll NameBox, NameChk, pName
+    Me.ConfBox.SetFocus
 End Sub
 
 Private Sub BlankChk_Change()
     TrySetPropToAll BlankBox, BlankChk, pBlank
+    Me.ConfBox.SetFocus
 End Sub
 
 Private Sub FormatChk_Change()
     TrySetPropToAll FormatBox, FormatChk, pFormat
+    Me.ConfBox.SetFocus
 End Sub
 
 Private Sub NoteChk_Change()
     TrySetPropToAll NoteBox, NoteChk, pNote
+    Me.ConfBox.SetFocus
 End Sub
 
 Private Sub DevelChk_Change()
     TrySetPropToAll DevelBox, DevelChk, pDesigner
+    Me.ConfBox.SetFocus
 End Sub
 
 Private Sub SizeChk_Change()
     TrySetPropToAll SizeBox, SizeChk, pSize
+    Me.ConfBox.SetFocus
 End Sub
 
 Private Sub MassChk_Change()
     TrySetPropToAll MassBox, MassChk, pMass
+    Me.ConfBox.SetFocus
 End Sub
 
 Private Sub lenChk_Change()
     TrySetPropToAll lenBox, lenChk, pLen
+    Me.ConfBox.SetFocus
 End Sub
 
 Private Sub widChk_Change()
     TrySetPropToAll widBox, widChk, pWid
+    Me.ConfBox.SetFocus
 End Sub
 
 Private Sub Execute()

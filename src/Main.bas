@@ -46,7 +46,7 @@ Private Enum ErrorCode
     emptySheet = 2
 End Enum
 
-Public gApp As SldWorks.SldWorks
+Public gApp As Object
 Public gDoc As ModelDoc2
 Public gConfigPath As String
 Public gModel As ModelDoc2
@@ -96,15 +96,16 @@ Public indexLastCut As Integer
 
 Sub Main()
     Init
-    If gApp.GetDocumentCount() > 0 Then
-        EditorRun
+    Set gDoc = gApp.ActiveDoc
+    If gDoc Is Nothing Then
+        MsgBox "Нет открытых документов."
     Else
-        MsgBox ("Нет открытых документов.")
+        EditorRun
     End If
 End Sub
 
 Function Init() As Boolean
-    Set gApp = New SldWorks.SldWorks
+    Set gApp = Application.SldWorks
     
     ReDim userName(0)
     userName(0) = ""
@@ -371,7 +372,6 @@ Function EditorRun() As Boolean
     Dim isSelectedComp As Boolean
     isSelectedComp = False
     
-    Set gDoc = gApp.ActiveDoc
     Dim haveErrors As ErrorCode: haveErrors = ErrorCode.ok
     stdFile = gConfigPath + "Чертежный стандарт.sldstd"
     gIsDrawing = IsDrawing(gDoc)
@@ -686,62 +686,31 @@ Sub TryRenameDraft(sname As String)
     End If
 End Sub
 
+' Без точек "." в наименовании
 Sub SplitNameAndSign(line As String, ByRef designation As String, ByRef name As String)
+    Dim words As Variant
+    Dim i, j As Integer
+    
     designation = line
     name = line
-
-    Dim digs As Integer
-    digs = -1
     
-    Dim sign As Variant
-    sign = userDrawingTypes.Keys
-    
-    Dim splitted As Variant
-    splitted = Split(line, " ")
-    
-    For i = 0 To UBound(splitted)
-        If InStr(splitted(i), ".") <> 0 Then
-            digs = i
+    words = Split(line, " ")
+    For i = UBound(words) To 0 Step -1
+        If InStr(words(i), ".") <> 0 Then
+            designation = words(0)
+            For j = 1 To i
+                designation = designation + " " + words(j)
+            Next
+            name = ""
+            For j = i + 1 To UBound(words)
+                If Not userDrawingTypes.Exists(words(j)) Then
+                    name = name + " " + words(j)
+                End If
+            Next
+            name = LTrim(name)
             Exit For
         End If
     Next
-    
-    If digs >= 0 Then
-        
-        For i = 0 To UBound(sign):
-            Dim length, length2
-            length = Len(sign(i))
-            length2 = Len(splitted(digs))
-            If InStr(length2 - length, splitted(digs), sign(i)) <> 0 Then
-                splitted(digs) = Left(splitted(digs), length2 - length)
-                Exit For
-            End If
-        Next
-        
-        designation = splitted(0)
-        For i = 1 To digs
-            designation = designation + " " + splitted(i)
-        Next
-        
-        If digs < UBound(splitted) Then
-            Dim k
-            k = 1
-            For i = 0 To UBound(sign)
-                If splitted(digs + 1) = sign(i) Then  'fix
-                    k = 2
-                    Exit For
-                End If
-            Next
-            
-            name = splitted(digs + k)
-            For i = digs + k + 1 To UBound(splitted)
-                name = name + " " + splitted(i)
-            Next
-        Else
-            name = ""
-        End If
-    
-    End If
 End Sub
 
 'Only for drawings!

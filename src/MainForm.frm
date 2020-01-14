@@ -662,6 +662,11 @@ End Sub
 
 Private Sub Execute()
     ReadForm gCurConf
+    
+    ''Dim prevROState As Boolean
+    ''prevROState = gModel.IsOpenedReadOnly
+    gModel.SetReadOnlyState False  'must be first!
+    
     WriteModelProperties
     ChangeMassUnits
     If gIsDrawing Then
@@ -674,6 +679,8 @@ Private Sub Execute()
     End If
     gDoc.ForceRebuild3 True
     TryRenameDraft DrawNameBox.text
+    
+    ''gModel.SetReadOnlyState prevROState  'must be last!
 End Sub
 
 Private Sub ChangeMassEqual(conf As String)
@@ -887,7 +894,9 @@ Private Sub GetConfNames()
     Dim conf As Variant
     Dim i As Integer
     
-    ReDim gModelConfNames(gModel.GetConfigurationCount - 1)
+    'FIX: gModel.GetConfigurationCount crash if flexible confs
+    ReDim gModelConfNames(UBound(gModel.GetConfigurationNames) - LBound(gModel.GetConfigurationNames))
+    
     i = 0
     For Each conf In BubbleSort(gModel.GetConfigurationNames)  'configurations list is not sorted
         gModelConfNames(i) = conf

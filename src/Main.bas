@@ -473,10 +473,10 @@ Function ChangeLineStyles() 'mask for button
     SetLineStyle swLineFontAdjoiningComponentStyle, swLineCENTER
     SetLineStyle swLineFontAdjoiningComponent, swLW_THIN
     
-    SetLineStyle swLineFontBendLineUpStyle, swLineCENTER
+    SetLineStyle swLineFontBendLineUpStyle, swLinePHANTOM
     SetLineStyle swLineFontBendLineUpThickness, swLW_THIN
     
-    SetLineStyle swLineFontBendLineDownStyle, swLineCENTER
+    SetLineStyle swLineFontBendLineDownStyle, swLinePHANTOM
     SetLineStyle swLineFontBendLineDownThickness, swLW_THIN
     
     SetLineStyle swLineFontEnvelopeComponentStyle, swLineCONTINUOUS

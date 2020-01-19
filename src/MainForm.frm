@@ -379,15 +379,6 @@ Sub ReloadForm(conf As String)
     readOldAfterChecked = True
 End Sub
 
-'Private Sub ConfBox_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-'    Dim items As Dictionary
-'
-'    Set items = SelectItems(gCurConf)
-'    If items.Exists(gCurConf) Then
-'        ReadForm gCurConf
-'    End If
-'End Sub
-
 Private Sub ConfBox_Change()
     '''''''''Refactoring
     If ConfBox.text = "" Then Exit Sub
@@ -660,16 +651,19 @@ Private Sub widChk_Change()
     Me.ConfBox.SetFocus
 End Sub
 
+Private Sub CreateBaseDesignation()
+    gBaseDesignation = GetBaseDesignation(gItems(gFirstCurConf)(pDesignation).value)
+End Sub
+
 Private Sub Execute()
     ReadForm gCurConf
     
-    ''Dim prevROState As Boolean
-    ''prevROState = gModel.IsOpenedReadOnly
     gModel.SetReadOnlyState False  'must be first!
     
     WriteModelProperties
     ChangeMassUnits
     If gIsDrawing Then
+        CreateBaseDesignation
         WriteDrawingProperties
         SetSpeedformat
         If Me.chkUpdateStd.value Then
@@ -679,8 +673,6 @@ Private Sub Execute()
     End If
     gDoc.ForceRebuild3 True
     TryRenameDraft DrawNameBox.text
-    
-    ''gModel.SetReadOnlyState prevROState  'must be last!
 End Sub
 
 Private Sub ChangeMassEqual(conf As String)
@@ -1029,6 +1021,7 @@ Private Sub WriteDrawingProperties()
     SetProp gDrawManager, pNormControl, userNormControl(0)
     SetProp gDrawManager, pTechControl, userTechControl(0)
     SetProp gDrawManager, pLongDrawingType, userDrawingTypes(MiniSignBox.text)
+    SetProp gDrawManager, pBaseDesignation, gBaseDesignation
 End Sub
 
 Private Sub CloseBut_Click()

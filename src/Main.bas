@@ -12,6 +12,7 @@ Public Const macroName As String = "EditProp"
 Public Const macroSection As String = "Main"
 
 Public Const pDesignation As String = "Обозначение"
+Public Const pBaseDesignation As String = "Базовое обозначение"
 Public Const pName As String = "Наименование"
 Public Const pShortDrawingType As String = "Пометка"
 Public Const pLongDrawingType As String = "Тип документа"
@@ -57,7 +58,9 @@ Public gDrawing As DrawingDoc
 Public gModelExt As ModelDocExtension
 Public gDrawExt As ModelDocExtension
 Public gSheet As Sheet
-Public gCurConf As String
+Public gCurConf As String 'выбранная в списке конфигурация
+Public gFirstCurConf As String 'основная конфигурация на чертеже
+Public gBaseDesignation As String
 Public gChangeNumber As Long
 Public gIsAssembly As Boolean
 Public gIsUnnamed As Boolean
@@ -405,6 +408,7 @@ Function EditorRun() As Boolean
         End If
     End If
     If haveErrors = ErrorCode.ok Then
+        gFirstCurConf = gCurConf
         Set gModelExt = gModel.Extension
         gNameModel = ShortFileNameExt(gModel.GetPathName)
         gIsAssembly = CBool(gModel.GetType = swDocASSEMBLY)
@@ -762,4 +766,21 @@ Function GetEquationThickness(conf As String, toAll As Boolean, nameModel As Str
         End If
     Next
     mgr.Delete2 temp
+End Function
+
+Function GetBaseDesignation(designation As String) As String
+    Dim lastFullstopPosition As Integer
+    Dim firstHyphenPosition As Integer
+        
+    lastFullstopPosition = InStrRev(designation, ".")
+    If lastFullstopPosition = 0 Then
+        GetBaseDesignation = designation
+    Else
+        firstHyphenPosition = InStr(lastFullstopPosition, designation, "-")
+        If firstHyphenPosition = 0 Then
+            GetBaseDesignation = designation
+        Else
+            GetBaseDesignation = Left(designation, firstHyphenPosition - 1)
+        End If
+    End If
 End Function

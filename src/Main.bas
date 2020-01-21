@@ -59,7 +59,7 @@ Public gModelExt As ModelDocExtension
 Public gDrawExt As ModelDocExtension
 Public gSheet As Sheet
 Public gCurConf As String 'выбранная в списке конфигурация
-Public gFirstCurConf As String 'основная конфигурация на чертеже
+Public gMainConf As String 'основная конфигурация на чертеже
 Public gBaseDesignation As String
 Public gChangeNumber As Long
 Public gIsAssembly As Boolean
@@ -408,7 +408,7 @@ Function EditorRun() As Boolean
         End If
     End If
     If haveErrors = ErrorCode.ok Then
-        gFirstCurConf = gCurConf
+        gMainConf = gCurConf
         Set gModelExt = gModel.Extension
         gNameModel = ShortFileNameExt(gModel.GetPathName)
         gIsAssembly = CBool(gModel.GetType = swDocASSEMBLY)
@@ -771,15 +771,12 @@ End Function
 Function GetBaseDesignation(designation As String) As String
     Dim lastFullstopPosition As Integer
     Dim firstHyphenPosition As Integer
-        
+    
+    GetBaseDesignation = designation
     lastFullstopPosition = InStrRev(designation, ".")
-    If lastFullstopPosition = 0 Then
-        GetBaseDesignation = designation
-    Else
+    If lastFullstopPosition > 0 Then
         firstHyphenPosition = InStr(lastFullstopPosition, designation, "-")
-        If firstHyphenPosition = 0 Then
-            GetBaseDesignation = designation
-        Else
+        If firstHyphenPosition > 0 Then
             GetBaseDesignation = Left(designation, firstHyphenPosition - 1)
         End If
     End If

@@ -484,13 +484,11 @@ Sub ReadBox(box As Object, chk As CheckBox, conf As String, prop As String, forw
     Dim items As Dictionary
     Set items = SelectItems(conf)
     '''''''''''''''''''''''''''''''''
-    If items.Exists(conf) Then
-    Else
+    If Not items.Exists(conf) Then
         items.Add conf, New Dictionary
     End If
     
-    If items(conf).Exists(prop) Then
-    Else
+    If Not items(conf).Exists(prop) Then
         items(conf).Add prop, New DataItem
     End If
     
@@ -640,7 +638,7 @@ Private Sub MassChk_Change()
     TrySetPropToAll MassBox, MassChk, pMass
     Me.ConfBox.SetFocus
 End Sub
-
+  
 Private Sub lenChk_Change()
     TrySetPropToAll lenBox, lenChk, pLen
     Me.ConfBox.SetFocus
@@ -652,7 +650,16 @@ Private Sub widChk_Change()
 End Sub
 
 Private Sub CreateBaseDesignation()
-    gBaseDesignation = GetBaseDesignation(gItems(gFirstCurConf)(pDesignation).value)
+    Dim mainDesignation As String
+    Dim resolvedValue As String
+    Dim rawValue As String
+    Dim wasResolved As Boolean
+    
+    If gModel.Extension.CustomPropertyManager(gMainConf).Get5(pDesignation, False, rawValue, resolvedValue, wasResolved) = swCustomInfoGetResult_NotPresent Then
+        gModel.Extension.CustomPropertyManager("").Get5 pDesignation, False, rawValue, resolvedValue, wasResolved
+    End If
+    
+    gBaseDesignation = GetBaseDesignation(resolvedValue)
 End Sub
 
 Private Sub Execute()

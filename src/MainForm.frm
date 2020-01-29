@@ -994,9 +994,10 @@ Private Sub WriteModelProperties()
     
     For Each i In gItems.Keys
         conf = i
-        For Each j In gItems(conf)
+        For Each j In modelProps
             prop = j
             Set item = gItems(conf)(prop)
+            
             Select Case prop
                 Case pBlank, pSize, pLen, pWid
                     If Not gIsAssembly Then
@@ -1020,6 +1021,7 @@ Private Sub WriteDrawingProperties()
     Dim toAll As Boolean: toAll = True
     Dim item As Dictionary: Set item = gItems(commonSpace)
 
+    'см. массив drawProps
     SetProp2 gDrawManager, pShortDrawingType, item(pShortDrawingType)
     SetProp2 gDrawManager, pOrganization, item(pOrganization)
     SetProp2 gDrawManager, pDrafter, item(pDrafter)

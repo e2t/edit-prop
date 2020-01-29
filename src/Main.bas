@@ -11,28 +11,31 @@ Attribute VB_Name = "Main"
 Public Const macroName As String = "EditProp"
 Public Const macroSection As String = "Main"
 
+'Свойства модели, записаны в массиве modelProps
 Public Const pDesignation As String = "Обозначение"
-Public Const pBaseDesignation As String = "Базовое обозначение"
+Public Const pMaterial As String = "Материал"
 Public Const pName As String = "Наименование"
-Public Const pShortDrawingType As String = "Пометка"
-Public Const pLongDrawingType As String = "Тип документа"
 Public Const pBlank As String = "Заготовка"
 Public Const pSize As String = "Типоразмер"
-Public Const pMaterial As String = "Материал"
-Public Const pFormat As String = "Формат"
 Public Const pNote As String = "Примечание"
-Public Const pMass As String = "Масса"
-Public Const pOrganization As String = "Организация"
 Public Const pDesigner As String = "Разработал"
-Public Const pDrafter As String = "Начертил"
-Public Const pChangeNumber As String = "Изменение"
-Public Const pApprover As String = "Утвердил"
-Public Const pTechControl As String = "Техконтроль"
-Public Const pChecking As String = "Проверил"
-Public Const pNormControl As String = "Нормоконтроль"
+Public Const pFormat As String = "Формат"
+Public Const pMass As String = "Масса"
 Public Const pLen As String = "Длина"
 Public Const pWid As String = "Ширина"
+'Специальное свойство для получения материала
 Public Const pTrueMaterial As String = "SW-Material"
+'Свойства чертежа, записаны в массиве drawProps
+Public Const pDrafter As String = "Начертил"
+Public Const pShortDrawingType As String = "Пометка"
+Public Const pLongDrawingType As String = "Тип документа"
+Public Const pOrganization As String = "Организация"
+Public Const pChecking As String = "Проверил"
+Public Const pApprover As String = "Утвердил"
+Public Const pTechControl As String = "Техконтроль"
+Public Const pNormControl As String = "Нормоконтроль"
+Public Const pBaseDesignation As String = "Базовое обозначение"
+
 Public Const materialdb As String = "Материалы"
 Public Const commonSpace As String = ""
 Public Const separator As String = ";"
@@ -155,21 +158,20 @@ Function Init() As Boolean
     modelProps(4) = pSize
     modelProps(5) = pNote
     modelProps(6) = pDesigner
-    modelProps(7) = pChangeNumber
-    modelProps(8) = pFormat
-    modelProps(9) = pMass
-    modelProps(10) = pLen
-    modelProps(11) = pWid
+    modelProps(7) = pFormat
+    modelProps(8) = pMass
+    modelProps(9) = pLen
+    modelProps(10) = pWid
     
     drawProps(0) = pDrafter
-    drawProps(1) = pChangeNumber
-    drawProps(2) = pShortDrawingType
-    drawProps(3) = pLongDrawingType
-    drawProps(4) = pOrganization
-    drawProps(5) = pChecking
-    drawProps(6) = pApprover
-    drawProps(7) = pTechControl
-    drawProps(8) = pNormControl
+    drawProps(1) = pShortDrawingType
+    drawProps(2) = pLongDrawingType
+    drawProps(3) = pOrganization
+    drawProps(4) = pChecking
+    drawProps(5) = pApprover
+    drawProps(6) = pTechControl
+    drawProps(7) = pNormControl
+    drawProps(8) = pBaseDesignation
     
     indexLastConf = 0
     indexLastCut = 0
@@ -518,18 +520,12 @@ Sub ReloadSheet(format As String)
                              isFirstAngle, "", width, height, _
                              gSheet.CustomPropertyView, True
                              
-        Dim changeNumber As String
-        changeNumber = gDoc.Extension.CustomPropertyManager("").Get(pChangeNumber)
-                             
         'Reload the sheet format from the specified location
         gDrawing.SetupSheet5 gSheet.GetName, swDwgPapersUserDefined, _
                              swDwgTemplateCustom, scale1, scale2, _
                              isFirstAngle, fullFormatName, width, height, _
                              gSheet.CustomPropertyView, True
                              
-        'This fixes the error
-        gDoc.Extension.CustomPropertyManager("").Set2 pChangeNumber, changeNumber
-        
         'gDoc.ViewZoomtofit2
         ZoomToSheet
     Else

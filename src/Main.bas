@@ -15,6 +15,9 @@ Public Const macroSection As String = "Main"
 Public Const pDesignation As String = "Обозначение"
 Public Const pMaterial As String = "Материал"
 Public Const pName As String = "Наименование"
+Public Const pNameEN As String = "Наименование EN"
+Public Const pNamePL As String = "Наименование PL"
+Public Const pNameUA As String = "Наименование UA"
 Public Const pBlank As String = "Заготовка"
 Public Const pSize As String = "Типоразмер"
 Public Const pNote As String = "Примечание"
@@ -91,7 +94,7 @@ Public userLen() As String
 Public userWid() As String
 Public userMaterials() As String
 Public userPreExclude() As String
-Public modelProps(11) As String
+Public modelProps(13) As String
 Public drawProps(8) As String
 
 Public Const tabNumberConf As Integer = 0
@@ -162,6 +165,9 @@ Function Init() As Boolean
     modelProps(8) = pMass
     modelProps(9) = pLen
     modelProps(10) = pWid
+    modelProps(11) = pNameEN
+    modelProps(12) = pNamePL
+    modelProps(13) = pNameUA
     
     drawProps(0) = pDrafter
     drawProps(1) = pShortDrawingType
@@ -200,29 +206,29 @@ End Function
 
 Function SetProp(manager As CustomPropertyManager, prop As String, value As String) As Boolean
     manager.Add2 prop, swCustomInfoText, ""
-    SetProp = Not CBool(manager.Set(prop, value))
+    SetProp = Not CBool(manager.Set(prop, Trim(value)))
 End Function
 
-Function ShortFileNameExt(name As String) As String
+Function ShortFileNameExt(Name As String) As String
     ShortFileNameExt = ""
-    If name <> "" Then
-        Dim list() As String: list = Split(name, "\")
+    If Name <> "" Then
+        Dim list() As String: list = Split(Name, "\")
         ShortFileNameExt = list(UBound(list))
     End If
 End Function
 
 Function IsArrayEmpty(anArray As Variant) As Boolean
-    Dim i As Integer
+    Dim I As Integer
   
     On Error Resume Next
-        i = UBound(anArray, 1)
+        I = UBound(anArray, 1)
     IsArrayEmpty = Err.number <> 0
 End Function
 
 Sub InitWidgetFrom(widget As Object, values As Variant)
     If Not IsArrayEmpty(values) Then
-        For Each i In values
-            widget.AddItem (i)
+        For Each I In values
+            widget.AddItem (I)
         Next
     End If
 End Sub
@@ -275,47 +281,47 @@ End Sub
 Function ReadSettings() As Boolean
     Dim lines() As String: lines = ReadLinesFrom(settingsFile)
     Dim endLines As Long: endLines = UBound(lines)
-    Dim i As Long: i = LBound(lines)
-    While i <= endLines
-        Select Case lines(i)
+    Dim I As Long: I = LBound(lines)
+    While I <= endLines
+        Select Case lines(I)
             Case HeaderInFile(pName)
-                ReadHeaderValues userName, i, lines, endLines
+                ReadHeaderValues userName, I, lines, endLines
             Case HeaderInFile(pShortDrawingType)
-                ReadDrawingTypes i, lines, endLines
+                ReadDrawingTypes I, lines, endLines
             Case HeaderInFile(pSize)
-                ReadHeaderValues userSize, i, lines, endLines
+                ReadHeaderValues userSize, I, lines, endLines
             Case HeaderInFile(pBlank)
-                ReadHeaderValues userBlank, i, lines, endLines
+                ReadHeaderValues userBlank, I, lines, endLines
             Case HeaderInFile(pDesigner)
-                ReadHeaderValues userDesigner, i, lines, endLines
+                ReadHeaderValues userDesigner, I, lines, endLines
             Case HeaderInFile(pDrafter)
-                ReadHeaderValues userDrafter, i, lines, endLines
+                ReadHeaderValues userDrafter, I, lines, endLines
             Case HeaderInFile(pFormat)
-                ReadHeaderValues userFormat, i, lines, endLines
+                ReadHeaderValues userFormat, I, lines, endLines
             Case HeaderInFile(pOrganization)
-                ReadHeaderValues userOrganization, i, lines, endLines
+                ReadHeaderValues userOrganization, I, lines, endLines
             Case HeaderInFile(pMass)
-                ReadHeaderValues userMass, i, lines, endLines
+                ReadHeaderValues userMass, I, lines, endLines
             Case HeaderInFile(pNote)
-                ReadHeaderValues userNote, i, lines, endLines
+                ReadHeaderValues userNote, I, lines, endLines
             Case HeaderInFile(pChecking)
-                ReadHeaderValues userChecking, i, lines, endLines
+                ReadHeaderValues userChecking, I, lines, endLines
             Case HeaderInFile(pApprover)
-                ReadHeaderValues userApprover, i, lines, endLines
+                ReadHeaderValues userApprover, I, lines, endLines
             Case HeaderInFile(pTechControl)
-                ReadHeaderValues userTechControl, i, lines, endLines
+                ReadHeaderValues userTechControl, I, lines, endLines
             Case HeaderInFile(pNormControl)
-                ReadHeaderValues userNormControl, i, lines, endLines
+                ReadHeaderValues userNormControl, I, lines, endLines
             Case HeaderInFile(pLen)
-                ReadHeaderValues userLen, i, lines, endLines
+                ReadHeaderValues userLen, I, lines, endLines
             Case HeaderInFile(pWid)
-                ReadHeaderValues userWid, i, lines, endLines
+                ReadHeaderValues userWid, I, lines, endLines
             Case HeaderInFile(pMaterial)
-                ReadHeaderValues userMaterials, i, lines, endLines
+                ReadHeaderValues userMaterials, I, lines, endLines
             Case HeaderInFile(ppExclude)
-                ReadHeaderValues userPreExclude, i, lines, endLines
+                ReadHeaderValues userPreExclude, I, lines, endLines
         End Select
-        i = i + 1
+        I = I + 1
     Wend
 End Function
 
@@ -370,7 +376,7 @@ End Function
 
 Function SetModelFromActiveDoc() 'mask for button
     Set gModel = gDoc
-    gCurConf = gModel.GetActiveConfiguration.name
+    gCurConf = gModel.GetActiveConfiguration.Name
 End Function
 
 Function EditorRun() As Boolean
@@ -540,15 +546,15 @@ Function IntOrNul(str As String) As Long
     End If
 End Function
 
-Function ShortFileName(ByVal name As String) As String
-    Dim ext As String: ext = Right(name, 7)
+Function ShortFileName(ByVal Name As String) As String
+    Dim ext As String: ext = Right(Name, 7)
     If StrComp(ext, ".SLDDRW", vbTextCompare) = 0 _
             Or StrComp(ext, ".SLDPRT", vbTextCompare) = 0 _
             Or StrComp(ext, ".SLDASM", vbTextCompare) = 0 _
             Or StrComp(ext, ".SLDDRT", vbTextCompare) = 0 Then
-        name = Mid(name, 1, Len(name) - 7)
+        Name = Mid(Name, 1, Len(Name) - 7)
     End If
-    ShortFileName = name
+    ShortFileName = Name
 End Function
 
 Function ReadMaterialNames(filename As String) As String()
@@ -556,7 +562,7 @@ Function ReadMaterialNames(filename As String) As String()
     Dim lenMeterial As Integer: lenMeterial = Len(aMaterial)
     Dim aStrings() As String: aStrings = ReadLinesFrom(filename)
     Dim pos As Integer, startquote As Integer, endquote As Long
-    Dim str_v As Variant, name As String, result As String: result = ""
+    Dim str_v As Variant, Name As String, result As String: result = ""
     For Each str_v In aStrings
         Dim str As String: str = str_v
         pos = InStr(1, str, aMaterial)
@@ -565,11 +571,11 @@ Function ReadMaterialNames(filename As String) As String()
             If startquote > 0 Then
                 endquote = InStr(startquote + 1, str, """")
                 If endquote > 0 Then
-                    name = Mid(str, startquote + 1, endquote - startquote - 1)
+                    Name = Mid(str, startquote + 1, endquote - startquote - 1)
                     If result = "" Then
-                        result = name
+                        result = Name
                     Else
-                        result = result + vbNewLine + name
+                        result = result + vbNewLine + Name
                     End If
                 End If
             End If
@@ -632,15 +638,15 @@ End Function
 
 Function IndexInArray(valueToFind As Variant, arr As Variant) As Integer
     Dim find As Boolean: find = False
-    Dim i As Integer
-    For i = LBound(arr) To UBound(arr)
-        If arr(i) = valueToFind Then
+    Dim I As Integer
+    For I = LBound(arr) To UBound(arr)
+        If arr(I) = valueToFind Then
             find = True
             Exit For
         End If
     Next
     If find Then
-        IndexInArray = i
+        IndexInArray = I
     Else
         IndexInArray = -1
     End If
@@ -686,33 +692,6 @@ Sub TryRenameDraft(sname As String)
     End If
 End Sub
 
-' Без точек "." в наименовании
-Sub SplitNameAndSign(line As String, ByRef designation As String, ByRef name As String)
-    Dim words As Variant
-    Dim i, j As Integer
-    
-    designation = line
-    name = line
-    
-    words = Split(line, " ")
-    For i = UBound(words) To 0 Step -1
-        If InStr(words(i), ".") <> 0 Then
-            designation = words(0)
-            For j = 1 To i
-                designation = designation + " " + words(j)
-            Next
-            name = ""
-            For j = i + 1 To UBound(words)
-                If Not userDrawingTypes.Exists(words(j)) Then
-                    name = name + " " + words(j)
-                End If
-            Next
-            name = LTrim(name)
-            Exit For
-        End If
-    Next
-End Sub
-
 'Only for drawings!
 Function ZoomToSheet()  'mask for button
     Dim width As Double
@@ -723,14 +702,14 @@ Function ZoomToSheet()  'mask for button
 End Function
 
 Function BubbleSort(ByVal arr As Variant) As Variant
-    Dim i As Integer
+    Dim I As Integer
     Dim j As Integer
     
-    For i = LBound(arr) To UBound(arr) - 1
-        For j = i + 1 To UBound(arr)
-            If arr(i) > arr(j) Then
-                tmp = arr(i)
-                arr(i) = arr(j)
+    For I = LBound(arr) To UBound(arr) - 1
+        For j = I + 1 To UBound(arr)
+            If arr(I) > arr(j) Then
+                tmp = arr(I)
+                arr(I) = arr(j)
                 arr(j) = tmp
             End If
         Next
@@ -764,16 +743,16 @@ Function GetEquationThickness(conf As String, toAll As Boolean, nameModel As Str
     mgr.Delete2 temp
 End Function
 
-Function GetBaseDesignation(designation As String) As String
+Function GetBaseDesignation(Designation As String) As String
     Dim lastFullstopPosition As Integer
     Dim firstHyphenPosition As Integer
     
-    GetBaseDesignation = designation
-    lastFullstopPosition = InStrRev(designation, ".")
+    GetBaseDesignation = Designation
+    lastFullstopPosition = InStrRev(Designation, ".")
     If lastFullstopPosition > 0 Then
-        firstHyphenPosition = InStr(lastFullstopPosition, designation, "-")
+        firstHyphenPosition = InStr(lastFullstopPosition, Designation, "-")
         If firstHyphenPosition > 0 Then
-            GetBaseDesignation = Left(designation, firstHyphenPosition - 1)
+            GetBaseDesignation = Left(Designation, firstHyphenPosition - 1)
         End If
     End If
 End Function

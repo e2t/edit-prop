@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} MainForm 
    Caption         =   "Редактор свойств"
-   ClientHeight    =   6945
+   ClientHeight    =   7725
    ClientLeft      =   45
    ClientTop       =   375
-   ClientWidth     =   15150
+   ClientWidth     =   15030
    OleObjectBlob   =   "MainForm.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -13,6 +13,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 
 'Written in 2014-2017 by Eduard E. Tikhenko <aquaried@gmail.com>
 '
@@ -30,7 +31,8 @@ Private readOldAfterChecked As Boolean
 Dim gItems As Dictionary
 Dim gCutItems As Dictionary 'of Dictionary
 Dim isShiftPressed As Boolean
- 
+Dim gCodeRegexPattern As String
+
 Private Sub chkUpdateStd_Click()
     SaveBoolSetting "UpdateStd", Me.chkUpdateStd.value
 End Sub
@@ -169,22 +171,20 @@ Private Sub NameBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift 
     ExitByKey KeyCode, Shift
 End Sub
 
-Private Sub BlankBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+Private Sub NameBoxEN_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
     ExitByKey KeyCode, Shift
 End Sub
 
-Private Sub SignLab_Click()
-    Const flat As String = "SM-FLAT-PATTERN"
-    Dim conf As String
-    Dim oldText As String
-    
-    conf = ConfBox.text
-    oldText = SignBox.value
-    If conf Like "*" & flat Then
-        conf = Left(conf, Len(conf) - Len(flat))
-    End If
-    SignChk.value = False ' running event
-    SignBox.value = IIf(conf <> "00" And conf <> "По умолчанию", oldText & "-" & conf, oldText)
+Private Sub NameBoxPL_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    ExitByKey KeyCode, Shift
+End Sub
+
+Private Sub NameBoxUA_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    ExitByKey KeyCode, Shift
+End Sub
+
+Private Sub BlankBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    ExitByKey KeyCode, Shift
 End Sub
 
 Private Sub SizeBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
@@ -261,25 +261,87 @@ Private Sub SettingBut_Click()
     OpenSettingsFile
 End Sub
 
-Sub RewriteNameAndSign(source As String)
-    Dim designation As String
-    Dim name As String
-    
-    designation = ""
-    name = ""
-    SplitNameAndSign source, designation, name
-    SignBox.text = designation
-    NameBox.text = name
+Sub RewriteNameAndSign(source As String, conf As String)
+
+  Dim Designation As String
+  Dim Name As String
+  Dim Code As String
+  Dim I As Integer
+  Dim IsCodeFound As Boolean
+  
+  Designation = ""
+  Name = ""
+  SplitNameAndSign source, conf, Designation, Name, Code
+  SignBox.text = Designation
+  NameBox.text = Name
+  If gIsDrawing Then
+    IsCodeFound = False
+    I = 0
+    While (I < MiniSignBox.ListCount) And (Not IsCodeFound)
+      IsCodeFound = (StrComp(MiniSignBox.list(I), Code, vbTextCompare) = 0)
+      If IsCodeFound Then
+        MiniSignBox.ListIndex = I
+      End If
+      I = I + 1
+    Wend
+  End If
+  
 End Sub
 
 Private Sub ModelNameLab_Click()
-    RewriteNameAndSign ModelNameBox.text
+    RewriteNameAndSign ModelNameBox.text, ConfBox.text
 End Sub
 
 Private Sub DrawNameLab_Click()
     If gIsDrawing Then
-        RewriteNameAndSign DrawNameBox.text
+        RewriteNameAndSign DrawNameBox.text, ConfBox.text
     End If
+End Sub
+
+' Без точек "." в наименовании
+Sub SplitNameAndSign(line As String, conf As String, ByRef Designation As String, _
+                     ByRef Name As String, ByRef Code As String)
+  Const flat As String = "SM-FLAT-PATTERN"
+  Dim regexAsm As RegExp
+  Dim regexPrt As RegExp
+  Dim matches As Object
+  Dim z As Variant
+  
+  Designation = line
+  Name = line
+  Code = ""
+  
+  Set regexAsm = New RegExp
+  regexAsm.Pattern = "(.*\..*[0-9] *)(" + gCodeRegexPattern + ") ([^.]+)"
+  regexAsm.IgnoreCase = True
+  regexAsm.Global = True
+  
+  Set regexPrt = New RegExp
+  regexPrt.Pattern = "(.*\.[^ ]+) ([^.]+)"
+  regexPrt.IgnoreCase = True
+  regexPrt.Global = True
+  
+  If regexAsm.Test(line) Then
+    Set matches = regexAsm.Execute(line)
+    Designation = Trim(matches(0).SubMatches(0))
+    Code = matches(0).SubMatches(1)
+    Name = Trim(matches(0).SubMatches(2))
+  ElseIf regexPrt.Test(line) Then
+    Set matches = regexPrt.Execute(line)
+    Designation = Trim(matches(0).SubMatches(0))
+    Name = Trim(matches(0).SubMatches(1))
+  End If
+  
+  If conf Like "*" & flat Then
+    conf = Left(conf, Len(conf) - Len(flat))
+  End If
+  Select Case conf
+    Case "00", "По умолчанию"
+      'pass
+    Case Else
+      SignChk.value = False ' running event
+      Designation = Designation & "-" & conf
+  End Select
 End Sub
 
 Private Sub UserForm_Activate()
@@ -407,9 +469,9 @@ End Sub
 
 Function ExistsInCombo(box As ComboBox, value As String)
     ExistsInCombo = False
-    Dim i As Variant
-    For Each i In box.list
-        If i = value Then
+    Dim I As Variant
+    For Each I In box.list
+        If I = value Then
             ExistsInCombo = True
             Exit For
         End If
@@ -418,46 +480,48 @@ End Function
 
 Sub FromAllChecked(chk As CheckBox, box As Object, prop As String, conf As String, _
                    fromAll As Boolean, SetFirstItem As Boolean)
-    Dim items As Dictionary
-    Set items = SelectItems(conf)
-    
-    If readOldAfterChecked Then
-        ReadBox box, chk, conf, prop, False
-    End If
-    If prop = pSize Then
-        ChangeSizeEqual (conf)
-    ElseIf prop = pMass Then
-        ChangeMassEqual (conf)
-    End If
+  Dim items As Dictionary
+  Set items = SelectItems(conf)
+  Dim cmb As ComboBox
+  
+  If readOldAfterChecked Then
+    ReadBox box, chk, conf, prop, False
+  End If
+  If prop = pSize Then
+    ChangeSizeEqual (conf)
+  ElseIf prop = pMass Then
+    ChangeMassEqual (conf)
+  End If
 
-    Dim value As String
-    If fromAll Then
-        value = items(commonSpace)(prop).newValue
+  Dim value As String
+  If fromAll Then
+    value = items(commonSpace)(prop).newValue
+  Else
+    value = items(conf)(prop).newValue
+  End If
+  If SetFirstItem And value = "" And TypeOf box Is ComboBox Then
+    Set cmb = box
+    If cmb.ListCount > 0 Then
+      value = cmb.list(0)
+    End If
+  End If
+  
+  If box.Enabled Then
+    If TypeOf box Is ComboBox Then
+      Set cmb = box
+      If cmb.Style = fmStyleDropDownList Then
+        If ExistsInCombo(cmb, value) Then
+          SetComboInExistValue box, value
+        ElseIf cmb.ListCount > 0 Then
+          cmb.ListIndex = 0
+        End If
+      Else
+        cmb.text = value
+      End If
     Else
-        value = items(conf)(prop).newValue
+      box.text = value
     End If
-    If SetFirstItem And value = "" And TypeOf box Is ComboBox Then
-        Dim cmb As ComboBox: Set cmb = box
-        If cmb.ListCount > 0 Then
-            value = cmb.list(0)
-        End If
-    End If
-    
-    If box.Enabled Then
-        If TypeOf box Is ComboBox Then
-            If box.Style = fmStyleDropDownList Then
-                If ExistsInCombo(box, value) Then
-                    SetComboInExistValue box, value
-                Else
-                    box.text = box.list(0)
-                End If
-            Else
-                box.text = value
-            End If
-        Else
-            box.text = value
-        End If
-    End If
+  End If
 End Sub
 
 Sub SetComboInExistValue(ByRef box As Object, value As String)
@@ -517,12 +581,12 @@ Sub ReadBox(box As Object, chk As CheckBox, conf As String, prop As String, forw
 End Sub
 
 Sub SetPropToAll(box As Object, chk As CheckBox, property As String)
-    Dim i As Variant
+    Dim I As Variant
     Dim conf As String
     
     ReadBox box, Nothing, commonSpace, property, True
-    For Each i In gModelConfNames
-        conf = i
+    For Each I In gModelConfNames
+        conf = I
         ReadBox box, chk, conf, property, True
     Next
 End Sub
@@ -537,7 +601,12 @@ Private Sub ReadForm(conf As String)
 
     ReadBox DevelBox, DevelChk, conf, pDesigner, True
     ReadBox SignBox, SignChk, conf, pDesignation, True
+    
     ReadBox NameBox, NameChk, conf, pName, True
+    ReadBox NameBoxEN, NameChk, conf, pNameEN, True
+    ReadBox NameBoxPL, NameChk, conf, pNamePL, True
+    ReadBox NameBoxUA, NameChk, conf, pNameUA, True
+    
     ReadBox FormatBox, FormatChk, conf, pFormat, True
     ReadBox NoteBox, NoteChk, conf, pNote, True
     ReadBox MassBox, MassChk, conf, pMass, True
@@ -551,36 +620,42 @@ Private Sub ReadForm(conf As String)
 End Sub
 
 Private Sub ChangeChecked(prop As String)
-    Select Case prop
-        Case pDesignation
-            FromAllChecked SignChk, SignBox, pDesignation, gCurConf, SignChk.value, False
-        Case pName
-            FromAllChecked NameChk, NameBox, pName, gCurConf, NameChk.value, False
-        Case pBlank
-            FromAllChecked BlankChk, BlankBox, pBlank, gCurConf, BlankChk.value, False
-        Case pFormat
-            FromAllChecked FormatChk, FormatBox, pFormat, gCurConf, FormatChk.value, False
-        Case pNote
-            FromAllChecked NoteChk, NoteBox, pNote, gCurConf, NoteChk.value, False
-        Case pDesigner
-            FromAllChecked DevelChk, DevelBox, pDesigner, gCurConf, DevelChk.value, True
-        Case pSize
-            FromAllChecked SizeChk, SizeBox, pSize, gCurConf, SizeChk.value, False
-        Case pMass
-            FromAllChecked MassChk, MassBox, pMass, gCurConf, MassChk.value, True
-        Case pMaterial
-            FromAllChecked Nothing, MaterialBox, pMaterial, gCurConf, False, False
-        Case pOrganization
-            FromAllChecked Nothing, OrgBox, pOrganization, gCurConf, True, True
-        Case pDrafter
-            FromAllChecked Nothing, DraftBox, pDrafter, gCurConf, True, True
-        Case pShortDrawingType
-            FromAllChecked Nothing, MiniSignBox, pShortDrawingType, gCurConf, True, False
-        Case pLen
-            FromAllChecked lenChk, lenBox, pLen, gCurConf, lenChk.value, False
-        Case pWid
-            FromAllChecked widChk, widBox, pWid, gCurConf, widChk.value, False
-    End Select
+   Select Case prop
+      Case pDesignation
+         FromAllChecked SignChk, SignBox, pDesignation, gCurConf, SignChk.value, False
+      Case pName
+         FromAllChecked NameChk, NameBox, pName, gCurConf, NameChk.value, False
+      Case pNameEN
+         FromAllChecked NameChk, NameBoxEN, pNameEN, gCurConf, NameChk.value, False
+      Case pNamePL
+         FromAllChecked NameChk, NameBoxPL, pNamePL, gCurConf, NameChk.value, False
+      Case pNameUA
+         FromAllChecked NameChk, NameBoxUA, pNameUA, gCurConf, NameChk.value, False
+      Case pBlank
+         FromAllChecked BlankChk, BlankBox, pBlank, gCurConf, BlankChk.value, False
+      Case pFormat
+         FromAllChecked FormatChk, FormatBox, pFormat, gCurConf, FormatChk.value, False
+      Case pNote
+         FromAllChecked NoteChk, NoteBox, pNote, gCurConf, NoteChk.value, False
+      Case pDesigner
+         FromAllChecked DevelChk, DevelBox, pDesigner, gCurConf, DevelChk.value, True
+      Case pSize
+         FromAllChecked SizeChk, SizeBox, pSize, gCurConf, SizeChk.value, False
+      Case pMass
+         FromAllChecked MassChk, MassBox, pMass, gCurConf, MassChk.value, True
+      Case pMaterial
+         FromAllChecked Nothing, MaterialBox, pMaterial, gCurConf, False, False
+      Case pOrganization
+         FromAllChecked Nothing, OrgBox, pOrganization, gCurConf, True, True
+      Case pDrafter
+         FromAllChecked Nothing, DraftBox, pDrafter, gCurConf, True, True
+      Case pShortDrawingType
+         FromAllChecked Nothing, MiniSignBox, pShortDrawingType, gCurConf, True, False
+      Case pLen
+         FromAllChecked lenChk, lenBox, pLen, gCurConf, lenChk.value, False
+      Case pWid
+         FromAllChecked widChk, widBox, pWid, gCurConf, widChk.value, False
+   End Select
 End Sub
 
 Sub TrySetPropToAll(box As Object, chk As CheckBox, property As String)
@@ -606,6 +681,9 @@ End Sub
 
 Private Sub NameChk_Change()
     TrySetPropToAll NameBox, NameChk, pName
+    TrySetPropToAll NameBoxEN, NameChk, pNameEN
+    TrySetPropToAll NameBoxPL, NameChk, pNamePL
+    TrySetPropToAll NameBoxUA, NameChk, pNameUA
     Me.ConfBox.SetFocus
 End Sub
 
@@ -738,11 +816,21 @@ Private Sub OutputTypeAndName()
         DrawNameBox.text = ShortFileName(ShortFileNameExt(gDoc.GetPathName))
     End If
     If gIsAssembly Then
-        Controls("ModelNameLab").Caption = "Имя сборки:"
+        Controls("ModelNameLab").Caption = "Файл сборки"
     Else
-        Controls("ModelNameLab").Caption = "Имя детали:"
+        Controls("ModelNameLab").Caption = "Файл детали"
     End If
 End Sub
+
+Private Function CreateCodeRegexPattern() As String
+  
+  If userDrawingTypes.count > 0 Then
+    CreateCodeRegexPattern = Join(userDrawingTypes.Keys, "|")
+  Else
+    CreateCodeRegexPattern = "СБ|МЧ|УЧ|РСБ"
+  End If
+  
+End Function
 
 Private Sub InitWidgets()
     OutputTypeAndName
@@ -791,22 +879,22 @@ Private Sub InitWidgets()
         Dim baseMaterials() As String
         baseMaterials = ReadMaterialNames("Материалы.sldmat")
         Dim resultMaterials() As String
-        Dim i As Variant
+        Dim I As Variant
         Dim k As Integer: k = 0
-        For Each i In userMaterials
+        For Each I In userMaterials
             Dim count As Integer
-            count = IndexInArray(i, baseMaterials)
+            count = IndexInArray(I, baseMaterials)
             If count <> -1 Then
                 ReDim Preserve resultMaterials(k)
-                resultMaterials(k) = i
+                resultMaterials(k) = I
                 k = k + 1
                 baseMaterials(count) = ""
             End If
         Next
-        For Each i In baseMaterials   ' maybe nonunique items
-            If i <> "" Then
+        For Each I In baseMaterials   ' maybe nonunique items
+            If I <> "" Then
                 ReDim Preserve resultMaterials(k)
-                resultMaterials(k) = i
+                resultMaterials(k) = I
                 k = k + 1
             End If
         Next
@@ -816,11 +904,12 @@ Private Sub InitWidgets()
 
     If gIsDrawing Then
         Me.chkUpdateStd.value = GetBoolSetting("UpdateStd")
-        MiniSignBox.AddItem sEmpty
+        MiniSignBox.AddItem ""
         InitWidgetFrom MiniSignBox, userDrawingTypes.Keys
         InitWidgetFrom OrgBox, userOrganization
         InitWidgetFrom DraftBox, userDrafter
         InitRealFormatBox '''установка основных надписей
+        gCodeRegexPattern = CreateCodeRegexPattern
     Else
         chkUpdateStd.Enabled = False
         MiniSignBox.Enabled = False
@@ -845,7 +934,7 @@ Private Sub GetCutsNamesAndCount()
     Dim subf As Feature
     Dim storage As Dictionary
     Dim key As Variant
-    Dim i As Integer
+    Dim I As Integer
     
     If gIsAssembly Then
         gModelCutsCount = 0
@@ -873,55 +962,55 @@ Private Sub GetCutsNamesAndCount()
         gModelCutsCount = storage.count
         If gModelCutsCount > 0 Then
             ReDim gModelCutsNames(gModelCutsCount - 1)
-            i = 0
+            I = 0
             For Each key In storage.Keys
-                gModelCutsNames(i) = key
-                i = i + 1
+                gModelCutsNames(I) = key
+                I = I + 1
             Next
         End If
     End If
 End Sub
 
 Private Sub CheckTypeCut(aFeature As Feature, ByRef storage As Dictionary)
-    If storage.Exists(aFeature.name) Then
+    If storage.Exists(aFeature.Name) Then
     ElseIf aFeature.GetTypeName2 = "CutListFolder" Then
-        storage.Add aFeature.name, 0
+        storage.Add aFeature.Name, 0
     End If
 End Sub
 
 Private Sub GetConfNames()
     Dim conf As Variant
-    Dim i As Integer
+    Dim I As Integer
     
     'FIX: gModel.GetConfigurationCount crash if flexible confs
     ReDim gModelConfNames(UBound(gModel.GetConfigurationNames) - LBound(gModel.GetConfigurationNames))
     
-    i = 0
+    I = 0
     For Each conf In BubbleSort(gModel.GetConfigurationNames)  'configurations list is not sorted
-        gModelConfNames(i) = conf
-        i = i + 1
+        gModelConfNames(I) = conf
+        I = I + 1
     Next
 End Sub
 
 Private Function InitRealFormatBox() 'mask for button
     Dim filename As String
     Dim names() As String
-    Dim i As Long
+    Dim I As Long
     
     RealFormatBox.AddItem ("<данная>")
     RealFormatBox.text = RealFormatBox.list(0)
-    i = -1
+    I = -1
     filename = Dir(gConfigPath & "*.SLDDRT")
     While filename <> ""
-        i = i + 1
-        ReDim Preserve names(0 To i)
-        names(i) = ShortFileName(filename)
+        I = I + 1
+        ReDim Preserve names(0 To I)
+        names(I) = ShortFileName(filename)
         filename = Dir()
     Wend
     names = SortSpeedFormats(names)
-    While i >= 0
-        RealFormatBox.AddItem names(i)
-        i = i - 1
+    While I >= 0
+        RealFormatBox.AddItem names(I)
+        I = I - 1
     Wend
 End Function
 
@@ -929,31 +1018,31 @@ Function SortSpeedFormats(names() As String) As String()
     Dim majorNames() As String
     Dim minorNames() As String
     Dim name_ As Variant
-    Dim name As String
+    Dim Name As String
     Dim n As Integer
     Dim j As Integer
-    Dim i As Integer
+    Dim I As Integer
     
     n = -1
     j = -1
     If Not IsArrayEmpty(names) Then
         For Each name_ In names
-            name = name_
-            If name Like "[aAаА]# *" Or name Like "[aAаА]#" Then
+            Name = name_
+            If Name Like "[aAаА]# *" Or Name Like "[aAаА]#" Then
                 j = j + 1
                 ReDim Preserve majorNames(j)
-                majorNames(j) = name
+                majorNames(j) = Name
             Else
                 n = n + 1
                 ReDim Preserve minorNames(n)
-                minorNames(n) = name
+                minorNames(n) = Name
             End If
         Next
-        For i = 0 To n
-            names(LBound(names) + i) = minorNames(i)
+        For I = 0 To n
+            names(LBound(names) + I) = minorNames(I)
         Next
-        For i = j To 0 Step -1
-            names(UBound(names) - j + i) = majorNames(i)
+        For I = j To 0 Step -1
+            names(UBound(names) - j + I) = majorNames(I)
         Next
     End If
     SortSpeedFormats = names
@@ -986,14 +1075,14 @@ Function SetProp2(manager As CustomPropertyManager, prop As String, item As Data
 End Function
 
 Private Sub WriteModelProperties()
-    Dim i As Variant
+    Dim I As Variant
     Dim j As Variant
     Dim conf As String
     Dim prop As String
     Dim item As DataItem
     
-    For Each i In gItems.Keys
-        conf = i
+    For Each I In gItems.Keys
+        conf = I
         For Each j In modelProps
             prop = j
             Set item = gItems(conf)(prop)

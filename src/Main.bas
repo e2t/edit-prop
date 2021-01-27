@@ -48,9 +48,9 @@ Public Const ppExclude As String = "Исключить"
 Public Const sEmpty = " "
 
 Private Enum ErrorCode
-    ok = 0
-    emptyView = 1
-    emptySheet = 2
+  ok = 0
+  emptyView = 1
+  emptySheet = 2
 End Enum
 
 Public gApp As Object
@@ -104,13 +104,15 @@ Public indexLastConf As Integer
 Public indexLastCut As Integer
 
 Sub Main()
-    Init
-    Set gDoc = gApp.ActiveDoc
-    If gDoc Is Nothing Then
-        MsgBox "Нет открытых документов."
-    Else
-        EditorRun
-    End If
+
+  Init
+  Set gDoc = gApp.ActiveDoc
+  If gDoc Is Nothing Then
+    MsgBox "Нет открытых документов."
+  Else
+    EditorRun
+  End If
+    
 End Sub
 
 Function Init() As Boolean

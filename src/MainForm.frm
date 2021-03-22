@@ -13,17 +13,6 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
-
-'Written in 2014-2017 by Eduard E. Tikhenko <aquaried@gmail.com>
-'
-'To the extent possible under law, the author(s) have dedicated all copyright
-'and related and neighboring rights to this software to the public domain
-'worldwide. This software is distributed without any warranty.
-'You should have received a copy of the CC0 Public Domain Dedication along
-'with this software.
-'If not, see <http://creativecommons.org/publicdomain/zero/1.0/>
-
 Option Explicit
 
 Dim PosConfItem As Integer
@@ -222,7 +211,7 @@ Private Sub ExitByKey(KeyCode As MSForms.ReturnInteger, Shift As Integer)
 
   If Shift = 1 And KeyCode = vbKeyReturn Then
     Execute
-    Unload Me
+    ExitApp
   End If
     
 End Sub
@@ -460,7 +449,7 @@ Sub SplitNameAndSign(line As String, conf As String, ByRef Designation As String
   End Select
 End Sub
 
-Private Sub UserForm_Activate()
+Private Sub UserForm_Initialize()
 
   Set gItems = New Dictionary
   Set gCutItems = New Dictionary
@@ -480,40 +469,42 @@ End Sub
 Sub ReadProp(manager As CustomPropertyManager, conf As String, props() As String)
 
   Dim items As Dictionary
+  Dim I As Variant
+  Dim prop As String
+  Dim item As DataItem
+  Dim raw As String
+  Dim val As String
+  
   Set items = SelectItems(conf)
   
-  If items.Exists(conf) Then
-  Else
+  If Not items.Exists(conf) Then
     items.Add conf, New Dictionary
   End If
   
-  Dim prop_v As Variant
-  For Each prop_v In props
-    Dim prop As String
-    prop = prop_v
-    If items(conf).Exists(prop) Then
+  For Each I In props
+    prop = I
+    
+    If Not items(conf).Exists(prop) Then
+      items(conf).Add prop, New DataItem
+    End If
+    
+    Set item = items(conf)(prop)
+    raw = ""
+    val = ""
+    manager.Get4 prop, False, raw, val
+    item.rawValue = raw
+    item.value = val
+    
+    If conf <> commonSpace Then
+      item.fromAll = (item.rawValue = "") And (items(commonSpace)(prop).rawValue <> "")
     Else
-      Dim item As DataItem
-      Set item = New DataItem
-       
-      Dim raw As String: raw = ""
-      Dim val As String: val = ""
-      manager.Get4 prop, False, raw, val
-      item.rawValue = raw
-      item.value = val
-      
-      If conf <> commonSpace Then
-        item.fromAll = (item.rawValue = "" And items(commonSpace)(prop).rawValue <> "")
-      Else
-        item.fromAll = True
-      End If
-       
-      If prop = pMaterial Then
-        item.newValue = item.value
-      Else
-        item.newValue = item.rawValue
-      End If
-      items(conf).Add prop, item
+      item.fromAll = True
+    End If
+    
+    If prop = pMaterial Then
+      item.newValue = item.value
+    Else
+      item.newValue = item.rawValue
     End If
   Next
     
@@ -522,10 +513,11 @@ End Sub
 Sub SetBoxValue2(chk As CheckBox, prop As String, conf As String)
 
   Dim items As Dictionary
-  Set items = SelectItems(conf)
-
   Dim item As DataItem
+  
+  Set items = SelectItems(conf)
   Set item = items(conf)(prop)
+
   If Not chk Is Nothing Then
     If chk.value <> item.fromAll Then
       chk.value = item.fromAll
@@ -551,7 +543,12 @@ Sub ReloadForm(conf As String)
   
   SetBoxValue2 DevelChk, pDesigner, conf
   SetBoxValue2 SignChk, pDesignation, conf
+  
   SetBoxValue2 NameChk, pName, conf
+  ChangeChecked pNameEN
+  ChangeChecked pNamePL
+  ChangeChecked pNameUA
+  
   SetBoxValue2 FormatChk, pFormat, conf
   SetBoxValue2 NoteChk, pNote, conf
   SetBoxValue2 MassChk, pMass, conf
@@ -911,7 +908,7 @@ Private Sub Execute()
   gModel.SetReadOnlyState False  'must be first!
   
   WriteModelProperties
-  ChangeMassUnits
+  'ChangeMassUnits
   If gIsDrawing Then
     CreateBaseDesignation
     WriteDrawingProperties
@@ -1261,12 +1258,12 @@ Function SetProp2(manager As CustomPropertyManager, prop As String, item As Data
   result = False
   
   If prop = pMaterial Then
-    If item.newValue <> sEmpty Then
+    'If item.newValue <> sEmpty Then
       result = SetProp(manager, prop, MaterialEqual(conf))
-    Else
-      gModelExt.CustomPropertyManager(conf).Delete2 pMaterial
-      gModelManager.Delete2 pMaterial
-    End If
+    'Else
+    '  gModelExt.CustomPropertyManager(conf).Delete2 pMaterial
+    '  gModelManager.Delete2 pMaterial
+    'End If
   Else
     result = SetProp(manager, prop, item.newValue)
   End If
@@ -1334,7 +1331,7 @@ Private Sub CloseBut_Click()
     gDoc.Save3 options, errors, warnings  ' отсутствует проверка сохранения
     gApp.CloseDoc (gDoc.GetPathName)
   End If
-  Unload Me
+  ExitApp
     
 End Sub
 
@@ -1342,7 +1339,7 @@ Private Sub ApplyBut_Click()
 
   Execute
   If isShiftPressed Then
-    Unload Me
+    ExitApp
   End If
     
 End Sub

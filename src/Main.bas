@@ -503,10 +503,10 @@ Function ReloadStandard() As Boolean
     End If
 End Function
 
-Function ChangeMassUnits() As Boolean
-    gModelExt.SetUserPreferenceInteger swUnitSystem, 0, swUnitSystem_Custom
-    gModelExt.SetUserPreferenceInteger swUnitsMassPropMass, 0, 3
-End Function
+'Function ChangeMassUnits() As Boolean
+'    gModelExt.SetUserPreferenceInteger swUnitSystem, 0, swUnitSystem_Custom
+'    gModelExt.SetUserPreferenceInteger swUnitsMassPropMass, 0, 3
+'End Function
 
 Sub ReloadSheet(format As String)
     Const isFirstAngle As Boolean = True
@@ -757,4 +757,11 @@ Function GetBaseDesignation(Designation As String) As String
             GetBaseDesignation = Left(Designation, firstHyphenPosition - 1)
         End If
     End If
+End Function
+
+Function ExitApp() 'hide
+
+  Unload MainForm
+  End
+
 End Function

@@ -13,6 +13,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
 
 Dim PosConfItem As Integer
@@ -348,10 +349,10 @@ Private Sub SizeLab_Click()
   
 End Sub
 
-Private Sub SetValueInBox(ByRef box As ComboBox, Index As Integer)
+Private Sub SetValueInBox(ByRef Box As ComboBox, Index As Integer)
 
-  If 0 <= Index And Index < box.ListCount Then
-    box.text = box.list(Index)
+  If 0 <= Index And Index < Box.ListCount Then
+    Box.text = Box.list(Index)
   End If
     
 End Sub
@@ -362,7 +363,7 @@ Private Sub SettingBut_Click()
     
 End Sub
 
-Sub RewriteNameAndSign(source As String, conf As String)
+Sub RewriteNameAndSign(source As String, Conf As String)
 
   Dim Designation As String
   Dim Name As String
@@ -372,7 +373,7 @@ Sub RewriteNameAndSign(source As String, conf As String)
   
   Designation = ""
   Name = ""
-  SplitNameAndSign source, conf, Designation, Name, Code
+  SplitNameAndSign source, Conf, Designation, Name, Code
   SignBox.text = Designation
   NameBox.text = Name
   If gIsDrawing Then
@@ -403,7 +404,7 @@ Private Sub DrawNameLab_Click()
 End Sub
 
 ' Без точек "." в наименовании
-Sub SplitNameAndSign(line As String, conf As String, ByRef Designation As String, _
+Sub SplitNameAndSign(line As String, Conf As String, ByRef Designation As String, _
                      ByRef Name As String, ByRef Code As String)
                      
   Const flat As String = "SM-FLAT-PATTERN"
@@ -437,15 +438,15 @@ Sub SplitNameAndSign(line As String, conf As String, ByRef Designation As String
     Name = Trim(matches(0).SubMatches(1))
   End If
   
-  If conf Like "*" & flat Then
-    conf = Left(conf, Len(conf) - Len(flat))
+  If Conf Like "*" & flat Then
+    Conf = Left(Conf, Len(Conf) - Len(flat))
   End If
-  Select Case conf
+  Select Case Conf
     Case "00", "По умолчанию"
       'pass
     Case Else
       SignChk.value = False ' running event
-      Designation = Designation & "-" & conf
+      Designation = Designation & "-" & Conf
   End Select
 End Sub
 
@@ -466,7 +467,7 @@ Private Sub UserForm_Initialize()
 End Sub
 
 ' Устанавливает значения gItems из свойств, игнорируя существующие
-Sub ReadProp(manager As CustomPropertyManager, conf As String, props() As String)
+Sub ReadProp(manager As CustomPropertyManager, Conf As String, props() As String)
 
   Dim items As Dictionary
   Dim I As Variant
@@ -475,27 +476,27 @@ Sub ReadProp(manager As CustomPropertyManager, conf As String, props() As String
   Dim raw As String
   Dim val As String
   
-  Set items = SelectItems(conf)
+  Set items = SelectItems(Conf)
   
-  If Not items.Exists(conf) Then
-    items.Add conf, New Dictionary
+  If Not items.Exists(Conf) Then
+    items.Add Conf, New Dictionary
   End If
   
   For Each I In props
     prop = I
     
-    If Not items(conf).Exists(prop) Then
-      items(conf).Add prop, New DataItem
+    If Not items(Conf).Exists(prop) Then
+      items(Conf).Add prop, New DataItem
     End If
     
-    Set item = items(conf)(prop)
+    Set item = items(Conf)(prop)
     raw = ""
     val = ""
     manager.Get4 prop, False, raw, val
     item.rawValue = raw
     item.value = val
     
-    If conf <> commonSpace Then
+    If Conf <> commonSpace Then
       item.fromAll = (item.rawValue = "") And (items(commonSpace)(prop).rawValue <> "")
     Else
       item.fromAll = True
@@ -510,17 +511,17 @@ Sub ReadProp(manager As CustomPropertyManager, conf As String, props() As String
     
 End Sub
 
-Sub SetBoxValue2(chk As CheckBox, prop As String, conf As String)
+Sub SetBoxValue2(Chk As CheckBox, prop As String, Conf As String)
 
   Dim items As Dictionary
   Dim item As DataItem
   
-  Set items = SelectItems(conf)
-  Set item = items(conf)(prop)
+  Set items = SelectItems(Conf)
+  Set item = items(Conf)(prop)
 
-  If Not chk Is Nothing Then
-    If chk.value <> item.fromAll Then
-      chk.value = item.fromAll
+  If Not Chk Is Nothing Then
+    If Chk.value <> item.fromAll Then
+      Chk.value = item.fromAll
     Else
       ChangeChecked prop
     End If
@@ -530,7 +531,7 @@ Sub SetBoxValue2(chk As CheckBox, prop As String, conf As String)
     
 End Sub
 
-Sub ReloadForm(conf As String)
+Sub ReloadForm(Conf As String)
 
   readOldAfterChecked = False
 
@@ -541,24 +542,24 @@ Sub ReloadForm(conf As String)
     SetBoxValue2 Nothing, pChecking, commonSpace
   End If
   
-  SetBoxValue2 DevelChk, pDesigner, conf
-  SetBoxValue2 SignChk, pDesignation, conf
+  SetBoxValue2 DevelChk, pDesigner, Conf
+  SetBoxValue2 SignChk, pDesignation, Conf
   
-  SetBoxValue2 NameChk, pName, conf
+  SetBoxValue2 NameChk, pName, Conf
   ChangeChecked pNameEN
   ChangeChecked pNamePL
   ChangeChecked pNameUA
   
-  SetBoxValue2 FormatChk, pFormat, conf
-  SetBoxValue2 NoteChk, pNote, conf
-  SetBoxValue2 MassChk, pMass, conf
+  SetBoxValue2 FormatChk, pFormat, Conf
+  SetBoxValue2 NoteChk, pNote, Conf
+  SetBoxValue2 MassChk, pMass, Conf
   
   If Not gIsAssembly Then
-    SetBoxValue2 BlankChk, pBlank, conf
-    SetBoxValue2 SizeChk, pSize, conf
-    SetBoxValue2 Nothing, pMaterial, conf
-    SetBoxValue2 lenChk, pLen, conf
-    SetBoxValue2 widChk, pWid, conf
+    SetBoxValue2 BlankChk, pBlank, Conf
+    SetBoxValue2 SizeChk, pSize, Conf
+    SetBoxValue2 Nothing, pMaterial, Conf
+    SetBoxValue2 lenChk, pLen, Conf
+    SetBoxValue2 widChk, pWid, Conf
   End If
   readOldAfterChecked = True
     
@@ -568,18 +569,19 @@ Private Sub ConfBox_Change()
     '''''''''Refactoring
     If ConfBox.text = "" Then Exit Sub
         
-    If Me.tabConfAndCuts.value = tabNumberConf Then
-        Dim items As Dictionary
-        Set items = SelectItems(gCurConf)
-        If items.Exists(gCurConf) Then
+    If Me.tabConfAndCuts.value = tabNumberConf Then  'обычные конфигурации
+        If gItems.Exists(gCurConf) Then
             ReadForm gCurConf
         End If
 
-        gCurConf = ConfBox.text
-        ReadProp gModelExt.CustomPropertyManager(gCurConf), gCurConf, modelProps
+        gCurConf = ConfBox.text  'до этого в gCurConf записана старая конфигурация
+        
+        If Not gItems.Exists(gCurConf) Then
+            ReadProp gModelExt.CustomPropertyManager(gCurConf), gCurConf, modelProps
+        End If
         ReloadForm gCurConf
     Else
-        gCurConf = ConfBox.text
+        gCurConf = ConfBox.text  'список вырезов
         ' gModel is PartDoc if the cuts
         Dim part As PartDoc
         Set part = gModel
@@ -590,11 +592,11 @@ Private Sub ConfBox_Change()
     End If
 End Sub
 
-Function ExistsInCombo(box As ComboBox, value As String)
+Function ExistsInCombo(Box As ComboBox, value As String)
 
   ExistsInCombo = False
   Dim I As Variant
-  For Each I In box.list
+  For Each I In Box.list
     If I = value Then
       ExistsInCombo = True
       Exit For
@@ -603,41 +605,41 @@ Function ExistsInCombo(box As ComboBox, value As String)
     
 End Function
 
-Sub FromAllChecked(chk As CheckBox, box As Object, prop As String, conf As String, _
+Sub FromAllChecked(Chk As CheckBox, Box As Object, prop As String, Conf As String, _
                    fromAll As Boolean, SetFirstItem As Boolean)
                    
   Dim items As Dictionary
-  Set items = SelectItems(conf)
+  Set items = SelectItems(Conf)
   Dim cmb As ComboBox
   
   If readOldAfterChecked Then
-    ReadBox box, chk, conf, prop, False
+    ReadBox Box, Chk, Conf, prop, False
   End If
   If prop = pSize Then
-    ChangeSizeEqual (conf)
+    ChangeSizeEqual (Conf)
   ElseIf prop = pMass Then
-    ChangeMassEqual (conf)
+    ChangeMassEqual (Conf)
   End If
 
   Dim value As String
   If fromAll Then
     value = items(commonSpace)(prop).newValue
   Else
-    value = items(conf)(prop).newValue
+    value = items(Conf)(prop).newValue
   End If
-  If SetFirstItem And value = "" And TypeOf box Is ComboBox Then
-    Set cmb = box
+  If SetFirstItem And value = "" And TypeOf Box Is ComboBox Then
+    Set cmb = Box
     If cmb.ListCount > 0 Then
       value = cmb.list(0)
     End If
   End If
   
-  If box.Enabled Then
-    If TypeOf box Is ComboBox Then
-      Set cmb = box
+  If Box.Enabled Then
+    If TypeOf Box Is ComboBox Then
+      Set cmb = Box
       If cmb.Style = fmStyleDropDownList Then
         If ExistsInCombo(cmb, value) Then
-          SetComboInExistValue box, value
+          SetComboInExistValue Box, value
         ElseIf cmb.ListCount > 0 Then
           cmb.ListIndex = 0
         End If
@@ -645,28 +647,28 @@ Sub FromAllChecked(chk As CheckBox, box As Object, prop As String, conf As Strin
         cmb.text = value
       End If
     Else
-      box.text = value
+      Box.text = value
     End If
   End If
   
 End Sub
 
-Sub SetComboInExistValue(ByRef box As Object, value As String)
+Sub SetComboInExistValue(ByRef Box As Object, value As String)
 
   On Error Resume Next  ''''ПОДАВЛЕНИЕ ОШИБКИ для Гордиенко
-  box.text = value
+  Box.text = value
     
 End Sub
 
-Function SelectItems(conf As String) As Dictionary
+Function SelectItems(Conf As String) As Dictionary
 
   If Me.tabConfAndCuts.value = tabNumberCuts Then
-    If gCutItems.Exists(conf) Then
+    If gCutItems.Exists(Conf) Then
     Else
-      gCutItems.Add conf, New Dictionary
-      gCutItems(conf).Add commonSpace, New Dictionary
+      gCutItems.Add Conf, New Dictionary
+      gCutItems(Conf).Add commonSpace, New Dictionary
     End If
-    Set SelectItems = gCutItems(conf)
+    Set SelectItems = gCutItems(Conf)
   Else
     Set SelectItems = gItems
   End If
@@ -675,65 +677,72 @@ End Function
 
 ' Устанавливает значения gItems из формы
 ' conf - конфигурация ИЛИ элемент списка вырезов
-Sub ReadBox(box As Object, chk As CheckBox, conf As String, prop As String, forward As Boolean)
-    Dim items As Dictionary
-    Set items = SelectItems(conf)
-    '''''''''''''''''''''''''''''''''
-    If Not items.Exists(conf) Then
-        items.Add conf, New Dictionary
-    End If
-    
-    If Not items(conf).Exists(prop) Then
-        items(conf).Add prop, New DataItem
-    End If
-    
-    If chk Is Nothing And conf = commonSpace Then
-        items(commonSpace)(prop).fromAll = True
-        items(commonSpace)(prop).newValue = box.text
-    ElseIf prop = pMaterial Then
-        items(conf)(prop).fromAll = False
-        items(conf)(prop).newValue = box.text   'уравнение MaterialEqual устанавливается в SetProp2
-    Else
-        items(conf)(prop).fromAll = chk.value
-        If forward Then
-            If chk.value Then
-                items(commonSpace)(prop).newValue = box.text
-            Else
-                items(conf).item(prop).newValue = box.text
-            End If
-        Else
-            If chk.value Then
-                items(conf)(prop).newValue = box.text
-            Else
-                items(commonSpace)(prop).newValue = box.text
-            End If
-        End If
-    End If
-End Sub
+Sub ReadBox(Box As Object, Chk As CheckBox, Conf As String, prop As String, forward As Boolean)
 
-Sub SetPropToAll(box As Object, chk As CheckBox, property As String)
-    Dim I As Variant
-    Dim conf As String
-    
-    ReadBox box, Nothing, commonSpace, property, True
-    For Each I In gModelConfNames
-        conf = I
-        ReadBox box, chk, conf, property, True
-    Next
-End Sub
-
-Private Sub ReadForm(conf As String)
-
-  ReadBox NameBox, NameChk, conf, pName, True
-  ReadBox NameBoxEN, NameChk, conf, pNameEN, True
-  ReadBox NameBoxPL, NameChk, conf, pNamePL, True
-  ReadBox NameBoxUA, NameChk, conf, pNameUA, True
+  Dim items As Dictionary
+  Dim TargetConf As String
   
-  ReadBox DevelBox, DevelChk, conf, pDesigner, True
-  ReadBox SignBox, SignChk, conf, pDesignation, True
-  ReadBox FormatBox, FormatChk, conf, pFormat, True
-  ReadBox NoteBox, NoteChk, conf, pNote, True
-  ReadBox MassBox, MassChk, conf, pMass, True
+  Set items = SelectItems(Conf)
+  If Not items.Exists(Conf) Then
+    items.Add Conf, New Dictionary
+  End If
+  If Not items(Conf).Exists(prop) Then
+    items(Conf).Add prop, New DataItem
+  End If
+  
+  If Chk Is Nothing And Conf = commonSpace Then
+    items(commonSpace)(prop).fromAll = True
+    items(commonSpace)(prop).newValue = Box.text
+  ElseIf prop = pMaterial Then
+    items(Conf)(prop).fromAll = False
+    items(Conf)(prop).newValue = Box.text   'уравнение MaterialEqual устанавливается в SetProp2
+  Else
+    items(Conf)(prop).fromAll = Chk.value
+    If forward Then
+      If Chk.value Then
+        TargetConf = commonSpace
+      Else
+        TargetConf = Conf
+      End If
+    Else
+      If Chk.value Then
+        TargetConf = Conf
+      Else
+        TargetConf = commonSpace
+      End If
+    End If
+    items(TargetConf)(prop).newValue = Box.text
+  End If
+  
+End Sub
+
+Sub SetPropToAll(Box As Object, Chk As CheckBox, Property As String)
+
+  Dim I As Variant
+  Dim Conf As String
+  Dim ConfManager As CustomPropertyManager
+  
+  For Each I In gModelConfNames
+    Conf = I
+    Set ConfManager = gModelExt.CustomPropertyManager(Conf)
+    ConfManager.Delete2 Property
+  Next
+  ReadBox Box, Nothing, commonSpace, Property, True
+    
+End Sub
+
+Private Sub ReadForm(Conf As String)
+
+  ReadBox NameBox, NameChk, Conf, pName, True
+  ReadBox NameBoxEN, NameChk, Conf, pNameEN, True
+  ReadBox NameBoxPL, NameChk, Conf, pNamePL, True
+  ReadBox NameBoxUA, NameChk, Conf, pNameUA, True
+  
+  ReadBox DevelBox, DevelChk, Conf, pDesigner, True
+  ReadBox SignBox, SignChk, Conf, pDesignation, True
+  ReadBox FormatBox, FormatChk, Conf, pFormat, True
+  ReadBox NoteBox, NoteChk, Conf, pNote, True
+  ReadBox MassBox, MassChk, Conf, pMass, True
   
   If gIsDrawing Then
     ReadBox MiniSignBox, Nothing, commonSpace, pShortDrawingType, True
@@ -743,11 +752,11 @@ Private Sub ReadForm(conf As String)
   End If
   
   If Not gIsAssembly Then
-    ReadBox BlankBox, BlankChk, conf, pBlank, True
-    ReadBox SizeBox, SizeChk, conf, pSize, True
-    ReadBox MaterialBox, Nothing, conf, pMaterial, True
-    ReadBox lenBox, lenChk, conf, pLen, True
-    ReadBox widBox, widChk, conf, pWid, True
+    ReadBox BlankBox, BlankChk, Conf, pBlank, True
+    ReadBox SizeBox, SizeChk, Conf, pSize, True
+    ReadBox MaterialBox, Nothing, Conf, pMaterial, True
+    ReadBox lenBox, lenChk, Conf, pLen, True
+    ReadBox widBox, widChk, Conf, pWid, True
   End If
   
 End Sub
@@ -795,20 +804,20 @@ Private Sub ChangeChecked(prop As String)
    
 End Sub
 
-Sub TrySetPropToAll(box As Object, chk As CheckBox, property As String)
+Sub TrySetPropToAll(Box As Object, Chk As CheckBox, Property As String)
 
-  If isShiftPressed And Not chk.value Then
+  If isShiftPressed And Not Chk.value Then
     isShiftPressed = False
     
     readOldAfterChecked = False
-    chk.value = True
+    Chk.value = True
     readOldAfterChecked = True
     
     If MsgBox("Связать все конфигурации со значением?", vbYesNo) = vbYes Then
-      SetPropToAll box, chk, property
+      SetPropToAll Box, Chk, Property
     End If
   Else
-    ChangeChecked property
+    ChangeChecked Property
   End If
   
 End Sub
@@ -923,52 +932,52 @@ Private Sub Execute()
     
 End Sub
 
-Private Sub ChangeMassEqual(conf As String)
+Private Sub ChangeMassEqual(Conf As String)
 
   Dim items As Dictionary
-  Set items = SelectItems(conf)
+  Set items = SelectItems(Conf)
   
   If Not gIsUnnamed Then
     If Me.tabConfAndCuts.value = tabNumberCuts Then
       '''''''''''''''''''''MassBox.list(0) = Equal("SW-Mass", items(commonSpace)(pMass).fromAll, commonSpace, gNameModel)
     Else
-      MassBox.list(0) = Equal("SW-Mass", items(conf)(pMass).fromAll, conf, gNameModel)
+      MassBox.list(0) = Equal("SW-Mass", items(Conf)(pMass).fromAll, Conf, gNameModel)
     End If
   End If
     
 End Sub
 
-Private Sub ChangeSizeEqual(conf As String)
+Private Sub ChangeSizeEqual(Conf As String)
 
   Dim items As Dictionary
-  Set items = SelectItems(conf)
+  Set items = SelectItems(Conf)
   
   If Not gIsUnnamed And Not gIsAssembly Then
     If Me.tabConfAndCuts.value = tabNumberCuts Then
       '''''''''''''''''''''
     Else
-      SizeBox.list(0) = GetEquationThickness(conf, items(conf)(pSize).fromAll, gNameModel)
+      SizeBox.list(0) = GetEquationThickness(Conf, items(Conf)(pSize).fromAll, gNameModel)
     End If
   End If
   
 End Sub
 
-Private Function MaterialEqual(conf As String) As String
+Private Function MaterialEqual(Conf As String) As String
 
   If Not gIsUnnamed And Not gIsAssembly Then
-    MaterialEqual = Equal(pTrueMaterial, False, conf, gNameModel)
+    MaterialEqual = Equal(pTrueMaterial, False, Conf, gNameModel)
   Else
     MaterialEqual = ""
   End If
   
 End Function
 
-Private Sub SetMaterial(conf As String)
+Private Sub SetMaterial(Conf As String)
 
   Dim new_material As String
-  new_material = gItems(conf)(pMaterial).newValue
+  new_material = gItems(Conf)(pMaterial).newValue
   If new_material <> sEmpty And new_material <> "" Then
-    gModel.SetMaterialPropertyName2 conf, materialdb, new_material  'it's method of PartDoc
+    gModel.SetMaterialPropertyName2 Conf, materialdb, new_material  'it's method of PartDoc
   End If
     
 End Sub
@@ -1165,15 +1174,15 @@ End Sub
 
 Private Sub GetConfNames()
 
-  Dim conf As Variant
+  Dim Conf As Variant
   Dim I As Integer
   
   'FIX: gModel.GetConfigurationCount crash if flexible confs
   ReDim gModelConfNames(UBound(gModel.GetConfigurationNames) - LBound(gModel.GetConfigurationNames))
   
   I = 0
-  For Each conf In BubbleSort(gModel.GetConfigurationNames)  'configurations list is not sorted
-    gModelConfNames(I) = conf
+  For Each Conf In BubbleSort(gModel.GetConfigurationNames)  'configurations list is not sorted
+    gModelConfNames(I) = Conf
     I = I + 1
   Next
     
@@ -1239,27 +1248,27 @@ Function SortSpeedFormats(names() As String) As String()
     
 End Function
 
-Sub SetModelProp(conf As String, prop As String, item As DataItem)
+Sub SetModelProp(Conf As String, prop As String, item As DataItem)
 
-  Dim confManager As CustomPropertyManager
-  Set confManager = gModelExt.CustomPropertyManager(conf)
-  If conf <> commonSpace And item.fromAll Then
-    confManager.Delete (prop)
+  Dim ConfManager As CustomPropertyManager
+  Set ConfManager = gModelExt.CustomPropertyManager(Conf)
+  If Conf <> commonSpace And item.fromAll Then
+    ConfManager.Delete (prop)
   Else
-    SetProp2 confManager, prop, item, conf
+    SetProp2 ConfManager, prop, item, Conf
   End If
     
 End Sub
 
 Function SetProp2(manager As CustomPropertyManager, prop As String, item As DataItem, _
-                  Optional conf As String = commonSpace) As Boolean
+                  Optional Conf As String = commonSpace) As Boolean
                   
   Dim result As Boolean
   result = False
   
   If prop = pMaterial Then
     'If item.newValue <> sEmpty Then
-      result = SetProp(manager, prop, MaterialEqual(conf))
+      result = SetProp(manager, prop, MaterialEqual(Conf))
     'Else
     '  gModelExt.CustomPropertyManager(conf).Delete2 pMaterial
     '  gModelManager.Delete2 pMaterial
@@ -1275,30 +1284,30 @@ Private Sub WriteModelProperties()
 
   Dim I As Variant
   Dim j As Variant
-  Dim conf As String
+  Dim Conf As String
   Dim prop As String
   Dim item As DataItem
   
   For Each I In gItems.Keys
-    conf = I
+    Conf = I
     For Each j In modelProps
       prop = j
-      Set item = gItems(conf)(prop)
+      Set item = gItems(Conf)(prop)
       
       Select Case prop
         Case pBlank, pSize, pLen, pWid
           If Not gIsAssembly Then
-            SetModelProp conf, prop, item
+            SetModelProp Conf, prop, item
           End If
         Case pMaterial
           If Not gIsAssembly Then
             If Not gIsUnnamed Then
-              SetModelProp conf, prop, item
+              SetModelProp Conf, prop, item
             End If
-            SetMaterial conf
+            SetMaterial Conf
           End If
         Case Else
-          SetModelProp conf, prop, item
+          SetModelProp Conf, prop, item
       End Select
       
     Next

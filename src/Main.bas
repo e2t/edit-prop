@@ -235,10 +235,10 @@ Sub InitWidgetFrom(widget As Object, values As Variant)
     End If
 End Sub
 
-Function Equal(swProp As String, toAll As Boolean, conf As String, nameModel As String) As String
+Function Equal(swProp As String, toAll As Boolean, Conf As String, nameModel As String) As String
     Dim confText As String: confText = ""
-    If conf <> commonSpace And Not toAll Then
-        confText = "@@" + conf
+    If Conf <> commonSpace And Not toAll Then
+        confText = "@@" + Conf
     End If
     Equal = """" + swProp + confText + "@" + nameModel + """"
 End Function
@@ -719,7 +719,7 @@ Function BubbleSort(ByVal arr As Variant) As Variant
     BubbleSort = arr
 End Function
 
-Function GetEquationThickness(conf As String, toAll As Boolean, nameModel As String) As String
+Function GetEquationThickness(Conf As String, toAll As Boolean, nameModel As String) As String
     Const temp As String = "__temp__"
     Dim mgr As CustomPropertyManager
     Dim thName_ As Variant
@@ -729,13 +729,13 @@ Function GetEquationThickness(conf As String, toAll As Boolean, nameModel As Str
     Dim variantThicknessName(1) As String
     
     GetEquationThickness = ""
-    Set mgr = gModel.Extension.CustomPropertyManager(conf)
+    Set mgr = gModel.Extension.CustomPropertyManager(Conf)
     variantThicknessName(0) = "Толщина"
     variantThicknessName(1) = "Thickness"
     'variantThicknessName(2) = "Grubos'c'"
     For Each thName_ In variantThicknessName
         thName = thName_
-        SetProp mgr, temp, Equal(thName, toAll, conf, gNameModel)
+        SetProp mgr, temp, Equal(thName, toAll, Conf, gNameModel)
         mgr.Get5 temp, False, rawValue, resolvedValue, False
         If IsNumeric(StrConv(resolvedValue, vbUnicode)) Then  'IsNumeric make error with raw 'resolvedValue' without StrConv
             GetEquationThickness = rawValue

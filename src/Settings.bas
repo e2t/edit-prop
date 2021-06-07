@@ -1,44 +1,44 @@
 Attribute VB_Name = "Settings"
 Option Explicit
 
-Sub SaveSetting2(ByRef key As String, ByRef value As String)
+Sub SaveSetting2(ByRef Key As String, ByRef value As String)
 
-  SaveSetting macroName, macroSection, key, value
+  SaveSetting macroName, macroSection, Key, value
     
 End Sub
 
 
-Sub SaveIntSetting(ByRef key As String, value As Integer)
+Sub SaveIntSetting(ByRef Key As String, value As Integer)
 
-  SaveSetting2 key, str(value)
+  SaveSetting2 Key, str(value)
   
 End Sub
 
 
-Sub SaveBoolSetting(ByRef key As String, value As Boolean)
+Sub SaveBoolSetting(ByRef Key As String, value As Boolean)
 
-  SaveSetting2 key, BoolToStr(value)
+  SaveSetting2 Key, BoolToStr(value)
   
 End Sub
 
 
-Function GetSetting2(ByRef key As String) As String
+Function GetSetting2(ByRef Key As String) As String
 
-  GetSetting2 = GetSetting(macroName, macroSection, key, "0")
+  GetSetting2 = GetSetting(macroName, macroSection, Key, "0")
   
 End Function
 
 
-Function GetBoolSetting(ByRef key As String) As Boolean
+Function GetBoolSetting(ByRef Key As String) As Boolean
 
-  GetBoolSetting = StrToBool(GetSetting2(key))
+  GetBoolSetting = StrToBool(GetSetting2(Key))
   
 End Function
 
 
-Function GetIntSetting(ByRef key As String) As Integer
+Function GetIntSetting(ByRef Key As String) As Integer
 
-  GetIntSetting = StrToInt(GetSetting2(key))
+  GetIntSetting = StrToInt(GetSetting2(Key))
   
 End Function
 

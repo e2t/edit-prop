@@ -37,9 +37,10 @@ Public Const pBaseDesignation As String = "Базовое обозначение"
 
 Public Const materialdb As String = "Материалы"
 Public Const commonSpace As String = ""
-Public Const separator As String = ";"
-Public Const separator2 As String = "="
-Public Const settingsFile As String = "Настройки.txt"
+Public Const Separator As String = ";"
+Public Const Separator2 As String = "="
+Public Const Separator3 As String = ","
+Public Const SettingsFile As String = "Настройки.txt"
 Public Const ppExclude As String = "Исключить"
 Public Const sEmpty = " "
 
@@ -71,7 +72,7 @@ Public gDrawManager As CustomPropertyManager
 Public gFSO As FileSystemObject
 
 Public userName() As String
-Public userDrawingTypes As Dictionary
+Public UserDrawingTypes As Dictionary
 Public userBlank() As String
 Public userSize() As String
 Public userFormat() As String
@@ -118,7 +119,7 @@ Function Init() As Boolean
   ReDim userName(0)
   userName(0) = ""
   
-  Set userDrawingTypes = New Dictionary
+  Set UserDrawingTypes = New Dictionary
   
   ReDim userBlank(0)
   userBlank(0) = ""
@@ -203,12 +204,12 @@ End Function
 
 Function IsPropertyExist(manager As CustomPropertyManager, prop As String) As Boolean
 
-  Dim names As Variant
+  Dim Names As Variant
   
-  names = manager.GetNames()
+  Names = manager.GetNames()
   IsPropertyExist = False
-  If Not IsEmpty(names) Then
-    If IndexInArray(prop, names) <> -1 Then
+  If Not IsEmpty(Names) Then
+    If IndexInArray(prop, Names) <> -1 Then
       IsPropertyExist = True
     End If
   End If
@@ -298,8 +299,8 @@ Function InitWidgets() 'hide
     MainForm.SizeBox.AddItem ("")  ' for Equation
     InitWidgetFrom MainForm.SizeBox, userSize
     Set baseMaterials = ReadMaterialNames("Материалы.sldmat")
-    If baseMaterials.count > 0 Then
-      ReDim resultMaterials(baseMaterials.count - 1)
+    If baseMaterials.Count > 0 Then
+      ReDim resultMaterials(baseMaterials.Count - 1)
       k = 0
       For Each I In userMaterials
         If baseMaterials.Exists(I) Then
@@ -320,7 +321,7 @@ Function InitWidgets() 'hide
 
   If gIsDrawing Then
     MainForm.MiniSignBox.AddItem ""
-    InitWidgetFrom MainForm.MiniSignBox, userDrawingTypes.Keys
+    InitWidgetFrom MainForm.MiniSignBox, UserDrawingTypes.Keys
     InitWidgetFrom MainForm.OrgBox, userOrganization
     InitWidgetFrom MainForm.DraftBox, userDrafter
     InitWidgetFrom MainForm.CheckingBox, userChecking
@@ -328,6 +329,7 @@ Function InitWidgets() 'hide
     gCodeRegexPattern = CreateCodeRegexPattern
   Else
     MainForm.MiniSignBox.Enabled = False
+    MainForm.CodeBox.Enabled = False
     MainForm.MiniSignLab.Enabled = False
     MainForm.OrgLab.Enabled = False
     MainForm.OrgBox.Enabled = False
@@ -355,40 +357,40 @@ Function Equal(swProp As String, toAll As Boolean, Conf As String, nameModel As 
     
 End Function
 
-Sub ReadHeaderValues(ByRef userStr() As String, ByRef count As Long, lines() As String, endLines As Long)
+Sub ReadHeaderValues(ByRef userStr() As String, ByRef Count As Long, Lines() As String, EndLines As Long)
 
-  If count < endLines Then
-    count = count + 1
-    If lines(count) <> "" Then
-      userStr = Split(lines(count), separator)
+  If Count < EndLines Then
+    Count = Count + 1
+    If Lines(Count) <> "" Then
+      userStr = Split(Lines(Count), Separator)
     End If
   End If
     
 End Sub
 
-Sub ReadDrawingTypes(ByRef count As Long, lines() As String, endLines As Long)
+Sub ReadDrawingTypes(ByRef Count As Long, Lines() As String, EndLines As Long)
 
   Dim X As Variant
-  Dim indexSeparator As Integer
-  Dim names() As String
-  Dim shortName As String
-  Dim longName As String
+  Dim IndexSeparator As Integer
+  Dim Names() As String
+  Dim ShortName As String
+  Dim LongNames() As String
   
-  If count < endLines Then
-    count = count + 1
-    If lines(count) <> "" Then
-      For Each X In Split(lines(count), separator)  'String()
-        indexSeparator = InStr(X, separator2)  'равен нулю, если разделитель не найден
-        If indexSeparator > 0 Then
-          names = Split(X, separator2)
-          shortName = names(0)
-          longName = names(1)
+  If Count < EndLines Then
+    Count = Count + 1
+    If Lines(Count) <> "" Then
+      For Each X In Split(Lines(Count), Separator)  'String()
+        IndexSeparator = InStr(X, Separator2)  'равен нулю, если разделитель не найден
+        If IndexSeparator > 0 Then
+          Names = Split(X, Separator2)
+          ShortName = Names(0)
+          LongNames = Split(Names(1), Separator3)
         Else
-          shortName = X
-          longName = ""
+          ShortName = X
+          Erase LongNames
         End If
-        If Not userDrawingTypes.Exists(shortName) Then
-          userDrawingTypes.Add shortName, longName
+        If Not UserDrawingTypes.Exists(ShortName) Then
+          UserDrawingTypes.Add ShortName, LongNames
         End If
       Next
     End If
@@ -404,58 +406,58 @@ End Sub
 
 Function ReadSettings() As Boolean
 
-  Dim lines() As String
-  Dim endLines As Long
+  Dim Lines() As String
+  Dim EndLines As Long
   Dim I As Long
   Dim FStream As TextStream
   Dim FullPath As String
   
-  FullPath = gConfigPath + settingsFile
+  FullPath = gConfigPath + SettingsFile
   If gFSO.FileExists(FullPath) Then
     Set FStream = gFSO.OpenTextFile(FullPath, ForReading, False, TristateTrue)
-    lines = Split(FStream.ReadAll, vbNewLine)
+    Lines = Split(FStream.ReadAll, vbNewLine)
     FStream.Close
   
-    endLines = UBound(lines)
+    EndLines = UBound(Lines)
     I = 0
-    While I <= endLines
-      Select Case lines(I)
+    While I <= EndLines
+      Select Case Lines(I)
         Case HeaderInFile(pName)
-          ReadHeaderValues userName, I, lines, endLines
+          ReadHeaderValues userName, I, Lines, EndLines
         Case HeaderInFile(pShortDrawingType)
-          ReadDrawingTypes I, lines, endLines
+          ReadDrawingTypes I, Lines, EndLines
         Case HeaderInFile(pSize)
-          ReadHeaderValues userSize, I, lines, endLines
+          ReadHeaderValues userSize, I, Lines, EndLines
         Case HeaderInFile(pBlank)
-          ReadHeaderValues userBlank, I, lines, endLines
+          ReadHeaderValues userBlank, I, Lines, EndLines
         Case HeaderInFile(pDesigner)
-          ReadHeaderValues userDesigner, I, lines, endLines
+          ReadHeaderValues userDesigner, I, Lines, EndLines
         Case HeaderInFile(pDrafter)
-          ReadHeaderValues userDrafter, I, lines, endLines
+          ReadHeaderValues userDrafter, I, Lines, EndLines
         Case HeaderInFile(pFormat)
-          ReadHeaderValues userFormat, I, lines, endLines
+          ReadHeaderValues userFormat, I, Lines, EndLines
         Case HeaderInFile(pOrganization)
-          ReadHeaderValues userOrganization, I, lines, endLines
+          ReadHeaderValues userOrganization, I, Lines, EndLines
         Case HeaderInFile(pMass)
-          ReadHeaderValues userMass, I, lines, endLines
+          ReadHeaderValues userMass, I, Lines, EndLines
         Case HeaderInFile(pNote)
-          ReadHeaderValues userNote, I, lines, endLines
+          ReadHeaderValues userNote, I, Lines, EndLines
         Case HeaderInFile(pChecking)
-          ReadHeaderValues userChecking, I, lines, endLines
+          ReadHeaderValues userChecking, I, Lines, EndLines
         Case HeaderInFile(pApprover)
-          ReadHeaderValues userApprover, I, lines, endLines
+          ReadHeaderValues userApprover, I, Lines, EndLines
         Case HeaderInFile(pTechControl)
-          ReadHeaderValues userTechControl, I, lines, endLines
+          ReadHeaderValues userTechControl, I, Lines, EndLines
         Case HeaderInFile(pNormControl)
-          ReadHeaderValues userNormControl, I, lines, endLines
+          ReadHeaderValues userNormControl, I, Lines, EndLines
         Case HeaderInFile(pLen)
-          ReadHeaderValues userLen, I, lines, endLines
+          ReadHeaderValues userLen, I, Lines, EndLines
         Case HeaderInFile(pWid)
-          ReadHeaderValues userWid, I, lines, endLines
+          ReadHeaderValues userWid, I, Lines, EndLines
         Case HeaderInFile(pMaterial)
-          ReadHeaderValues userMaterials, I, lines, endLines
+          ReadHeaderValues userMaterials, I, Lines, EndLines
         Case HeaderInFile(ppExclude)
-          ReadHeaderValues userPreExclude, I, lines, endLines
+          ReadHeaderValues userPreExclude, I, Lines, EndLines
       End Select
       I = I + 1
     Wend
@@ -475,10 +477,26 @@ Function OpenSettingsFile() As Boolean
   Dim filename As String
   Dim text As String
   Dim fsT As Object
+  Dim DrawingCodes(13) As String
   
-  filename = gConfigPath + settingsFile
+  DrawingCodes(0) = ".AD=Сборочный чертеж,Assembly Drawing,Складальний кресленик"
+  DrawingCodes(1) = ".ID=Монтажный чертеж,Installation Drawing,Монтажний кресленик"
+  DrawingCodes(2) = ".DD=Габаритный чертеж,Dimension Drawing,Габаритний кресленик"
+  DrawingCodes(3) = ".GA=Чертеж общего вида,General Arrangement Drawing,Кресленик загального виду"
+  DrawingCodes(4) = ".TD=Чертеж 3D,3D-Drawing"
+  DrawingCodes(5) = ".MD=Чертеж компонента,Component Drawing"
+  DrawingCodes(6) = ".ND=Компоновочный чертеж,Arrangement Drawing"
+  DrawingCodes(7) = ".CD=Концептуальный чертеж,Concept Drawing"
+  DrawingCodes(8) = ".LD=Чертеж размещения,Layout Drawing"
+  DrawingCodes(9) = ".ED=Разнесенный чертеж,Exploded-view Drawing"
+  DrawingCodes(10) = "СБ=Сборочный чертеж,Складальний кресленик"
+  DrawingCodes(11) = "МЧ=Монтажный чертеж,Монтажний кресленик"
+  DrawingCodes(12) = "ГЧ=Габаритный чертеж,Габаритний кресленик"
+  DrawingCodes(13) = "ВО=Чертеж общего вида,Кресленик загального виду"
+  
+  filename = gConfigPath + SettingsFile
   If Not gFSO.FileExists(filename) Then
-    If Not gFSO.FileExists(gConfigPath) Then
+    If Not gFSO.FolderExists(gConfigPath) Then
       gFSO.CreateFolder gConfigPath
     End If
       
@@ -490,11 +508,7 @@ Function OpenSettingsFile() As Boolean
       HeaderInFile(pDrafter) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
       HeaderInFile(pOrganization) + vbNewLine + "ООО ""Эко-Инвест"";ЗАО НПФ ""Экотон""" + vbNewLine + vbNewLine + _
       HeaderInFile(pShortDrawingType) + vbNewLine + _
-      "СБ=Сборочный чертеж;ВО=Чертеж общего вида;СП=Спецификация;МЧ=Монтажный чертеж;ГЧ=Габаритный чертеж;УЧ=Упаковочный чертеж;ТЧ=Теоретический чертеж;" + _
-      "МЭ=Электромонтажный чертеж;ПЭ=Перечень элементов;ПЗ=Пояснительная записка;ТБ=Таблица;РР=Расчет;И=Инструкция;ТУ=Технические условия;" + _
-      "ПМ=Программа и методика испытаний;ВС=Ведомость спецификаций;ВД=Ведомость ссылочных документов;ВП=Ведомость покупных изделий;" + _
-      "ВИ=Ведомость разрешения применения покупных изделий;ДП=Ведомость держателей подлинников;ПТ=Ведомость технического предложения;" + _
-      "ЭП=Ведомость эскизного проекта;ТП=Ведомость технического проекта;ВДЭ=Ведомость электронных документов" + vbNewLine + vbNewLine + _
+      Join(DrawingCodes, Separator) + vbNewLine + vbNewLine + _
       HeaderInFile(pNote) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
       HeaderInFile(pChecking) + vbNewLine + "Юриков" + vbNewLine + vbNewLine + _
       HeaderInFile(pDesigner) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
@@ -777,20 +791,20 @@ Function IndexInArray(valueToFind As Variant, arr As Variant) As Integer
     
 End Function
 
-Sub SaveAsMy(newname As String, oldname As String)
+Sub SaveAsMy(NewName As String, OldName As String)
 
   Dim error As Long, warning As Long
 
-  If gFSO.FileExists(newname) Then
+  If gFSO.FileExists(NewName) Then
     If MsgBox("Файл с таким именем существует. Заменить?", vbOKCancel) = vbCancel Then
       Exit Sub
     End If
   End If
-  If gDoc.Extension.SaveAs(newname, swSaveAsCurrentVersion, _
+  If gDoc.Extension.SaveAs(NewName, swSaveAsCurrentVersion, _
                            swSaveAsOptions_AvoidRebuildOnSave, _
                            Nothing, error, warning) Then
-      If oldname <> "" Then
-        Kill (oldname)
+      If OldName <> "" Then
+        Kill (OldName)
       End If
   Else
     MsgBox ("Не удалось сохранить файл")
@@ -798,21 +812,21 @@ Sub SaveAsMy(newname As String, oldname As String)
     
 End Sub
 
-Sub TryRenameDraft(sname As String)
+Sub TryRenameDraft(sName As String)
 
-  Dim newname As String, oldname As String
+  Dim NewName As String, OldName As String
 
-  If sname = "" Then
+  If sName = "" Then
     Exit Sub
   End If
-  oldname = gDoc.GetPathName
-  If oldname = "" Then
-    newname = gFSO.GetParentFolderName(gModel.GetPathName) + "\" + sname + ".SLDDRW"
-    SaveAsMy newname, oldname
+  OldName = gDoc.GetPathName
+  If OldName = "" Then
+    NewName = gFSO.BuildPath(gFSO.GetParentFolderName(gModel.GetPathName), sName + ".SLDDRW")
+    SaveAsMy NewName, OldName
   Else
-    newname = gFSO.GetParentFolderName(oldname) + "\" + sname + ".SLDDRW"
-    If oldname <> newname Then
-      SaveAsMy newname, oldname
+    NewName = gFSO.BuildPath(gFSO.GetParentFolderName(OldName), sName + ".SLDDRW")
+    If OldName <> NewName Then
+      SaveAsMy NewName, OldName
     End If
   End If
     
@@ -917,7 +931,7 @@ Sub RewriteNameAndSign(source As String, Conf As String)
     IsCodeFound = False
     I = 0
     While (I < MainForm.MiniSignBox.ListCount) And (Not IsCodeFound)
-      IsCodeFound = (StrComp(MainForm.MiniSignBox.list(I), Code, vbTextCompare) = 0)
+      IsCodeFound = (StrComp(MainForm.MiniSignBox.List(I), Code, vbTextCompare) = 0)
       If IsCodeFound Then
         MainForm.MiniSignBox.ListIndex = I
       End If
@@ -1041,6 +1055,7 @@ Sub ReloadForm(Conf As String)
 
   If gIsDrawing Then
     SetBoxValue2 Nothing, pShortDrawingType, commonSpace
+    SetBoxValue2 Nothing, pLongDrawingType, commonSpace
     SetBoxValue2 Nothing, pOrganization, commonSpace
     SetBoxValue2 Nothing, pDrafter, commonSpace
     SetBoxValue2 Nothing, pChecking, commonSpace
@@ -1074,12 +1089,14 @@ Function ExistsInCombo(Box As ComboBox, value As String)
   Dim I As Variant
 
   ExistsInCombo = False
-  For Each I In Box.list
-    If I = value Then
-      ExistsInCombo = True
-      Exit For
-    End If
-  Next
+  If Box.ListCount > 0 Then
+    For Each I In Box.List
+      If I = value Then
+        ExistsInCombo = True
+        Exit For
+      End If
+    Next
+  End If
     
 End Function
 
@@ -1106,7 +1123,7 @@ Sub FromAllChecked(Chk As CheckBox, Box As Object, prop As String, Conf As Strin
   If SetFirstItem And value = "" And TypeOf Box Is ComboBox Then
     Set cmb = Box
     If cmb.ListCount > 0 Then
-      value = cmb.list(0)
+      value = cmb.List(0)
     End If
   End If
   
@@ -1205,6 +1222,7 @@ Sub ReadForm(Conf As String)
   
   If gIsDrawing Then
     ReadBox MainForm.MiniSignBox, Nothing, commonSpace, pShortDrawingType, True
+    ReadBox MainForm.CodeBox, Nothing, commonSpace, pLongDrawingType, True
     ReadBox MainForm.OrgBox, Nothing, commonSpace, pOrganization, True
     ReadBox MainForm.DraftBox, Nothing, commonSpace, pDrafter, True
     ReadBox MainForm.CheckingBox, Nothing, commonSpace, pChecking, True
@@ -1255,6 +1273,8 @@ Sub ChangeChecked(prop As String)
       FromAllChecked Nothing, MainForm.CheckingBox, pChecking, gCurConf, True, True
     Case pShortDrawingType
       FromAllChecked Nothing, MainForm.MiniSignBox, pShortDrawingType, gCurConf, True, False
+    Case pLongDrawingType
+      FromAllChecked Nothing, MainForm.CodeBox, pLongDrawingType, gCurConf, True, False
     Case pLen
       FromAllChecked MainForm.lenChk, MainForm.lenBox, pLen, gCurConf, MainForm.lenChk.value, False
     Case pWid
@@ -1328,7 +1348,7 @@ End Function
 Sub ChangeMassEqual(Conf As String)
 
   If Not gIsUnnamed Then
-    MainForm.MassBox.list(0) = Equal("SW-Mass", gItems(Conf)(pMass).fromAll, Conf, gNameModel)
+    MainForm.MassBox.List(0) = Equal("SW-Mass", gItems(Conf)(pMass).fromAll, Conf, gNameModel)
   End If
     
 End Sub
@@ -1336,7 +1356,7 @@ End Sub
 Sub ChangeSizeEqual(Conf As String)
 
   If Not gIsUnnamed And Not gIsAssembly Then
-    MainForm.SizeBox.list(0) = GetEquationThickness(Conf, gItems(Conf)(pSize).fromAll, gNameModel)
+    MainForm.SizeBox.List(0) = GetEquationThickness(Conf, gItems(Conf)(pSize).fromAll, gNameModel)
   End If
   
 End Sub
@@ -1364,7 +1384,7 @@ End Sub
 
 Function SetSpeedformat() 'hide
 
-  If MainForm.RealFormatBox.text <> MainForm.RealFormatBox.list(0) Then
+  If MainForm.RealFormatBox.text <> MainForm.RealFormatBox.List(0) Then
     ReloadSheet MainForm.RealFormatBox.text
   End If
     
@@ -1388,8 +1408,8 @@ End Function
 
 Function CreateCodeRegexPattern() As String
   
-  If userDrawingTypes.count > 0 Then
-    CreateCodeRegexPattern = Join(userDrawingTypes.Keys, "|")
+  If UserDrawingTypes.Count > 0 Then
+    CreateCodeRegexPattern = Join(UserDrawingTypes.Keys, "|")
   Else
     CreateCodeRegexPattern = "СБ|МЧ|УЧ|РСБ"
   End If
@@ -1406,28 +1426,28 @@ End Function
 Function InitRealFormatBox() 'mask for button
 
   Dim filename As String
-  Dim names() As String
+  Dim Names() As String
   Dim I As Long
   
   MainForm.RealFormatBox.AddItem ("<данная>")
-  MainForm.RealFormatBox.text = MainForm.RealFormatBox.list(0)
+  MainForm.RealFormatBox.text = MainForm.RealFormatBox.List(0)
   I = -1
   filename = Dir(gConfigPath & "*.SLDDRT")
   While filename <> ""
     I = I + 1
-    ReDim Preserve names(0 To I)
-    names(I) = gFSO.GetBaseName(filename)
+    ReDim Preserve Names(0 To I)
+    Names(I) = gFSO.GetBaseName(filename)
     filename = Dir()
   Wend
-  names = SortSpeedFormats(names)
+  Names = SortSpeedFormats(Names)
   While I >= 0
-    MainForm.RealFormatBox.AddItem names(I)
+    MainForm.RealFormatBox.AddItem Names(I)
     I = I - 1
   Wend
     
 End Function
 
-Function SortSpeedFormats(names() As String) As String()
+Function SortSpeedFormats(Names() As String) As String()
 
   Dim majorNames() As String
   Dim minorNames() As String
@@ -1439,8 +1459,8 @@ Function SortSpeedFormats(names() As String) As String()
   
   n = -1
   j = -1
-  If Not IsArrayEmpty(names) Then
-    For Each name_ In names
+  If Not IsArrayEmpty(Names) Then
+    For Each name_ In Names
       Name = name_
       If Name Like "[aAаА]# *" Or Name Like "[aAаА]#" Then
         j = j + 1
@@ -1453,13 +1473,13 @@ Function SortSpeedFormats(names() As String) As String()
       End If
     Next
     For I = 0 To n
-      names(LBound(names) + I) = minorNames(I)
+      Names(LBound(Names) + I) = minorNames(I)
     Next
     For I = j To 0 Step -1
-      names(UBound(names) - j + I) = majorNames(I)
+      Names(UBound(Names) - j + I) = majorNames(I)
     Next
   End If
-  SortSpeedFormats = names
+  SortSpeedFormats = Names
     
 End Function
 
@@ -1544,7 +1564,7 @@ Function WriteDrawingProperties() 'hide
   SetProp gDrawManager, pApprover, userApprover(0)
   SetProp gDrawManager, pNormControl, userNormControl(0)
   SetProp gDrawManager, pTechControl, userTechControl(0)
-  SetProp gDrawManager, pLongDrawingType, userDrawingTypes(MainForm.MiniSignBox.text)
+  SetProp gDrawManager, pLongDrawingType, MainForm.CodeBox.text
   SetProp gDrawManager, pBaseDesignation, gBaseDesignation
     
 End Function
@@ -1552,7 +1572,7 @@ End Function
 Sub SetValueInBox(Box As ComboBox, Index As Integer)
 
   If 0 <= Index And Index < Box.ListCount Then
-    Box.text = Box.list(Index)
+    Box.text = Box.List(Index)
   End If
     
 End Sub

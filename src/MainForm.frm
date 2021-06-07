@@ -15,10 +15,32 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Private Sub CodeBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+
+  ExitByKey KeyCode, Shift
+
+End Sub
+
 Private Sub lenLab_Click()
 
   Me.lenBox.text = ""
     
+End Sub
+
+Private Sub MiniSignBox_Change()
+
+  Dim Key As String
+  Dim I As Variant
+  
+  CodeBox.Clear
+  Key = Me.MiniSignBox.text
+  If UserDrawingTypes.Exists(Key) Then
+    For Each I In UserDrawingTypes(Key)
+      CodeBox.AddItem I
+    Next
+    CodeBox.text = CodeBox.List(0)
+  End If
+
 End Sub
 
 Private Sub widLab_Click()

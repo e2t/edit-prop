@@ -994,7 +994,7 @@ Sub ReadProp(manager As CustomPropertyManager, Conf As String, props() As String
 
   Dim I As Variant
   Dim prop As String
-  Dim item As DataItem
+  Dim Item As DataItem
   Dim raw As String
   Dim val As String
   
@@ -1009,23 +1009,23 @@ Sub ReadProp(manager As CustomPropertyManager, Conf As String, props() As String
       gItems(Conf).Add prop, New DataItem
     End If
     
-    Set item = gItems(Conf)(prop)
+    Set Item = gItems(Conf)(prop)
     raw = ""
     val = ""
     manager.Get4 prop, False, raw, val
-    item.rawValue = raw
-    item.value = val
+    Item.rawValue = raw
+    Item.value = val
     
     If Conf <> commonSpace Then
-      item.fromAll = (item.rawValue = "") And (gItems(commonSpace)(prop).rawValue <> "")
+      Item.fromAll = (Item.rawValue = "") And (gItems(commonSpace)(prop).rawValue <> "")
     Else
-      item.fromAll = True
+      Item.fromAll = True
     End If
     
     If prop = pMaterial Then
-      item.newValue = item.value
+      Item.newValue = Item.value
     Else
-      item.newValue = item.rawValue
+      Item.newValue = Item.rawValue
     End If
   Next
     
@@ -1033,13 +1033,13 @@ End Sub
 
 Sub SetBoxValue2(Chk As CheckBox, prop As String, Conf As String)
 
-  Dim item As DataItem
+  Dim Item As DataItem
   
-  Set item = gItems(Conf)(prop)
+  Set Item = gItems(Conf)(prop)
 
   If Not Chk Is Nothing Then
-    If Chk.value <> item.fromAll Then
-      Chk.value = item.fromAll
+    If Chk.value <> Item.fromAll Then
+      Chk.value = Item.fromAll
     Else
       ChangeChecked prop
     End If
@@ -1407,12 +1407,20 @@ Function OutputTypeAndName() 'hide
 End Function
 
 Function CreateCodeRegexPattern() As String
+
+  Dim I As Integer
+  Dim Codes() As String
   
   If UserDrawingTypes.Count > 0 Then
-    CreateCodeRegexPattern = Join(UserDrawingTypes.Keys, "|")
+    ReDim Codes(UserDrawingTypes.Count - 1)
+    For I = 0 To UserDrawingTypes.Count - 1
+      Codes(I) = Replace(UserDrawingTypes.Keys(I), ".", "\.")
+    Next
+    CreateCodeRegexPattern = Join(Codes, "|")
   Else
     CreateCodeRegexPattern = "СБ|МЧ|УЧ|РСБ"
   End If
+  'Debug.Print CreateCodeRegexPattern
   
 End Function
 
@@ -1483,20 +1491,20 @@ Function SortSpeedFormats(Names() As String) As String()
     
 End Function
 
-Sub SetModelProp(Conf As String, prop As String, item As DataItem)
+Sub SetModelProp(Conf As String, prop As String, Item As DataItem)
 
   Dim ConfManager As CustomPropertyManager
   
   Set ConfManager = gModelExt.CustomPropertyManager(Conf)
-  If Conf <> commonSpace And item.fromAll Then
+  If Conf <> commonSpace And Item.fromAll Then
     ConfManager.Delete (prop)
   Else
-    SetProp2 ConfManager, prop, item, Conf
+    SetProp2 ConfManager, prop, Item, Conf
   End If
     
 End Sub
 
-Function SetProp2(manager As CustomPropertyManager, prop As String, item As DataItem, _
+Function SetProp2(manager As CustomPropertyManager, prop As String, Item As DataItem, _
                   Optional Conf As String = commonSpace) As Boolean
                   
   Dim Result As Boolean
@@ -1510,7 +1518,7 @@ Function SetProp2(manager As CustomPropertyManager, prop As String, item As Data
     '  gModelManager.Delete2 pMaterial
     'End If
   Else
-    Result = SetProp(manager, prop, item.newValue)
+    Result = SetProp(manager, prop, Item.newValue)
   End If
   SetProp2 = Result
     
@@ -1522,28 +1530,28 @@ Function WriteModelProperties() 'hide
   Dim j As Variant
   Dim Conf As String
   Dim prop As String
-  Dim item As DataItem
+  Dim Item As DataItem
   
   For Each I In gItems.Keys
     Conf = I
     For Each j In modelProps
       prop = j
-      Set item = gItems(Conf)(prop)
+      Set Item = gItems(Conf)(prop)
       
       Select Case prop
         Case pBlank, pSize, pLen, pWid
           If Not gIsAssembly Then
-            SetModelProp Conf, prop, item
+            SetModelProp Conf, prop, Item
           End If
         Case pMaterial
           If Not gIsAssembly Then
             If Not gIsUnnamed Then
-              SetModelProp Conf, prop, item
+              SetModelProp Conf, prop, Item
             End If
             SetMaterial Conf
           End If
         Case Else
-          SetModelProp Conf, prop, item
+          SetModelProp Conf, prop, Item
       End Select
       
     Next
@@ -1551,20 +1559,23 @@ Function WriteModelProperties() 'hide
     
 End Function
 
+'TODO: убрать чертежные свойства из gItems, читать их прямо из формы
 Function WriteDrawingProperties() 'hide
 
   Dim toAll As Boolean: toAll = True
-  Dim item As Dictionary: Set item = gItems(commonSpace)
+  Dim Item As Dictionary: Set Item = gItems(commonSpace)
+  Dim DrawingCode As String
 
+  DrawingCode = MainForm.MiniSignBox.text
   'см. массив drawProps
-  SetProp2 gDrawManager, pShortDrawingType, item(pShortDrawingType)
-  SetProp2 gDrawManager, pOrganization, item(pOrganization)
-  SetProp2 gDrawManager, pDrafter, item(pDrafter)
-  SetProp2 gDrawManager, pChecking, item(pChecking)  'before: userChecking(0)
+  SetProp gDrawManager, pShortDrawingType, DrawingCode
+  SetProp2 gDrawManager, pOrganization, Item(pOrganization)
+  SetProp2 gDrawManager, pDrafter, Item(pDrafter)
+  SetProp2 gDrawManager, pChecking, Item(pChecking)  'before: userChecking(0)
   SetProp gDrawManager, pApprover, userApprover(0)
   SetProp gDrawManager, pNormControl, userNormControl(0)
   SetProp gDrawManager, pTechControl, userTechControl(0)
-  SetProp gDrawManager, pLongDrawingType, MainForm.CodeBox.text
+  SetProp gDrawManager, pLongDrawingType, IIf(DrawingCode = "", "", MainForm.CodeBox.text)
   SetProp gDrawManager, pBaseDesignation, gBaseDesignation
     
 End Function
@@ -1591,3 +1602,14 @@ Sub SetShiftStatus(Shift As Integer)
   isShiftPressed = Shift And 1
   
 End Sub
+
+Function SetPartCaptionIfEmptyDrawingCode() As Boolean
+
+  SetPartCaptionIfEmptyDrawingCode = (MainForm.MiniSignBox.text = "")
+  If SetPartCaptionIfEmptyDrawingCode Then
+    MainForm.CodeBox.AddItem "Деталь"
+    MainForm.CodeBox.text = MainForm.CodeBox.List(0)
+    MainForm.CodeBox.Enabled = False
+  End If
+
+End Function

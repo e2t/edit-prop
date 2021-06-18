@@ -32,13 +32,19 @@ Private Sub MiniSignBox_Change()
   Dim Key As String
   Dim I As Variant
   
-  CodeBox.Clear
-  Key = Me.MiniSignBox.text
-  If UserDrawingTypes.Exists(Key) Then
-    For Each I In UserDrawingTypes(Key)
-      CodeBox.AddItem I
-    Next
-    CodeBox.text = CodeBox.List(0)
+  Me.CodeBox.Enabled = True
+  Me.CodeBox.Clear
+  
+  If Not SetPartCaptionIfEmptyDrawingCode Then
+    Key = Me.MiniSignBox.text
+    If UserDrawingTypes.Exists(Key) Then
+      For Each I In UserDrawingTypes(Key)
+        Me.CodeBox.AddItem I
+      Next
+    End If
+    If Me.CodeBox.ListCount > 0 Then
+      Me.CodeBox.text = Me.CodeBox.List(0)
+    End If
   End If
 
 End Sub
@@ -345,6 +351,7 @@ Private Sub UserForm_Initialize()
   ReadProp gModelManager, commonSpace, modelProps
   If gIsDrawing Then
     ReadProp gDrawManager, commonSpace, drawProps
+    SetPartCaptionIfEmptyDrawingCode
   End If
   If Not gIsAssembly Then
     Me.IsFastenerChk.value = GetIsFastener

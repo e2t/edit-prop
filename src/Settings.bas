@@ -1,33 +1,29 @@
 Attribute VB_Name = "Settings"
 Option Explicit
 
-Sub SaveSetting2(ByRef Key As String, ByRef value As String)
+Sub SaveSetting2(ByRef Key As String, ByRef Value As String)
 
-  SaveSetting macroName, macroSection, Key, value
+  SaveSetting MacroName, MacroSection, Key, Value
     
 End Sub
 
+Sub SaveIntSetting(ByRef Key As String, Value As Integer)
 
-Sub SaveIntSetting(ByRef Key As String, value As Integer)
-
-  SaveSetting2 Key, str(value)
+  SaveSetting2 Key, Str(Value)
   
 End Sub
 
+Sub SaveBoolSetting(ByRef Key As String, Value As Boolean)
 
-Sub SaveBoolSetting(ByRef Key As String, value As Boolean)
-
-  SaveSetting2 Key, BoolToStr(value)
+  SaveSetting2 Key, BoolToStr(Value)
   
 End Sub
-
 
 Function GetSetting2(ByRef Key As String) As String
 
-  GetSetting2 = GetSetting(macroName, macroSection, Key, "0")
+  GetSetting2 = GetSetting(MacroName, MacroSection, Key, "0")
   
 End Function
-
 
 Function GetBoolSetting(ByRef Key As String) As Boolean
 
@@ -35,38 +31,34 @@ Function GetBoolSetting(ByRef Key As String) As Boolean
   
 End Function
 
-
 Function GetIntSetting(ByRef Key As String) As Integer
 
   GetIntSetting = StrToInt(GetSetting2(Key))
   
 End Function
 
+Function StrToInt(ByRef Value As String) As Integer
 
-Function StrToInt(ByRef value As String) As Integer
-
-  If IsNumeric(value) Then
-    StrToInt = CInt(value)
+  If IsNumeric(Value) Then
+    StrToInt = CInt(Value)
   Else
     StrToInt = 0
   End If
   
 End Function
 
+Function StrToBool(ByRef Value As String) As Boolean
 
-Function StrToBool(ByRef value As String) As Boolean
-
-  If IsNumeric(value) Then
-    StrToBool = CInt(value)
+  If IsNumeric(Value) Then
+    StrToBool = CInt(Value)
   Else
     StrToBool = False
   End If
   
 End Function
 
+Function BoolToStr(Value As Boolean) As String
 
-Function BoolToStr(value As Boolean) As String
-
-  BoolToStr = str(CInt(value))
+  BoolToStr = Str(CInt(Value))
     
 End Function

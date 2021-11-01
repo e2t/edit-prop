@@ -13,6 +13,9 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
+
 Option Explicit
 
 Private Sub CodeBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
@@ -23,7 +26,7 @@ End Sub
 
 Private Sub lenLab_Click()
 
-  Me.lenBox.text = ""
+  Me.lenBox.Text = ""
     
 End Sub
 
@@ -36,22 +39,28 @@ Private Sub MiniSignBox_Change()
   Me.CodeBox.Clear
   
   If Not SetPartCaptionIfEmptyDrawingCode Then
-    Key = Me.MiniSignBox.text
+    Key = Me.MiniSignBox.Text
     If UserDrawingTypes.Exists(Key) Then
       For Each I In UserDrawingTypes(Key)
         Me.CodeBox.AddItem I
       Next
     End If
     If Me.CodeBox.ListCount > 0 Then
-      Me.CodeBox.text = Me.CodeBox.List(0)
+      Me.CodeBox.Text = Me.CodeBox.List(0)
     End If
   End If
 
 End Sub
 
+Private Sub RealFormatLab_Click()
+
+  SetValueInBox Me.RealFormatBox, 1
+
+End Sub
+
 Private Sub widLab_Click()
 
-  Me.widBox.text = ""
+  Me.widBox.Text = ""
     
 End Sub
 
@@ -161,7 +170,7 @@ End Sub
 Private Sub NameLab_Click()
 
   If gIsDrawing Then
-    DrawNameBox.value = DrawNameBox.value & " " & NameBox.value
+    DrawNameBox.Value = DrawNameBox.Value & " " & NameBox.Value
   End If
     
 End Sub
@@ -250,6 +259,13 @@ Private Sub RealFormatBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal 
   
 End Sub
 
+Private Sub PaperSizeBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+  
+  ExitByKey KeyCode, Shift
+  
+End Sub
+
+
 Private Sub lenBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
   
   ExitByKey KeyCode, Shift
@@ -330,14 +346,14 @@ End Sub
 
 Private Sub ModelNameLab_Click()
 
-  RewriteNameAndSign ModelNameBox.text, ConfBox.text
+  RewriteNameAndSign ModelNameBox.Text, ConfBox.Text
   
 End Sub
 
 Private Sub DrawNameLab_Click()
 
   If gIsDrawing Then
-    RewriteNameAndSign DrawNameBox.text, ConfBox.text
+    RewriteNameAndSign DrawNameBox.Text, ConfBox.Text
   End If
     
 End Sub
@@ -345,36 +361,37 @@ End Sub
 Private Sub UserForm_Initialize()
 
   Set gItems = New Dictionary
-  isShiftPressed = False
-  readOldAfterChecked = True
+  IsShiftPressed = False
+  ReadOldAfterChecked = True
   InitWidgets
-  ReadProp gModelManager, commonSpace, modelProps
+  ReadProp gModelManager, CommonSpace, ModelProps
   If gIsDrawing Then
-    ReadProp gDrawManager, commonSpace, drawProps
+    ReadProp gDrawManager, CommonSpace, DrawProps
     SetPartCaptionIfEmptyDrawingCode
+    InitPaperSizeBox
   End If
   If Not gIsAssembly Then
-    Me.IsFastenerChk.value = GetIsFastener
+    Me.IsFastenerChk.Value = GetIsFastener
   End If
-  Me.ConfBox.text = gCurConf
+  Me.ConfBox.Text = gCurConf
     
 End Sub
 
 Private Sub ConfBox_Change()
 
-  Dim part As PartDoc
+  Dim Part As PartDoc
   
-  If ConfBox.text = "" Then Exit Sub
+  If ConfBox.Text = "" Then Exit Sub
       
   If gItems.Exists(gCurConf) Then 'запись старой конфигурации
     ReadForm gCurConf
   End If
 
-  gCurConf = ConfBox.text  'до этого в gCurConf записана старая конфигурация
+  gCurConf = ConfBox.Text  'до этого в gCurConf записана старая конфигурация
   
   If Not gItems.Exists(gCurConf) Then
     gModel.ShowConfiguration2 gCurConf 'ускоряет чтение свойств
-    ReadProp gModelExt.CustomPropertyManager(gCurConf), gCurConf, modelProps
+    ReadProp gModelExt.CustomPropertyManager(gCurConf), gCurConf, ModelProps
   End If
   ReloadForm gCurConf
     
@@ -455,10 +472,10 @@ End Sub
 
 Private Sub CloseBut_Click()
 
-  Dim options As swSaveAsOptions_e, errors As swFileSaveError_e, warnings As swFileSaveWarning_e
+  Dim Options As swSaveAsOptions_e, Errors As swFileSaveError_e, Warnings As swFileSaveWarning_e
   
-  If isShiftPressed Then
-    gDoc.Save3 options, errors, warnings  ' отсутствует проверка сохранения
+  If IsShiftPressed Then
+    gDoc.Save3 Options, Errors, Warnings  ' отсутствует проверка сохранения
     gApp.CloseDoc (gDoc.GetPathName)
   End If
   ExitApp
@@ -468,7 +485,7 @@ End Sub
 Private Sub ApplyBut_Click()
 
   Execute
-  If isShiftPressed Then
+  If IsShiftPressed Then
     ExitApp
   End If
     

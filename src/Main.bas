@@ -1,101 +1,103 @@
 Attribute VB_Name = "Main"
 Option Explicit
 
-Public Const macroName As String = "EditProp"
-Public Const macroSection As String = "Main"
+Public Const MacroName = "EditProp"
+Public Const MacroSection = "Main"
 
 'Свойства модели, записаны в массиве modelProps
-Public Const pDesignation As String = "Обозначение"
-Public Const pMaterial As String = "Материал"
-Public Const pName As String = "Наименование"
-Public Const pNameEN As String = "Наименование EN"
-Public Const pNamePL As String = "Наименование PL"
-Public Const pNameUA As String = "Наименование UA"
-Public Const pBlank As String = "Заготовка"
-Public Const pSize As String = "Типоразмер"
-Public Const pNote As String = "Примечание"
-Public Const pDesigner As String = "Разработал"
-Public Const pFormat As String = "Формат"
-Public Const pMass As String = "Масса"
-Public Const pLen As String = "Длина"
-Public Const pWid As String = "Ширина"
+Public Const pDesignation = "Обозначение"
+Public Const pMaterial = "Материал"
+Public Const pName = "Наименование"
+Public Const pNameEN = "Наименование EN"
+Public Const pNamePL = "Наименование PL"
+Public Const pNameUA = "Наименование UA"
+Public Const pBlank = "Заготовка"
+Public Const pSize = "Типоразмер"
+Public Const pNote = "Примечание"
+Public Const pDesigner = "Разработал"
+Public Const pFormat = "Формат"
+Public Const pMass = "Масса"
+Public Const pLen = "Длина"
+Public Const pWid = "Ширина"
 'Специальное свойство для получения материала
-Public Const pTrueMaterial As String = "SW-Material"
+Public Const pTrueMaterial = "SW-Material"
 'Специальное свойство деталей
-Public Const pIsFastener As String = "IsFastener"
+Public Const pIsFastener = "IsFastener"
 Public Const IsFastenerTrue = "1"
 'Свойства чертежа, записаны в массиве drawProps
-Public Const pDrafter As String = "Начертил"
-Public Const pShortDrawingType As String = "Пометка"
-Public Const pLongDrawingType As String = "Тип документа"
-Public Const pOrganization As String = "Организация"
-Public Const pChecking As String = "Проверил"
-Public Const pApprover As String = "Утвердил"
-Public Const pTechControl As String = "Техконтроль"
-Public Const pNormControl As String = "Нормоконтроль"
-Public Const pBaseDesignation As String = "Базовое обозначение"
-
-Public Const materialdb As String = "Материалы"
-Public Const commonSpace As String = ""
-Public Const Separator As String = ";"
-Public Const Separator2 As String = "="
-Public Const Separator3 As String = ","
-Public Const SettingsFile As String = "Настройки.txt"
-Public Const ppExclude As String = "Исключить"
+Public Const pDrafter = "Начертил"
+Public Const pShortDrawingType = "Пометка"
+Public Const pLongDrawingType = "Тип документа"
+Public Const pOrganization = "Организация"
+Public Const pChecking = "Проверил"
+Public Const pApprover = "Утвердил"
+Public Const pTechControl = "Техконтроль"
+Public Const pNormControl = "Нормоконтроль"
+Public Const pBaseDesignation = "Базовое обозначение"
+Public Const pPaperSize = "Формат бумаги"
+Public Const MaterialDB = "Материалы"
+Public Const CommonSpace = ""
+Public Const Separator = ";"
+Public Const Separator2 = "="
+Public Const Separator3 = ","
+Public Const SettingsFile = "Настройки.txt"
 Public Const sEmpty = " "
+Public Const CurrentChoice = "[текущ.]"
 
 Enum ErrorCode
-  ok = 0
-  emptyView = 1
-  emptySheet = 2
+  Ok = 0
+  EmptyView = 1
+  EmptySheet = 2
 End Enum
 
 Public gApp As Object
-Public gDoc As ModelDoc2
-Public gConfigPath As String
-Public gModel As ModelDoc2
-Public gModelConfNames() As String
-Public gDrawing As DrawingDoc
-Public gModelExt As ModelDocExtension
-Public gDrawExt As ModelDocExtension
-Public gSheet As Sheet
-Public gCurConf As String 'выбранная в списке конфигурация
-Public gMainConf As String 'основная конфигурация на чертеже
-Public gBaseDesignation As String
-Public gChangeNumber As Long
-Public gIsAssembly As Boolean
-Public gIsUnnamed As Boolean
-Public gIsDrawing As Boolean
-Public gNameModel As String
-Public gModelManager As CustomPropertyManager
-Public gDrawManager As CustomPropertyManager
 Public gFSO As FileSystemObject
 
-Public userName() As String
+Public gDoc As ModelDoc2
+Public gModel As ModelDoc2
+Public gModelExt As ModelDocExtension
+Public gCurConf As String 'выбранная в списке конфигурация
+Public gIsAssembly As Boolean
+Public gIsDrawing As Boolean
+Public gModelManager As CustomPropertyManager
+Public gDrawManager As CustomPropertyManager
 Public UserDrawingTypes As Dictionary
-Public userBlank() As String
-Public userSize() As String
-Public userFormat() As String
-Public userNote() As String
-Public userMass() As String
-Public userOrganization() As String
-Public userDesigner() As String
-Public userDrafter() As String
-Public userChecking() As String
-Public userApprover() As String
-Public userTechControl() As String
-Public userNormControl() As String
-Public userLen() As String
-Public userWid() As String
-Public userMaterials() As String
-Public userPreExclude() As String
-Public modelProps(13) As String
-Public drawProps(8) As String
-
+Public ModelProps(13) As String
+Public DrawProps(8) As String
+Public PaperSizes As Dictionary
 Public gItems As Dictionary
-Public readOldAfterChecked As Boolean
-Public isShiftPressed As Boolean
+Public ReadOldAfterChecked As Boolean
+Public IsShiftPressed As Boolean
 
+Dim gConfigPath As String
+Dim gDrawExt As ModelDocExtension
+Dim gSheet As Sheet
+Dim gModelConfNames() As String
+Dim gDrawing As DrawingDoc
+Dim gSheetScale1 As Double
+Dim gSheetScale2 As Double
+Dim gIsFirstAngle As Double
+Dim gMainConf As String 'основная конфигурация на чертеже
+Dim gBaseDesignation As String
+Dim gChangeNumber As Long
+Dim gIsUnnamed As Boolean
+Dim gNameModel As String
+Dim UserName() As String
+Dim UserBlank() As String
+Dim UserSize() As String
+Dim UserFormat() As String
+Dim UserNote() As String
+Dim UserMass() As String
+Dim UserOrganization() As String
+Dim UserDesigner() As String
+Dim UserDrafter() As String
+Dim UserChecking() As String
+Dim UserApprover() As String
+Dim UserTechControl() As String
+Dim UserNormControl() As String
+Dim UserLen() As String
+Dim UserWid() As String
+Dim UserMaterials() As String
 Dim gCodeRegexPattern As String
 Dim gRegexMaterial As RegExp
 
@@ -116,152 +118,130 @@ Function Init() As Boolean
   Set gApp = Application.SldWorks
   Set gFSO = New FileSystemObject
   
-  ReDim userName(0)
-  userName(0) = ""
+  ReDim UserName(0)
+  UserName(0) = ""
   
   Set UserDrawingTypes = New Dictionary
   
-  ReDim userBlank(0)
-  userBlank(0) = ""
-  ReDim userSize(0)
-  userSize(0) = ""
-  ReDim userFormat(0)
-  userFormat(0) = ""
-  ReDim userNote(0)
-  userNote(0) = ""
-  ReDim userMass(0)
-  userMass(0) = ""
-  ReDim userOrganization(0)
-  userOrganization(0) = ""
-  ReDim userDesigner(0)
-  userDesigner(0) = ""
-  ReDim userDrafter(0)
-  userDrafter(0) = ""
-  ReDim userChecking(0)
-  userChecking(0) = ""
-  ReDim userApprover(0)
-  userApprover(0) = ""
-  ReDim userTechControl(0)
-  userTechControl(0) = ""
-  ReDim userNormControl(0)
-  userNormControl(0) = ""
-  ReDim userWid(0)
-  userWid(0) = ""
-  ReDim userLen(0)
-  userLen(0) = ""
-  ReDim userMaterials(0)
-  userMaterials(0) = ""
-  ReDim userPreExclude(0)
-  userPreExclude(0) = ""
+  ReDim UserBlank(0)
+  UserBlank(0) = ""
+  ReDim UserSize(0)
+  UserSize(0) = ""
+  ReDim UserFormat(0)
+  UserFormat(0) = ""
+  ReDim UserNote(0)
+  UserNote(0) = ""
+  ReDim UserMass(0)
+  UserMass(0) = ""
+  ReDim UserOrganization(0)
+  UserOrganization(0) = ""
+  ReDim UserDesigner(0)
+  UserDesigner(0) = ""
+  ReDim UserDrafter(0)
+  UserDrafter(0) = ""
+  ReDim UserChecking(0)
+  UserChecking(0) = ""
+  ReDim UserApprover(0)
+  UserApprover(0) = ""
+  ReDim UserTechControl(0)
+  UserTechControl(0) = ""
+  ReDim UserNormControl(0)
+  UserNormControl(0) = ""
+  ReDim UserWid(0)
+  UserWid(0) = ""
+  ReDim UserLen(0)
+  UserLen(0) = ""
+  ReDim UserMaterials(0)
+  UserMaterials(0) = ""
+  ReDim UserPreExclude(0)
+  UserPreExclude(0) = ""
   
-  modelProps(0) = pDesignation
-  modelProps(1) = pMaterial
-  modelProps(2) = pName
-  modelProps(3) = pBlank
-  modelProps(4) = pSize
-  modelProps(5) = pNote
-  modelProps(6) = pDesigner
-  modelProps(7) = pFormat
-  modelProps(8) = pMass
-  modelProps(9) = pLen
-  modelProps(10) = pWid
-  modelProps(11) = pNameEN
-  modelProps(12) = pNamePL
-  modelProps(13) = pNameUA
+  ModelProps(0) = pDesignation
+  ModelProps(1) = pMaterial
+  ModelProps(2) = pName
+  ModelProps(3) = pBlank
+  ModelProps(4) = pSize
+  ModelProps(5) = pNote
+  ModelProps(6) = pDesigner
+  ModelProps(7) = pFormat
+  ModelProps(8) = pMass
+  ModelProps(9) = pLen
+  ModelProps(10) = pWid
+  ModelProps(11) = pNameEN
+  ModelProps(12) = pNamePL
+  ModelProps(13) = pNameUA
   
-  drawProps(0) = pDrafter
-  drawProps(1) = pShortDrawingType
-  drawProps(2) = pLongDrawingType
-  drawProps(3) = pOrganization
-  drawProps(4) = pChecking
-  drawProps(5) = pApprover
-  drawProps(6) = pTechControl
-  drawProps(7) = pNormControl
-  drawProps(8) = pBaseDesignation
+  DrawProps(0) = pDrafter
+  DrawProps(1) = pShortDrawingType
+  DrawProps(2) = pLongDrawingType
+  DrawProps(3) = pOrganization
+  DrawProps(4) = pChecking
+  DrawProps(5) = pApprover
+  DrawProps(6) = pTechControl
+  DrawProps(7) = pNormControl
+  DrawProps(8) = pBaseDesignation
   
-  SetConfigFolder
-  ReadSettings  'only after SetConfigFolder
+  gConfigPath = gApp.GetCurrentMacroPathFolder() + "\config\"
+  ReadSettings  'only after "gConfigPath = ..."
   
   Set gRegexMaterial = New RegExp
   gRegexMaterial.Global = True
   gRegexMaterial.MultiLine = True
   gRegexMaterial.IgnoreCase = True
   gRegexMaterial.Pattern = "material name=""([^""]+)"""
+  
+  Set PaperSizes = New Dictionary
+  AppendPaperSize "A4", "A4", 0.21, 0.297
+  AppendPaperSize "A3 гориз", "A3", 0.42, 0.297
+  AppendPaperSize "A3 верт", "A3", 0.297, 0.42
+  AppendPaperSize "A2 гориз", "A2", 0.594, 0.42
+  AppendPaperSize "A2 верт", "A2", 0.42, 0.594
+  AppendPaperSize "A1 гориз", "A1", 0.841, 0.594
+  AppendPaperSize "A1 верт", "A1", 0.594, 0.841
+  AppendPaperSize "A0 гориз", "A0", 1.189, 0.841
+  AppendPaperSize "A0 верт", "A0", 0.841, 1.189
+  
+  AppendPaperSize "A4x3", "A4x3", 0.63, 0.297
+  AppendPaperSize "A4x4", "A4x4", 0.841, 0.297
+  AppendPaperSize "A4x5", "A4x5", 1.051, 0.297
+  AppendPaperSize "A4x6", "A4x6", 1.261, 0.297
+  
+  AppendPaperSize "A3x3", "A3x3", 0.891, 0.42
+  AppendPaperSize "A3x4", "A3x4", 1.189, 0.42
+  AppendPaperSize "A3x5", "A3x5", 1.486, 0.42
+  AppendPaperSize "A3x6", "A3x6", 1.783, 0.42
+  
+  AppendPaperSize "A2x3", "A2x3", 1.261, 0.594
+  AppendPaperSize "A2x4", "A2x4", 1.682, 0.594
+  AppendPaperSize "A2x5", "A2x5", 2.102, 0.594
+  AppendPaperSize "A2x6", "A2x6", 2.52, 0.594
+  
+  AppendPaperSize "A1x3", "A1x3", 1.783, 0.841
+  AppendPaperSize "A1x4", "A1x4", 2.378, 0.841
+  AppendPaperSize "A1x5", "A1x5", 2.973, 0.841
+  AppendPaperSize "A1x6", "A1x6", 3.568, 0.841
+  
+  AppendPaperSize "A0x3", "A0x3", 2.523, 1.189
+  AppendPaperSize "A0x4", "A0x4", 3.36, 1.189
+  AppendPaperSize "A0x5", "A0x5", 4.2, 1.189
+  AppendPaperSize "A0x6", "A0x6", 5.04, 1.189
     
 End Function
-
-Function SetConfigFolder() As Boolean
-
-  gConfigPath = gApp.GetCurrentMacroPathFolder() + "\config\"
-  
-End Function
-
-Function IsDrawing(doc As ModelDoc2) As Boolean
-
-  IsDrawing = CBool(doc.GetType = swDocumentTypes_e.swDocDRAWING)
-    
-End Function
-
-Function IsPropertyExist(manager As CustomPropertyManager, prop As String) As Boolean
-
-  Dim Names As Variant
-  
-  Names = manager.GetNames()
-  IsPropertyExist = False
-  If Not IsEmpty(Names) Then
-    If IndexInArray(prop, Names) <> -1 Then
-      IsPropertyExist = True
-    End If
-  End If
-  
-End Function
-
-Function SetProp(manager As CustomPropertyManager, prop As String, value As String) As Boolean
-
-  manager.Add2 prop, swCustomInfoText, ""
-  SetProp = Not CBool(manager.Set(prop, Trim(value)))
-  
-End Function
-
-Function IsArrayEmpty(anArray As Variant) As Boolean
-
-  Dim I As Integer
-
-  On Error GoTo ArrayIsEmpty
-  IsArrayEmpty = LBound(anArray) > UBound(anArray)
-  Exit Function
-  
-ArrayIsEmpty:
-  IsArrayEmpty = True
-
-End Function
-
-Sub InitWidgetFrom(widget As Object, values As Variant)
-
-  Dim I As Variant
-  
-  If Not IsArrayEmpty(values) Then
-    For Each I In values
-      widget.AddItem I
-    Next
-  End If
-  
-End Sub
 
 Function InitWidgets() 'hide
 
-  Dim baseMaterials As Dictionary
-  Dim resultMaterials() As String
+  Dim BaseMaterials As Dictionary
+  Dim ResultMaterials() As String
   Dim I As Variant
-  Dim k As Integer
+  Dim K As Integer
 
   OutputTypeAndName
   GetConfNames  'set gModelConfNames
   InitWidgetFrom MainForm.ConfBox, gModelConfNames
-  InitWidgetFrom MainForm.DevelBox, userDesigner
-  InitWidgetFrom MainForm.FormatBox, userFormat
-  InitWidgetFrom MainForm.NameBox, userName
-  InitWidgetFrom MainForm.NoteBox, userNote
+  InitWidgetFrom MainForm.DevelBox, UserDesigner
+  InitWidgetFrom MainForm.FormatBox, UserFormat
+  InitWidgetFrom MainForm.NameBox, UserName
+  InitWidgetFrom MainForm.NoteBox, UserNote
   
   If gIsUnnamed Then
     MainForm.MassLab.Enabled = False
@@ -269,7 +249,7 @@ Function InitWidgets() 'hide
     MainForm.MassChk.Enabled = False
   Else
     MainForm.MassBox.AddItem ("")
-    InitWidgetFrom MainForm.MassBox, userMass
+    InitWidgetFrom MainForm.MassBox, UserMass
   End If
   
   If gIsAssembly Then
@@ -284,9 +264,9 @@ Function InitWidgets() 'hide
     MainForm.widChk.Enabled = False
     MainForm.IsFastenerChk.Enabled = False
   Else
-    InitWidgetFrom MainForm.BlankBox, userBlank
-    InitWidgetFrom MainForm.lenBox, userLen
-    InitWidgetFrom MainForm.widBox, userWid
+    InitWidgetFrom MainForm.BlankBox, UserBlank
+    InitWidgetFrom MainForm.lenBox, UserLen
+    InitWidgetFrom MainForm.widBox, UserWid
   End If
 
   If gIsUnnamed Or gIsAssembly Then
@@ -297,34 +277,34 @@ Function InitWidgets() 'hide
     MainForm.MaterialLab.Enabled = False
   Else
     MainForm.SizeBox.AddItem ("")  ' for Equation
-    InitWidgetFrom MainForm.SizeBox, userSize
-    Set baseMaterials = ReadMaterialNames("Материалы.sldmat")
-    If baseMaterials.Count > 0 Then
-      ReDim resultMaterials(baseMaterials.Count - 1)
-      k = 0
-      For Each I In userMaterials
-        If baseMaterials.Exists(I) Then
-          resultMaterials(k) = I
-          k = k + 1
-          baseMaterials.Remove I
+    InitWidgetFrom MainForm.SizeBox, UserSize
+    Set BaseMaterials = ReadMaterialNames("Материалы.sldmat")
+    If BaseMaterials.Count > 0 Then
+      ReDim ResultMaterials(BaseMaterials.Count - 1)
+      K = 0
+      For Each I In UserMaterials
+        If BaseMaterials.Exists(I) Then
+          ResultMaterials(K) = I
+          K = K + 1
+          BaseMaterials.Remove I
         End If
       Next
       
-      For Each I In baseMaterials.Keys
-        resultMaterials(k) = I
-        k = k + 1
+      For Each I In BaseMaterials.Keys
+        ResultMaterials(K) = I
+        K = K + 1
       Next
     End If
     MainForm.MaterialBox.AddItem sEmpty
-    InitWidgetFrom MainForm.MaterialBox, resultMaterials
+    InitWidgetFrom MainForm.MaterialBox, ResultMaterials
   End If
 
   If gIsDrawing Then
     MainForm.MiniSignBox.AddItem ""
     InitWidgetFrom MainForm.MiniSignBox, UserDrawingTypes.Keys
-    InitWidgetFrom MainForm.OrgBox, userOrganization
-    InitWidgetFrom MainForm.DraftBox, userDrafter
-    InitWidgetFrom MainForm.CheckingBox, userChecking
+    InitWidgetFrom MainForm.OrgBox, UserOrganization
+    InitWidgetFrom MainForm.DraftBox, UserDrafter
+    InitWidgetFrom MainForm.CheckingBox, UserChecking
     InitRealFormatBox '''установка основных надписей
     gCodeRegexPattern = CreateCodeRegexPattern
   Else
@@ -345,64 +325,30 @@ Function InitWidgets() 'hide
     
 End Function
 
-Function Equal(swProp As String, toAll As Boolean, Conf As String, nameModel As String) As String
+Function CheckScaleAndReport() 'hide
 
-  Dim confText As String
+  Debug.Assert gIsDrawing
   
-  confText = ""
-  If Conf <> commonSpace And Not toAll Then
-    confText = "@@" + Conf
-  End If
-  Equal = """" + swProp + confText + "@" + nameModel + """"
-    
+  Dim I As Variant
+  Dim J As Variant
+  Dim AView As View
+  Dim AScale As Variant
+
+  For Each I In gDrawing.GetViews
+    For Each J In I
+      Set AView = J
+      AScale = AView.ScaleRatio
+      If Not CheckIsStandardScale(AScale(0), AScale(1)) Then
+        MainForm.labWarningSelected.Caption = "НЕСТАНДАРТНЫЙ МАСШТАБ """ & AView.Name & """ " & Str(AScale(0)) & ":" & Str(AScale(1))
+        MainForm.labWarningSelected.ForeColor = &HFF&
+        MainForm.labWarningSelected.Visible = True
+        Exit Function
+      End If
+NextI:
+    Next
+  Next
+  
 End Function
-
-Sub ReadHeaderValues(ByRef userStr() As String, ByRef Count As Long, Lines() As String, EndLines As Long)
-
-  If Count < EndLines Then
-    Count = Count + 1
-    If Lines(Count) <> "" Then
-      userStr = Split(Lines(Count), Separator)
-    End If
-  End If
-    
-End Sub
-
-Sub ReadDrawingTypes(ByRef Count As Long, Lines() As String, EndLines As Long)
-
-  Dim X As Variant
-  Dim IndexSeparator As Integer
-  Dim Names() As String
-  Dim ShortName As String
-  Dim LongNames() As String
-  
-  If Count < EndLines Then
-    Count = Count + 1
-    If Lines(Count) <> "" Then
-      For Each X In Split(Lines(Count), Separator)  'String()
-        IndexSeparator = InStr(X, Separator2)  'равен нулю, если разделитель не найден
-        If IndexSeparator > 0 Then
-          Names = Split(X, Separator2)
-          ShortName = Names(0)
-          LongNames = Split(Names(1), Separator3)
-        Else
-          ShortName = X
-          Erase LongNames
-        End If
-        If Not UserDrawingTypes.Exists(ShortName) Then
-          UserDrawingTypes.Add ShortName, LongNames
-        End If
-      Next
-    End If
-  End If
-    
-End Sub
-
-Sub MsgDebug(msg As Variant)
-
-  If MsgBox(msg, vbOKCancel) = vbCancel Then ExitApp
-  
-End Sub
 
 Function ReadSettings() As Boolean
 
@@ -423,41 +369,39 @@ Function ReadSettings() As Boolean
     While I <= EndLines
       Select Case Lines(I)
         Case HeaderInFile(pName)
-          ReadHeaderValues userName, I, Lines, EndLines
+          ReadHeaderValues UserName, I, Lines, EndLines
         Case HeaderInFile(pShortDrawingType)
           ReadDrawingTypes I, Lines, EndLines
         Case HeaderInFile(pSize)
-          ReadHeaderValues userSize, I, Lines, EndLines
+          ReadHeaderValues UserSize, I, Lines, EndLines
         Case HeaderInFile(pBlank)
-          ReadHeaderValues userBlank, I, Lines, EndLines
+          ReadHeaderValues UserBlank, I, Lines, EndLines
         Case HeaderInFile(pDesigner)
-          ReadHeaderValues userDesigner, I, Lines, EndLines
+          ReadHeaderValues UserDesigner, I, Lines, EndLines
         Case HeaderInFile(pDrafter)
-          ReadHeaderValues userDrafter, I, Lines, EndLines
+          ReadHeaderValues UserDrafter, I, Lines, EndLines
         Case HeaderInFile(pFormat)
-          ReadHeaderValues userFormat, I, Lines, EndLines
+          ReadHeaderValues UserFormat, I, Lines, EndLines
         Case HeaderInFile(pOrganization)
-          ReadHeaderValues userOrganization, I, Lines, EndLines
+          ReadHeaderValues UserOrganization, I, Lines, EndLines
         Case HeaderInFile(pMass)
-          ReadHeaderValues userMass, I, Lines, EndLines
+          ReadHeaderValues UserMass, I, Lines, EndLines
         Case HeaderInFile(pNote)
-          ReadHeaderValues userNote, I, Lines, EndLines
+          ReadHeaderValues UserNote, I, Lines, EndLines
         Case HeaderInFile(pChecking)
-          ReadHeaderValues userChecking, I, Lines, EndLines
+          ReadHeaderValues UserChecking, I, Lines, EndLines
         Case HeaderInFile(pApprover)
-          ReadHeaderValues userApprover, I, Lines, EndLines
+          ReadHeaderValues UserApprover, I, Lines, EndLines
         Case HeaderInFile(pTechControl)
-          ReadHeaderValues userTechControl, I, Lines, EndLines
+          ReadHeaderValues UserTechControl, I, Lines, EndLines
         Case HeaderInFile(pNormControl)
-          ReadHeaderValues userNormControl, I, Lines, EndLines
+          ReadHeaderValues UserNormControl, I, Lines, EndLines
         Case HeaderInFile(pLen)
-          ReadHeaderValues userLen, I, Lines, EndLines
+          ReadHeaderValues UserLen, I, Lines, EndLines
         Case HeaderInFile(pWid)
-          ReadHeaderValues userWid, I, Lines, EndLines
+          ReadHeaderValues UserWid, I, Lines, EndLines
         Case HeaderInFile(pMaterial)
-          ReadHeaderValues userMaterials, I, Lines, EndLines
-        Case HeaderInFile(ppExclude)
-          ReadHeaderValues userPreExclude, I, Lines, EndLines
+          ReadHeaderValues UserMaterials, I, Lines, EndLines
       End Select
       I = I + 1
     Wend
@@ -465,18 +409,12 @@ Function ReadSettings() As Boolean
     
 End Function
 
-Function HeaderInFile(prop As String) As String
-
-  HeaderInFile = "[" + prop + "]"
-  
-End Function
-
 Function OpenSettingsFile() As Boolean
 
-  Dim cmd As String
-  Dim filename As String
-  Dim text As String
-  Dim fsT As Object
+  Dim Cmd As String
+  Dim FileName As String
+  Dim Text As String
+  Dim Fst As Object
   Dim DrawingCodes(13) As String
   
   DrawingCodes(0) = ".AD=Сборочный чертеж,Assembly Drawing,Складальний кресленик"
@@ -494,13 +432,13 @@ Function OpenSettingsFile() As Boolean
   DrawingCodes(12) = "ГЧ=Габаритный чертеж,Габаритний кресленик"
   DrawingCodes(13) = "ВО=Чертеж общего вида,Кресленик загального виду"
   
-  filename = gConfigPath + SettingsFile
-  If Not gFSO.FileExists(filename) Then
+  FileName = gConfigPath + SettingsFile
+  If Not gFSO.FileExists(FileName) Then
     If Not gFSO.FolderExists(gConfigPath) Then
       gFSO.CreateFolder gConfigPath
     End If
       
-    text = _
+    Text = _
       HeaderInFile(pBlank) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
       HeaderInFile(pMass) + vbNewLine + "см. табл." + vbNewLine + vbNewLine + _
       HeaderInFile(pName) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
@@ -518,23 +456,22 @@ Function OpenSettingsFile() As Boolean
       HeaderInFile(pFormat) + vbNewLine + "А4;А3;А2;А1;А0;БЧ;*;А4х3;А4х4;А3х3;А3х4" + vbNewLine + vbNewLine + _
       HeaderInFile(pMaterial) + vbNewLine + "AISI 304;Ст.3;EPDM" + vbNewLine + vbNewLine + _
       HeaderInFile(pLen) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
-      HeaderInFile(pWid) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
-      HeaderInFile(ppExclude) + vbNewLine + ";;;" + vbNewLine
+      HeaderInFile(pWid) + vbNewLine + ";;;" + vbNewLine
       
-    Set fsT = CreateObject("ADODB.Stream")
-    fsT.Type = 2  'we want to save text/string data.
-    fsT.Charset = "utf-16le"
-    fsT.Open
-    fsT.WriteText text
-    fsT.SaveToFile filename, 2
+    Set Fst = CreateObject("ADODB.Stream")
+    Fst.Type = 2  'we want to save text/string data.
+    Fst.Charset = "utf-16le"
+    Fst.Open
+    Fst.WriteText Text
+    Fst.SaveToFile FileName, 2
   End If
   
-  cmd = "notepad """ + filename + """"
-  Shell cmd, vbNormalFocus
+  Cmd = "notepad """ + FileName + """"
+  Shell Cmd, vbNormalFocus
     
 End Function
 
-Function SetModelFromActiveDoc() 'mask for button
+Function SetModelFromActiveDoc() 'hide
 
   Set gModel = gDoc
   gCurConf = gModel.GetActiveConfiguration.Name
@@ -543,44 +480,49 @@ End Function
 
 Function EditorRun() As Boolean
 
-  Dim isSelectedComp As Boolean
-  Dim form As MainForm
-  Dim haveErrors As ErrorCode
-  Dim aView As View
-  Dim selected As Component2
+  Dim IsSelectedComp As Boolean
+  Dim Form As MainForm
+  Dim HaveErrors As ErrorCode
+  Dim AView As View
+  Dim Selected As Component2
+  Dim SheetProperties As Variant
   
-  isSelectedComp = False
-  haveErrors = ErrorCode.ok
+  IsSelectedComp = False
+  HaveErrors = ErrorCode.Ok
   gIsDrawing = IsDrawing(gDoc)
   If gIsDrawing Then
     Set gDrawing = gDoc
     Set gSheet = gDrawing.GetCurrentSheet
     If gSheet Is Nothing Or IsEmpty(gSheet.GetViews) Then
-      haveErrors = ErrorCode.emptySheet
+      HaveErrors = ErrorCode.EmptySheet
     Else
-      Set aView = SelectView
-      Set gModel = aView.ReferencedDocument
+      SheetProperties = gSheet.GetProperties
+      gSheetScale1 = SheetProperties(2)
+      gSheetScale2 = SheetProperties(3)
+      gIsFirstAngle = SheetProperties(4)
+      Set AView = SelectView
+      Set gModel = AView.ReferencedDocument
       If gModel Is Nothing Then
-        haveErrors = ErrorCode.emptyView
+        HaveErrors = ErrorCode.EmptyView
       Else
-        gCurConf = aView.ReferencedConfiguration
+        gCurConf = AView.ReferencedConfiguration
       End If
     End If
   Else
     If gDoc.GetType = swDocASSEMBLY Then
-      Set selected = GetSelectedComponent
-      If selected Is Nothing Then
+      Set Selected = GetSelectedComponent
+      If Selected Is Nothing Then
         SetModelFromActiveDoc
       Else
-        Set gModel = selected.GetModelDoc2
-        gCurConf = selected.ReferencedConfiguration
-        isSelectedComp = True
+        Set gModel = Selected.GetModelDoc2
+        gCurConf = Selected.ReferencedConfiguration
+        IsSelectedComp = True
       End If
     Else
       SetModelFromActiveDoc
     End If
   End If
-  If haveErrors = ErrorCode.ok Then
+  If HaveErrors = ErrorCode.Ok Then
     gMainConf = gCurConf
     Set gModelExt = gModel.Extension
     gNameModel = gModel.GetPathName
@@ -592,13 +534,17 @@ Function EditorRun() As Boolean
       Set gDrawManager = gDrawExt.CustomPropertyManager("")
     End If
   End If
-  Select Case haveErrors
-    Case ErrorCode.ok
-      MainForm.labWarningSelected.Visible = isSelectedComp
+  Select Case HaveErrors
+    Case ErrorCode.Ok
+      If gIsDrawing Then
+        CheckScaleAndReport
+      Else
+        MainForm.labWarningSelected.Visible = IsSelectedComp
+      End If
       MainForm.Show
-    Case ErrorCode.emptyView
+    Case ErrorCode.EmptyView
       MsgBox ("Пустой вид. Нет ссылки на модель.")
-    Case ErrorCode.emptySheet
+    Case ErrorCode.EmptySheet
       MsgBox ("Пустой лист. Модель не обнаружена.")
   End Select
   
@@ -610,118 +556,25 @@ Function GetSelectedComponent() As Component2
   
 End Function
 
-Sub SetLineStyle(object_type As swUserPreferenceIntegerValue_e, value As Integer)
+Sub SetLineStyle(Object_type As swUserPreferenceIntegerValue_e, Value As Integer)
 
-  gDrawExt.SetUserPreferenceInteger object_type, swDetailingNoOptionSpecified, value
+  gDrawExt.SetUserPreferenceInteger Object_type, swDetailingNoOptionSpecified, Value
   
 End Sub
 
-Function ChangeLineStyles() 'mask for button
-
-  SetLineStyle swLineFontVisibleEdgesStyle, swLineCONTINUOUS
-  SetLineStyle swLineFontVisibleEdgesThickness, swLW_NORMAL
-  
-  SetLineStyle swLineFontHiddenEdgesStyle, swLineHIDDEN
-  SetLineStyle swLineFontHiddenEdgesThickness, swLW_THIN
-  
-  SetLineStyle swLineFontSketchCurvesStyle, swLineCONTINUOUS
-  SetLineStyle swLineFontSketchCurvesThickness, swLW_THIN
-  
-  SetLineStyle swLineFontConstructionCurvesStyle, swLinePHANTOM
-  SetLineStyle swLineFontConstructionCurvesThickness, swLW_THIN
-  
-  SetLineStyle swLineFontCrosshatchStyle, swLineCONTINUOUS
-  SetLineStyle swLineFontCrosshatchThickness, swLW_THIN
-  
-  SetLineStyle swLineFontTangentEdgesStyle, swLinePHANTOM
-  SetLineStyle swLineFontTangentEdgesThickness, swLW_THIN
-  
-  SetLineStyle swLineFontCosmeticThreadStyle, swLineCONTINUOUS
-  SetLineStyle swLineFontCosmeticThreadThickness, swLW_THIN
-  
-  SetLineStyle swLineFontHideTangentEdgeStyle, swLineHIDDEN
-  SetLineStyle swLineFontHideTangentEdgeThickness, swLW_THIN
-  
-  SetLineStyle swLineFontExplodedLinesStyle, swLineCHAINTHICK
-  SetLineStyle swLineFontExplodedLinesThickness, swLW_THICK
-  
-  SetLineStyle swLineFontBreakLineStyle, swLineCONTINUOUS
-  SetLineStyle swLineFontBreakLineThickness, swLW_THIN
-  
-  SetLineStyle swLineFontSpeedPakDrawingsModelEdgesStyle, swLineCONTINUOUS
-  SetLineStyle swLineFontSpeedPakDrawingsModelEdgesThickness, swLW_NORMAL
-  
-  SetLineStyle swLineFontAdjoiningComponentStyle, swLineCENTER
-  SetLineStyle swLineFontAdjoiningComponent, swLW_THIN
-  
-  SetLineStyle swLineFontBendLineUpStyle, swLinePHANTOM
-  SetLineStyle swLineFontBendLineUpThickness, swLW_THIN
-  
-  SetLineStyle swLineFontBendLineDownStyle, swLinePHANTOM
-  SetLineStyle swLineFontBendLineDownThickness, swLW_THIN
-  
-  SetLineStyle swLineFontEnvelopeComponentStyle, swLineCONTINUOUS
-  SetLineStyle swLineFontEnvelopeComponentThickness, swLW_THIN
-    
-End Function
-
-Sub ReloadSheet(format As String)
-
-  Const isFirstAngle As Boolean = True
-  Dim fullFormatName As String
-  Dim oldSheetProp() As Double
-  Dim width As Double, height As Double
-  Dim scale1 As Double, scale2 As Double
-      
-  fullFormatName = gConfigPath + format + ".SLDDRT"
-  If gFSO.FileExists(fullFormatName) Then
-    oldSheetProp = gSheet.GetProperties
-    scale1 = oldSheetProp(2)
-    scale2 = oldSheetProp(3)
-    gSheet.GetSize width, height
-    
-    'Set the sheet format to None
-    gDrawing.SetupSheet5 gSheet.GetName, swDwgPapersUserDefined, _
-                         swDwgTemplateNone, scale1, scale2, _
-                         isFirstAngle, "", width, height, _
-                         gSheet.CustomPropertyView, True
-                         
-    'Reload the sheet format from the specified location
-    gDrawing.SetupSheet5 gSheet.GetName, swDwgPapersUserDefined, _
-                         swDwgTemplateCustom, scale1, scale2, _
-                         isFirstAngle, fullFormatName, width, height, _
-                         gSheet.CustomPropertyView, True
-                         
-    'gDoc.ViewZoomtofit2
-    ZoomToSheet
-  Else
-    MsgBox ("Файл " + fullFormatName + " не найден.")
-  End If
-    
-End Sub
-
-Function IntOrNul(str As String) As Long
-
-  IntOrNul = 0
-  If IsNumeric(str) Then
-    IntOrNul = CInt(str)
-  End If
-    
-End Function
-
-Function ReadMaterialNames(filename As String) As Dictionary
+Function ReadMaterialNames(FileName As String) As Dictionary
 
   Dim Result As Dictionary
-  Dim fullFilename As String
+  Dim FullFilename As String
   Dim I As Variant
   Dim Matches As MatchCollection
   Dim FStream As TextStream
   Dim TextAll As String
   
   Set Result = New Dictionary
-  fullFilename = gConfigPath + filename
-  If gFSO.FileExists(fullFilename) Then
-    Set FStream = gFSO.OpenTextFile(fullFilename, ForReading, False, TristateTrue)
+  FullFilename = gConfigPath + FileName
+  If gFSO.FileExists(FullFilename) Then
+    Set FStream = gFSO.OpenTextFile(FullFilename, ForReading, False, TristateTrue)
     TextAll = FStream.ReadAll
     FStream.Close
     If gRegexMaterial.Test(TextAll) Then
@@ -735,27 +588,18 @@ Function ReadMaterialNames(filename As String) As Dictionary
     
 End Function
 
-Function FirstItem(values As Variant) As String
-
-  FirstItem = ""
-  If Not IsEmpty(values) Then
-    FirstItem = values(0)
-  End If
-    
-End Function
-
 Function FindView() As View
 
-  Dim propView As String
-  Dim firstView As View
+  Dim PropView As String
+  Dim FirstView As View
   
-  propView = gSheet.CustomPropertyView
-  Set firstView = gDrawing.GetFirstView.GetNextView
-  Set FindView = firstView
-  Do While FindView.GetName2 <> propView
+  PropView = gSheet.CustomPropertyView
+  Set FirstView = gDrawing.GetFirstView.GetNextView
+  Set FindView = FirstView
+  Do While FindView.GetName2 <> PropView
     Set FindView = FindView.GetNextView
     If FindView Is Nothing Then
-      Set FindView = firstView
+      Set FindView = FirstView
       Exit Do
     End If
   Loop
@@ -764,36 +608,22 @@ End Function
 
 Function SelectView() As View
 
-  Dim selected As Object
+  Dim Selected As Object
   
-  Set selected = gDrawing.SelectionManager.GetSelectedObject5(1)
-  If selected Is Nothing Then
+  Set Selected = gDrawing.SelectionManager.GetSelectedObject5(1)
+  If Selected Is Nothing Then
     Set SelectView = FindView()
-  ElseIf Not TypeOf selected Is View Then
+  ElseIf Not TypeOf Selected Is View Then
     Set SelectView = FindView()
   Else
-    Set SelectView = selected
+    Set SelectView = Selected
   End If
-    
-End Function
-
-Function IndexInArray(valueToFind As Variant, arr As Variant) As Integer
-
-  Dim I As Integer
-  
-  IndexInArray = -1
-  For I = LBound(arr) To UBound(arr)
-    If arr(I) = valueToFind Then
-      IndexInArray = I
-      Exit Function
-    End If
-  Next
     
 End Function
 
 Sub SaveAsMy(NewName As String, OldName As String)
 
-  Dim error As Long, warning As Long
+  Dim Error As Long, Warning As Long
 
   If gFSO.FileExists(NewName) Then
     If MsgBox("Файл с таким именем существует. Заменить?", vbOKCancel) = vbCancel Then
@@ -802,7 +632,7 @@ Sub SaveAsMy(NewName As String, OldName As String)
   End If
   If gDoc.Extension.SaveAs(NewName, swSaveAsCurrentVersion, _
                            swSaveAsOptions_AvoidRebuildOnSave, _
-                           Nothing, error, warning) Then
+                           Nothing, Error, Warning) Then
       If OldName <> "" Then
         Kill (OldName)
       End If
@@ -812,79 +642,43 @@ Sub SaveAsMy(NewName As String, OldName As String)
     
 End Sub
 
-Sub TryRenameDraft(sName As String)
-
-  Dim NewName As String, OldName As String
-
-  If sName = "" Then
-    Exit Sub
-  End If
-  OldName = gDoc.GetPathName
-  If OldName = "" Then
-    NewName = gFSO.BuildPath(gFSO.GetParentFolderName(gModel.GetPathName), sName + ".SLDDRW")
-    SaveAsMy NewName, OldName
-  Else
-    NewName = gFSO.BuildPath(gFSO.GetParentFolderName(OldName), sName + ".SLDDRW")
-    If OldName <> NewName Then
-      SaveAsMy NewName, OldName
-    End If
-  End If
-    
-End Sub
-
 'Only for drawings!
-Function ZoomToSheet()  'mask for button
+Function ZoomToSheet()  'hide
 
-  Dim width As Double
-  Dim height As Double
+  Dim Width As Double
+  Dim Height As Double
 
-  gDrawing.GetCurrentSheet.GetSize width, height
-  gDoc.ViewZoomTo2 0, 0, 0, width, height, 0
+  gDrawing.GetCurrentSheet.GetSize Width, Height
+  gDoc.ViewZoomTo2 0, 0, 0, Width, Height, 0
     
 End Function
 
-Function GetEquationThickness(Conf As String, toAll As Boolean, nameModel As String) As String
+Function GetEquationThickness(Conf As String, ToAll As Boolean, NameModel As String) As String
 
-  Const temp As String = "__temp__"
-  Dim mgr As CustomPropertyManager
-  Dim thName_ As Variant
-  Dim thName As String
-  Dim resolvedValue As String
-  Dim rawValue As String
-  Dim variantThicknessName(1) As String
+  Const Temp As String = "__temp__"
+  Dim Mgr As CustomPropertyManager
+  Dim ThName_ As Variant
+  Dim ThName As String
+  Dim ResolvedValue As String
+  Dim RawValue As String
+  Dim VariantThicknessName(1) As String
   
   GetEquationThickness = ""
-  Set mgr = gModel.Extension.CustomPropertyManager(Conf)
-  variantThicknessName(0) = "Толщина"
-  variantThicknessName(1) = "Thickness"
+  Set Mgr = gModel.Extension.CustomPropertyManager(Conf)
+  VariantThicknessName(0) = "Толщина"
+  VariantThicknessName(1) = "Thickness"
   'variantThicknessName(2) = "Grubos'c'"
-  For Each thName_ In variantThicknessName
-    thName = thName_
-    SetProp mgr, temp, Equal(thName, toAll, Conf, gNameModel)
-    mgr.Get5 temp, False, rawValue, resolvedValue, False
-    If IsNumeric(StrConv(resolvedValue, vbUnicode)) Then  'IsNumeric make error with raw 'resolvedValue' without StrConv
-      GetEquationThickness = rawValue
+  For Each ThName_ In VariantThicknessName
+    ThName = ThName_
+    SetProp Mgr, Temp, Equal(ThName, ToAll, Conf, gNameModel)
+    Mgr.Get5 Temp, False, RawValue, ResolvedValue, False
+    If IsNumeric(StrConv(ResolvedValue, vbUnicode)) Then  'IsNumeric make error with raw 'resolvedValue' without StrConv
+      GetEquationThickness = RawValue
       Exit For
     End If
   Next
-  mgr.Delete2 temp
+  Mgr.Delete2 Temp
     
-End Function
-
-Function GetBaseDesignation(Designation As String) As String
-
-  Dim lastFullstopPosition As Integer
-  Dim firstHyphenPosition As Integer
-  
-  GetBaseDesignation = Designation
-  lastFullstopPosition = InStrRev(Designation, ".")
-  If lastFullstopPosition > 0 Then
-    firstHyphenPosition = InStr(lastFullstopPosition, Designation, "-")
-    If firstHyphenPosition > 0 Then
-      GetBaseDesignation = Left(Designation, firstHyphenPosition - 1)
-    End If
-  End If
-  
 End Function
 
 Function ExitApp() 'hide
@@ -896,13 +690,13 @@ End Function
 
 Function GetIsFastener() As Boolean
 
-  Dim value As String
-  Dim rawValue As String
-  Dim wasResolved As Boolean
+  Dim Value As String
+  Dim RawValue As String
+  Dim WasResolved As Boolean
 
   GetIsFastener = False
-  If gModelManager.Get5(pIsFastener, False, rawValue, value, wasResolved) <> swCustomInfoGetResult_NotPresent Then
-    GetIsFastener = (value = IsFastenerTrue)
+  If gModelManager.Get5(pIsFastener, False, RawValue, Value, WasResolved) <> swCustomInfoGetResult_NotPresent Then
+    GetIsFastener = (Value = IsFastenerTrue)
   End If
 
 End Function
@@ -914,280 +708,207 @@ Function SetIsFastener() 'hide
 
 End Function
 
-Sub RewriteNameAndSign(source As String, Conf As String)
-
-  Dim Designation As String
-  Dim Name As String
-  Dim Code As String
-  Dim I As Integer
-  Dim IsCodeFound As Boolean
-  
-  Designation = ""
-  Name = ""
-  SplitNameAndSign source, Conf, Designation, Name, Code
-  MainForm.SignBox.text = Designation
-  MainForm.NameBox.text = Name
-  If gIsDrawing Then
-    IsCodeFound = False
-    I = 0
-    While (I < MainForm.MiniSignBox.ListCount) And (Not IsCodeFound)
-      IsCodeFound = (StrComp(MainForm.MiniSignBox.List(I), Code, vbTextCompare) = 0)
-      If IsCodeFound Then
-        MainForm.MiniSignBox.ListIndex = I
-      End If
-      I = I + 1
-    Wend
-  End If
-  
-End Sub
-
 ' Без точек "." в наименовании
 Sub SplitNameAndSign(Line As String, Conf As String, ByRef Designation As String, _
                      ByRef Name As String, ByRef Code As String)
                      
-  Const flat As String = "SM-FLAT-PATTERN"
-  Dim regexAsm As RegExp
-  Dim regexPrt As RegExp
+  Const Flat As String = "SM-FLAT-PATTERN"
+  Dim RegexAsm As RegExp
+  Dim RegexPrt As RegExp
   Dim Matches As Object
-  Dim z As Variant
+  Dim Z As Variant
   
   Designation = Line
   Name = Line
   Code = ""
   
-  Set regexAsm = New RegExp
-  regexAsm.Pattern = "(.*\..*[0-9] *)(" + gCodeRegexPattern + ") ([^.]+)"
-  regexAsm.IgnoreCase = True
-  regexAsm.Global = True
+  Set RegexAsm = New RegExp
+  RegexAsm.Pattern = "(.*\..*[0-9] *)(" + gCodeRegexPattern + ") ([^.]+)"
+  RegexAsm.IgnoreCase = True
+  RegexAsm.Global = True
   
-  Set regexPrt = New RegExp
-  regexPrt.Pattern = "(.*\.[^ ]+) ([^.]+)"
-  regexPrt.IgnoreCase = True
-  regexPrt.Global = True
+  Set RegexPrt = New RegExp
+  RegexPrt.Pattern = "(.*\.[^ ]+) ([^.]+)"
+  RegexPrt.IgnoreCase = True
+  RegexPrt.Global = True
   
-  If regexAsm.Test(Line) Then
-    Set Matches = regexAsm.Execute(Line)
+  If RegexAsm.Test(Line) Then
+    Set Matches = RegexAsm.Execute(Line)
     Designation = Trim(Matches(0).SubMatches(0))
     Code = Matches(0).SubMatches(1)
     Name = Trim(Matches(0).SubMatches(2))
-  ElseIf regexPrt.Test(Line) Then
-    Set Matches = regexPrt.Execute(Line)
+  ElseIf RegexPrt.Test(Line) Then
+    Set Matches = RegexPrt.Execute(Line)
     Designation = Trim(Matches(0).SubMatches(0))
     Name = Trim(Matches(0).SubMatches(1))
   End If
   
-  If Conf Like "*" & flat Then
-    Conf = Left(Conf, Len(Conf) - Len(flat))
+  If Conf Like "*" & Flat Then
+    Conf = Left(Conf, Len(Conf) - Len(Flat))
   End If
-  Select Case Conf
-    Case "00", "По умолчанию"
-      'pass
-    Case Else
-      MainForm.SignChk.value = False ' running event
+  If Not IsBaseConf(Conf) Then
+    Conf = Split(Conf)(0)  '-00 откр.
+    If Not IsBaseConf(Conf) Then
+      MainForm.SignChk.Value = False ' running event
       Designation = Designation & "-" & Conf
-  End Select
+    End If
+  End If
   
 End Sub
 
-' Устанавливает значения gItems из свойств, игнорируя существующие
-Sub ReadProp(manager As CustomPropertyManager, Conf As String, props() As String)
+Function IsBaseConf(Conf As String) As Boolean
 
+  Select Case Conf
+    Case "00", "По умолчанию", "Default"
+      IsBaseConf = True
+    Case Else
+      IsBaseConf = False
+  End Select
+
+End Function
+
+' Устанавливает значения gItems из свойств, игнорируя существующие
+Sub ReadProp(Manager As CustomPropertyManager, Conf As String, props() As String)
+
+  Const UseCached = False
   Dim I As Variant
-  Dim prop As String
+  Dim Prop As String
   Dim Item As DataItem
-  Dim raw As String
-  Dim val As String
+  Dim GetPropRes As swCustomInfoGetResult_e
+  Dim WasResolved As Boolean
+  Dim RawValue As String
+  Dim Value As String
   
   If Not gItems.Exists(Conf) Then
     gItems.Add Conf, New Dictionary
   End If
   
   For Each I In props
-    prop = I
+    Prop = I
     
-    If Not gItems(Conf).Exists(prop) Then
-      gItems(Conf).Add prop, New DataItem
+    If Not gItems(Conf).Exists(Prop) Then
+      gItems(Conf).Add Prop, New DataItem
     End If
     
-    Set Item = gItems(Conf)(prop)
-    raw = ""
-    val = ""
-    manager.Get4 prop, False, raw, val
-    Item.rawValue = raw
-    Item.value = val
+    Set Item = gItems(Conf)(Prop)
+    GetPropRes = Manager.Get5(Prop, UseCached, RawValue, Value, WasResolved)
+    Item.RawValue = Trim(RawValue)
+    Item.Value = Trim(Value)
     
-    If Conf <> commonSpace Then
-      Item.fromAll = (Item.rawValue = "") And (gItems(commonSpace)(prop).rawValue <> "")
+    If Conf = CommonSpace Then
+      Item.FromAll = True
     Else
-      Item.fromAll = True
+      Item.FromAll = (GetPropRes = swCustomInfoGetResult_NotPresent)
     End If
     
-    If prop = pMaterial Then
-      Item.newValue = Item.value
+    If Prop = pMaterial Then
+      Item.NewValue = Item.Value
     Else
-      Item.newValue = Item.rawValue
+      Item.NewValue = Item.RawValue
     End If
   Next
     
 End Sub
 
-Sub SetBoxValue2(Chk As CheckBox, prop As String, Conf As String)
+Sub SetBoxValue2(Chk As CheckBox, Prop As String, Conf As String)
 
   Dim Item As DataItem
   
-  Set Item = gItems(Conf)(prop)
+  Set Item = gItems(Conf)(Prop)
 
   If Not Chk Is Nothing Then
-    If Chk.value <> Item.fromAll Then
-      Chk.value = Item.fromAll
+    If Chk.Value <> Item.FromAll Then
+      Chk.Value = Item.FromAll
     Else
-      ChangeChecked prop
+      ChangeChecked Prop
     End If
   Else
-    ChangeChecked prop
+    ChangeChecked Prop
   End If
     
 End Sub
 
-Sub ReloadForm(Conf As String)
-
-  readOldAfterChecked = False
-
-  If gIsDrawing Then
-    SetBoxValue2 Nothing, pShortDrawingType, commonSpace
-    SetBoxValue2 Nothing, pLongDrawingType, commonSpace
-    SetBoxValue2 Nothing, pOrganization, commonSpace
-    SetBoxValue2 Nothing, pDrafter, commonSpace
-    SetBoxValue2 Nothing, pChecking, commonSpace
-  End If
-  
-  SetBoxValue2 MainForm.DevelChk, pDesigner, Conf
-  SetBoxValue2 MainForm.SignChk, pDesignation, Conf
-  
-  SetBoxValue2 MainForm.NameChk, pName, Conf
-  ChangeChecked pNameEN
-  ChangeChecked pNamePL
-  ChangeChecked pNameUA
-  
-  SetBoxValue2 MainForm.FormatChk, pFormat, Conf
-  SetBoxValue2 MainForm.NoteChk, pNote, Conf
-  SetBoxValue2 MainForm.MassChk, pMass, Conf
-  
-  If Not gIsAssembly Then
-    SetBoxValue2 MainForm.BlankChk, pBlank, Conf
-    SetBoxValue2 MainForm.SizeChk, pSize, Conf
-    SetBoxValue2 Nothing, pMaterial, Conf
-    SetBoxValue2 MainForm.lenChk, pLen, Conf
-    SetBoxValue2 MainForm.widChk, pWid, Conf
-  End If
-  readOldAfterChecked = True
-    
-End Sub
-
-Function ExistsInCombo(Box As ComboBox, value As String)
-
-  Dim I As Variant
-
-  ExistsInCombo = False
-  If Box.ListCount > 0 Then
-    For Each I In Box.List
-      If I = value Then
-        ExistsInCombo = True
-        Exit For
-      End If
-    Next
-  End If
-    
-End Function
-
-Sub FromAllChecked(Chk As CheckBox, Box As Object, prop As String, Conf As String, _
-                   fromAll As Boolean, SetFirstItem As Boolean)
+Sub FromAllChecked(Chk As CheckBox, Box As Object, Prop As String, Conf As String, _
+                   FromAll As Boolean, SetFirstItem As Boolean)
                    
-  Dim cmb As ComboBox
-  Dim value As String
+  Dim Cmb As ComboBox
+  Dim Value As String
   
-  If readOldAfterChecked Then
-    ReadBox Box, Chk, Conf, prop, False
+  If ReadOldAfterChecked Then
+    ReadBox Box, Chk, Conf, Prop, False
   End If
-  If prop = pSize Then
+  If Prop = pSize Then
     ChangeSizeEqual (Conf)
-  ElseIf prop = pMass Then
+  ElseIf Prop = pMass Then
     ChangeMassEqual (Conf)
   End If
   
-  If fromAll Then
-    value = gItems(commonSpace)(prop).newValue
+  If FromAll Then
+    Value = gItems(CommonSpace)(Prop).NewValue
   Else
-    value = gItems(Conf)(prop).newValue
+    Value = gItems(Conf)(Prop).NewValue
   End If
-  If SetFirstItem And value = "" And TypeOf Box Is ComboBox Then
-    Set cmb = Box
-    If cmb.ListCount > 0 Then
-      value = cmb.List(0)
+  If SetFirstItem And Value = "" And TypeOf Box Is ComboBox Then
+    Set Cmb = Box
+    If Cmb.ListCount > 0 Then
+      Value = Cmb.List(0)
     End If
   End If
   
   If Box.Enabled Then
     If TypeOf Box Is ComboBox Then
-      Set cmb = Box
-      If cmb.Style = fmStyleDropDownList Then
-        If ExistsInCombo(cmb, value) Then
-          SetComboInExistValue Box, value
-        ElseIf cmb.ListCount > 0 Then
-          cmb.ListIndex = 0
+      Set Cmb = Box
+      If Cmb.Style = fmStyleDropDownList Then
+        If ExistsInCombo(Cmb, Value) Then
+          SetComboInExistValue Box, Value
+        ElseIf Cmb.ListCount > 0 Then
+          Cmb.ListIndex = 0
         End If
       Else
-        cmb.text = value
+        Cmb.Text = Value
       End If
     Else
-      Box.text = value
+      Box.Text = Value
     End If
   End If
   
 End Sub
 
-Sub SetComboInExistValue(ByRef Box As Object, value As String)
-
-  On Error Resume Next  ''''ПОДАВЛЕНИЕ ОШИБКИ для Гордиенко
-  Box.text = value
-    
-End Sub
-
 ' Устанавливает значения gItems из формы
 ' conf - конфигурация ИЛИ элемент списка вырезов
-Sub ReadBox(Box As Object, Chk As CheckBox, Conf As String, prop As String, forward As Boolean)
+Sub ReadBox(Box As Object, Chk As CheckBox, Conf As String, Prop As String, forward As Boolean)
 
   Dim TargetConf As String
   
   If Not gItems.Exists(Conf) Then
     gItems.Add Conf, New Dictionary
   End If
-  If Not gItems(Conf).Exists(prop) Then
-    gItems(Conf).Add prop, New DataItem
+  If Not gItems(Conf).Exists(Prop) Then
+    gItems(Conf).Add Prop, New DataItem
   End If
   
-  If Chk Is Nothing And Conf = commonSpace Then
-    gItems(commonSpace)(prop).fromAll = True
-    gItems(commonSpace)(prop).newValue = Box.text
-  ElseIf prop = pMaterial Then
-    gItems(Conf)(prop).fromAll = False
-    gItems(Conf)(prop).newValue = Box.text   'уравнение MaterialEqual устанавливается в SetProp2
+  If Chk Is Nothing And Conf = CommonSpace Then
+    gItems(CommonSpace)(Prop).FromAll = True
+    gItems(CommonSpace)(Prop).NewValue = Box.Text
+  ElseIf Prop = pMaterial Then
+    gItems(Conf)(Prop).FromAll = False
+    gItems(Conf)(Prop).NewValue = Box.Text   'уравнение MaterialEqual устанавливается в SetProp2
   Else
-    gItems(Conf)(prop).fromAll = Chk.value
+    gItems(Conf)(Prop).FromAll = Chk.Value
     If forward Then
-      If Chk.value Then
-        TargetConf = commonSpace
+      If Chk.Value Then
+        TargetConf = CommonSpace
       Else
         TargetConf = Conf
       End If
     Else
-      If Chk.value Then
+      If Chk.Value Then
         TargetConf = Conf
       Else
-        TargetConf = commonSpace
+        TargetConf = CommonSpace
       End If
     End If
-    gItems(TargetConf)(prop).newValue = Box.text
+    gItems(TargetConf)(Prop).NewValue = Box.Text
   End If
   
 End Sub
@@ -1203,66 +924,35 @@ Sub SetPropToAll(Box As Object, Chk As CheckBox, Property As String)
     Set ConfManager = gModelExt.CustomPropertyManager(Conf)
     ConfManager.Delete2 Property
   Next
-  ReadBox Box, Nothing, commonSpace, Property, True
+  ReadBox Box, Nothing, CommonSpace, Property, True
     
 End Sub
 
-Sub ReadForm(Conf As String)
+Sub ChangeChecked(Prop As String)
 
-  ReadBox MainForm.NameBox, MainForm.NameChk, Conf, pName, True
-  ReadBox MainForm.NameBoxEN, MainForm.NameChk, Conf, pNameEN, True
-  ReadBox MainForm.NameBoxPL, MainForm.NameChk, Conf, pNamePL, True
-  ReadBox MainForm.NameBoxUA, MainForm.NameChk, Conf, pNameUA, True
-  
-  ReadBox MainForm.DevelBox, MainForm.DevelChk, Conf, pDesigner, True
-  ReadBox MainForm.SignBox, MainForm.SignChk, Conf, pDesignation, True
-  ReadBox MainForm.FormatBox, MainForm.FormatChk, Conf, pFormat, True
-  ReadBox MainForm.NoteBox, MainForm.NoteChk, Conf, pNote, True
-  ReadBox MainForm.MassBox, MainForm.MassChk, Conf, pMass, True
-  
-  If gIsDrawing Then
-    ReadBox MainForm.MiniSignBox, Nothing, commonSpace, pShortDrawingType, True
-    ReadBox MainForm.CodeBox, Nothing, commonSpace, pLongDrawingType, True
-    ReadBox MainForm.OrgBox, Nothing, commonSpace, pOrganization, True
-    ReadBox MainForm.DraftBox, Nothing, commonSpace, pDrafter, True
-    ReadBox MainForm.CheckingBox, Nothing, commonSpace, pChecking, True
-  End If
-  
-  If Not gIsAssembly Then
-    ReadBox MainForm.BlankBox, MainForm.BlankChk, Conf, pBlank, True
-    ReadBox MainForm.SizeBox, MainForm.SizeChk, Conf, pSize, True
-    ReadBox MainForm.MaterialBox, Nothing, Conf, pMaterial, True
-    ReadBox MainForm.lenBox, MainForm.lenChk, Conf, pLen, True
-    ReadBox MainForm.widBox, MainForm.widChk, Conf, pWid, True
-  End If
-  
-End Sub
-
-Sub ChangeChecked(prop As String)
-
-  Select Case prop
+  Select Case Prop
     Case pDesignation
-      FromAllChecked MainForm.SignChk, MainForm.SignBox, pDesignation, gCurConf, MainForm.SignChk.value, False
+      FromAllChecked MainForm.SignChk, MainForm.SignBox, pDesignation, gCurConf, MainForm.SignChk.Value, False
     Case pName
-      FromAllChecked MainForm.NameChk, MainForm.NameBox, pName, gCurConf, MainForm.NameChk.value, False
+      FromAllChecked MainForm.NameChk, MainForm.NameBox, pName, gCurConf, MainForm.NameChk.Value, False
     Case pNameEN
-      FromAllChecked MainForm.NameChk, MainForm.NameBoxEN, pNameEN, gCurConf, MainForm.NameChk.value, False
+      FromAllChecked MainForm.NameChk, MainForm.NameBoxEN, pNameEN, gCurConf, MainForm.NameChk.Value, False
     Case pNamePL
-      FromAllChecked MainForm.NameChk, MainForm.NameBoxPL, pNamePL, gCurConf, MainForm.NameChk.value, False
+      FromAllChecked MainForm.NameChk, MainForm.NameBoxPL, pNamePL, gCurConf, MainForm.NameChk.Value, False
     Case pNameUA
-      FromAllChecked MainForm.NameChk, MainForm.NameBoxUA, pNameUA, gCurConf, MainForm.NameChk.value, False
+      FromAllChecked MainForm.NameChk, MainForm.NameBoxUA, pNameUA, gCurConf, MainForm.NameChk.Value, False
     Case pBlank
-      FromAllChecked MainForm.BlankChk, MainForm.BlankBox, pBlank, gCurConf, MainForm.BlankChk.value, False
+      FromAllChecked MainForm.BlankChk, MainForm.BlankBox, pBlank, gCurConf, MainForm.BlankChk.Value, False
     Case pFormat
-      FromAllChecked MainForm.FormatChk, MainForm.FormatBox, pFormat, gCurConf, MainForm.FormatChk.value, False
+      FromAllChecked MainForm.FormatChk, MainForm.FormatBox, pFormat, gCurConf, MainForm.FormatChk.Value, False
     Case pNote
-      FromAllChecked MainForm.NoteChk, MainForm.NoteBox, pNote, gCurConf, MainForm.NoteChk.value, False
+      FromAllChecked MainForm.NoteChk, MainForm.NoteBox, pNote, gCurConf, MainForm.NoteChk.Value, False
     Case pDesigner
-      FromAllChecked MainForm.DevelChk, MainForm.DevelBox, pDesigner, gCurConf, MainForm.DevelChk.value, True
+      FromAllChecked MainForm.DevelChk, MainForm.DevelBox, pDesigner, gCurConf, MainForm.DevelChk.Value, True
     Case pSize
-      FromAllChecked MainForm.SizeChk, MainForm.SizeBox, pSize, gCurConf, MainForm.SizeChk.value, False
+      FromAllChecked MainForm.SizeChk, MainForm.SizeBox, pSize, gCurConf, MainForm.SizeChk.Value, False
     Case pMass
-      FromAllChecked MainForm.MassChk, MainForm.MassBox, pMass, gCurConf, MainForm.MassChk.value, True
+      FromAllChecked MainForm.MassChk, MainForm.MassBox, pMass, gCurConf, MainForm.MassChk.Value, True
     Case pMaterial
       FromAllChecked Nothing, MainForm.MaterialBox, pMaterial, gCurConf, False, False
     Case pOrganization
@@ -1276,43 +966,25 @@ Sub ChangeChecked(prop As String)
     Case pLongDrawingType
       FromAllChecked Nothing, MainForm.CodeBox, pLongDrawingType, gCurConf, True, False
     Case pLen
-      FromAllChecked MainForm.lenChk, MainForm.lenBox, pLen, gCurConf, MainForm.lenChk.value, False
+      FromAllChecked MainForm.lenChk, MainForm.lenBox, pLen, gCurConf, MainForm.lenChk.Value, False
     Case pWid
-      FromAllChecked MainForm.widChk, MainForm.widBox, pWid, gCurConf, MainForm.widChk.value, False
+      FromAllChecked MainForm.widChk, MainForm.widBox, pWid, gCurConf, MainForm.widChk.Value, False
   End Select
    
 End Sub
 
-Sub TrySetPropToAll(Box As Object, Chk As CheckBox, Property As String)
-
-  If isShiftPressed And Not Chk.value Then
-    isShiftPressed = False
-    
-    readOldAfterChecked = False
-    Chk.value = True
-    readOldAfterChecked = True
-    
-    If MsgBox("Связать все конфигурации со значением?", vbYesNo) = vbYes Then
-      SetPropToAll Box, Chk, Property
-    End If
-  Else
-    ChangeChecked Property
-  End If
-  
-End Sub
-
 Function CreateBaseDesignation() 'hide
 
-  Dim mainDesignation As String
-  Dim resolvedValue As String
-  Dim rawValue As String
-  Dim wasResolved As Boolean
+  Dim MainDesignation As String
+  Dim ResolvedValue As String
+  Dim RawValue As String
+  Dim WasResolved As Boolean
   
-  If gModel.Extension.CustomPropertyManager(gMainConf).Get5(pDesignation, False, rawValue, resolvedValue, wasResolved) = swCustomInfoGetResult_NotPresent Then
-    gModel.Extension.CustomPropertyManager("").Get5 pDesignation, False, rawValue, resolvedValue, wasResolved
+  If gModel.Extension.CustomPropertyManager(gMainConf).Get5(pDesignation, False, RawValue, ResolvedValue, WasResolved) = swCustomInfoGetResult_NotPresent Then
+    gModel.Extension.CustomPropertyManager("").Get5 pDesignation, False, RawValue, ResolvedValue, WasResolved
   End If
   
-  gBaseDesignation = GetBaseDesignation(resolvedValue)
+  gBaseDesignation = GetBaseDesignation(ResolvedValue)
   
 End Function
 
@@ -1325,7 +997,7 @@ Function Execute() 'hide
   WriteModelProperties
   
   If Not gIsAssembly Then
-    If MainForm.IsFastenerChk.value Then
+    If MainForm.IsFastenerChk.Value Then
       SetIsFastener
     End If
   End If
@@ -1333,14 +1005,14 @@ Function Execute() 'hide
   If gIsDrawing Then
     CreateBaseDesignation
     WriteDrawingProperties
-    SetSpeedformat
+    SetSpeedFormat
     ChangeLineStyles
   End If
   
   gDoc.ForceRebuild3 True
   
   If gIsDrawing Then
-    TryRenameDraft MainForm.DrawNameBox.text
+    TryRenameDraft MainForm.DrawNameBox.Text
   End If
     
 End Function
@@ -1348,7 +1020,7 @@ End Function
 Sub ChangeMassEqual(Conf As String)
 
   If Not gIsUnnamed Then
-    MainForm.MassBox.List(0) = Equal("SW-Mass", gItems(Conf)(pMass).fromAll, Conf, gNameModel)
+    MainForm.MassBox.List(0) = Equal("SW-Mass", gItems(Conf)(pMass).FromAll, Conf, gNameModel)
   End If
     
 End Sub
@@ -1356,7 +1028,7 @@ End Sub
 Sub ChangeSizeEqual(Conf As String)
 
   If Not gIsUnnamed And Not gIsAssembly Then
-    MainForm.SizeBox.List(0) = GetEquationThickness(Conf, gItems(Conf)(pSize).fromAll, gNameModel)
+    MainForm.SizeBox.List(0) = GetEquationThickness(Conf, gItems(Conf)(pSize).FromAll, gNameModel)
   End If
   
 End Sub
@@ -1373,30 +1045,67 @@ End Function
 
 Sub SetMaterial(Conf As String)
 
-  Dim new_material As String
+  Dim NewMaterial As String
   
-  new_material = gItems(Conf)(pMaterial).newValue
-  If new_material <> sEmpty And new_material <> "" Then
-    gModel.SetMaterialPropertyName2 Conf, materialdb, new_material  'it's method of PartDoc
+  NewMaterial = gItems(Conf)(pMaterial).NewValue
+  If NewMaterial <> sEmpty And NewMaterial <> "" Then
+    gModel.SetMaterialPropertyName2 Conf, MaterialDB, NewMaterial  'it's method of PartDoc
   End If
     
 End Sub
 
-Function SetSpeedformat() 'hide
+Function SetSpeedFormat() 'hide
 
-  If MainForm.RealFormatBox.text <> MainForm.RealFormatBox.List(0) Then
-    ReloadSheet MainForm.RealFormatBox.text
-  End If
+  Dim TemplateName As String
+  Dim Width As Double
+  Dim Height As Double
+  Dim OldWidth As Double
+  Dim OldHeight As Double
+  Dim SizeName As String
+  Dim PaperChoice As String
+  Dim FormatChoice As String
+  
+  FormatChoice = MainForm.RealFormatBox.Text
+  PaperChoice = MainForm.PaperSizeBox.Text
+  
+  If (FormatChoice <> CurrentChoice) Or (PaperChoice <> CurrentChoice) Then
+    GetSheetSizes Width, Height, SizeName, OldWidth, OldHeight, gSheet, PaperChoice
     
+    If FormatChoice <> CurrentChoice Then
+      TemplateName = gFSO.BuildPath(gConfigPath, FormatChoice & ".SLDDRT")
+      If Not gFSO.FileExists(TemplateName) Then
+        MsgBox ("Файл " + TemplateName + " не найден.")
+        Exit Function
+      End If
+      
+      gDrawing.SetupSheet5 _
+        gSheet.GetName, swDwgPapersUserDefined, swDwgTemplateCustom, _
+        gSheetScale1, gSheetScale2, gIsFirstAngle, TemplateName, 0, 0, _
+        gSheet.CustomPropertyView, True
+        
+      gSheet.GetSize OldWidth, OldHeight
+      
+      gDrawing.SetupSheet5 _
+        gSheet.GetName, swDwgPapersUserDefined, swDwgTemplateNone, _
+        gSheetScale1, gSheetScale2, gIsFirstAngle, "", Width, Height, _
+        gSheet.CustomPropertyView, False
+    Else
+      gSheet.SetSize swDwgPapersUserDefined, Width, Height
+    End If
+    ResizeSheetFormat Width, Height, gSheet, gDoc, gDrawing, OldWidth, OldHeight, SizeName
+    gDoc.ForceRebuild3 True
+    gDoc.ViewZoomTo2 0, 0, 0, Width, Height, 0
+  End If
+  
 End Function
 
 Function OutputTypeAndName() 'hide
 
-  MainForm.ModelNameBox.text = gFSO.GetBaseName(gNameModel)
+  MainForm.ModelNameBox.Text = gFSO.GetBaseName(gNameModel)
   If gIsDrawing Then
     MainForm.DrawNameBox.Enabled = True
     MainForm.DrawNameLab.Enabled = True
-    MainForm.DrawNameBox.text = gFSO.GetBaseName(gDoc.GetPathName)
+    MainForm.DrawNameBox.Text = gFSO.GetBaseName(gDoc.GetPathName)
   End If
   If gIsAssembly Then
     MainForm.Controls("ModelNameLab").Caption = "Файл сборки"
@@ -1431,127 +1140,62 @@ Function GetConfNames() 'hide
     
 End Function
 
-Function InitRealFormatBox() 'mask for button
+Function InitRealFormatBox() 'hide
 
-  Dim filename As String
-  Dim Names() As String
-  Dim I As Long
+  Dim FileName As String
   
-  MainForm.RealFormatBox.AddItem ("<данная>")
-  MainForm.RealFormatBox.text = MainForm.RealFormatBox.List(0)
-  I = -1
-  filename = Dir(gConfigPath & "*.SLDDRT")
-  While filename <> ""
-    I = I + 1
-    ReDim Preserve Names(0 To I)
-    Names(I) = gFSO.GetBaseName(filename)
-    filename = Dir()
-  Wend
-  Names = SortSpeedFormats(Names)
-  While I >= 0
-    MainForm.RealFormatBox.AddItem Names(I)
-    I = I - 1
+  MainForm.RealFormatBox.AddItem (CurrentChoice)
+  MainForm.RealFormatBox.Text = MainForm.RealFormatBox.List(0)
+  
+  FileName = Dir(gConfigPath & "*.SLDDRT")
+  While FileName <> ""
+    MainForm.RealFormatBox.AddItem gFSO.GetBaseName(FileName)
+    FileName = Dir()
   Wend
     
 End Function
 
-Function SortSpeedFormats(Names() As String) As String()
-
-  Dim majorNames() As String
-  Dim minorNames() As String
-  Dim name_ As Variant
-  Dim Name As String
-  Dim n As Integer
-  Dim j As Integer
-  Dim I As Integer
-  
-  n = -1
-  j = -1
-  If Not IsArrayEmpty(Names) Then
-    For Each name_ In Names
-      Name = name_
-      If Name Like "[aAаА]# *" Or Name Like "[aAаА]#" Then
-        j = j + 1
-        ReDim Preserve majorNames(j)
-        majorNames(j) = Name
-      Else
-        n = n + 1
-        ReDim Preserve minorNames(n)
-        minorNames(n) = Name
-      End If
-    Next
-    For I = 0 To n
-      Names(LBound(Names) + I) = minorNames(I)
-    Next
-    For I = j To 0 Step -1
-      Names(UBound(Names) - j + I) = majorNames(I)
-    Next
-  End If
-  SortSpeedFormats = Names
-    
-End Function
-
-Sub SetModelProp(Conf As String, prop As String, Item As DataItem)
+Sub SetModelProp(Conf As String, Prop As String, Item As DataItem)
 
   Dim ConfManager As CustomPropertyManager
   
   Set ConfManager = gModelExt.CustomPropertyManager(Conf)
-  If Conf <> commonSpace And Item.fromAll Then
-    ConfManager.Delete (prop)
+  If Conf <> CommonSpace And Item.FromAll Then
+    ConfManager.Delete (Prop)
   Else
-    SetProp2 ConfManager, prop, Item, Conf
+    SetProp2 ConfManager, Prop, Item, Conf
   End If
     
 End Sub
 
-Function SetProp2(manager As CustomPropertyManager, prop As String, Item As DataItem, _
-                  Optional Conf As String = commonSpace) As Boolean
-                  
-  Dim Result As Boolean
-  
-  Result = False
-  If prop = pMaterial Then
-    'If item.newValue <> sEmpty Then
-      Result = SetProp(manager, prop, MaterialEqual(Conf))
-    'Else
-    '  gModelExt.CustomPropertyManager(conf).Delete2 pMaterial
-    '  gModelManager.Delete2 pMaterial
-    'End If
-  Else
-    Result = SetProp(manager, prop, Item.newValue)
-  End If
-  SetProp2 = Result
-    
-End Function
-
 Function WriteModelProperties() 'hide
 
   Dim I As Variant
-  Dim j As Variant
+  Dim J As Variant
   Dim Conf As String
-  Dim prop As String
+  Dim Prop As String
   Dim Item As DataItem
   
   For Each I In gItems.Keys
     Conf = I
-    For Each j In modelProps
-      prop = j
-      Set Item = gItems(Conf)(prop)
+    For Each J In ModelProps
+      Prop = J
+      Set Item = gItems(Conf)(Prop)
       
-      Select Case prop
+      Select Case Prop
         Case pBlank, pSize, pLen, pWid
           If Not gIsAssembly Then
-            SetModelProp Conf, prop, Item
+            SetModelProp Conf, Prop, Item
           End If
         Case pMaterial
           If Not gIsAssembly Then
             If Not gIsUnnamed Then
-              SetModelProp Conf, prop, Item
+              SetModelProp Conf, Prop, Item
             End If
             SetMaterial Conf
           End If
         Case Else
-          SetModelProp Conf, prop, Item
+          SetModelProp Conf, Prop, Item
       End Select
       
     Next
@@ -1562,54 +1206,28 @@ End Function
 'TODO: убрать чертежные свойства из gItems, читать их прямо из формы
 Function WriteDrawingProperties() 'hide
 
-  Dim toAll As Boolean: toAll = True
-  Dim Item As Dictionary: Set Item = gItems(commonSpace)
+  Dim ToAll As Boolean
+  Dim Item As Dictionary
   Dim DrawingCode As String
 
-  DrawingCode = MainForm.MiniSignBox.text
+  ToAll = True
+  Set Item = gItems(CommonSpace)
+  DrawingCode = MainForm.MiniSignBox.Text
   'см. массив drawProps
   SetProp gDrawManager, pShortDrawingType, DrawingCode
   SetProp2 gDrawManager, pOrganization, Item(pOrganization)
   SetProp2 gDrawManager, pDrafter, Item(pDrafter)
   SetProp2 gDrawManager, pChecking, Item(pChecking)  'before: userChecking(0)
-  SetProp gDrawManager, pApprover, userApprover(0)
-  SetProp gDrawManager, pNormControl, userNormControl(0)
-  SetProp gDrawManager, pTechControl, userTechControl(0)
-  SetProp gDrawManager, pLongDrawingType, IIf(DrawingCode = "", "", MainForm.CodeBox.text)
+  SetProp gDrawManager, pApprover, UserApprover(0)
+  SetProp gDrawManager, pNormControl, UserNormControl(0)
+  SetProp gDrawManager, pTechControl, UserTechControl(0)
+  SetProp gDrawManager, pLongDrawingType, IIf(DrawingCode = "", "", MainForm.CodeBox.Text)
   SetProp gDrawManager, pBaseDesignation, gBaseDesignation
     
 End Function
 
-Sub SetValueInBox(Box As ComboBox, Index As Integer)
-
-  If 0 <= Index And Index < Box.ListCount Then
-    Box.text = Box.List(Index)
-  End If
-    
-End Sub
-
-Sub ExitByKey(KeyCode As MSForms.ReturnInteger, Shift As Integer)
-
-  If Shift = 1 And KeyCode = vbKeyReturn Then
-    Execute
-    ExitApp
-  End If
-    
-End Sub
-
 Sub SetShiftStatus(Shift As Integer)
   
-  isShiftPressed = Shift And 1
+  IsShiftPressed = Shift And 1
   
 End Sub
-
-Function SetPartCaptionIfEmptyDrawingCode() As Boolean
-
-  SetPartCaptionIfEmptyDrawingCode = (MainForm.MiniSignBox.text = "")
-  If SetPartCaptionIfEmptyDrawingCode Then
-    MainForm.CodeBox.AddItem "Деталь"
-    MainForm.CodeBox.text = MainForm.CodeBox.List(0)
-    MainForm.CodeBox.Enabled = False
-  End If
-
-End Function

@@ -9,16 +9,16 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Public value As String
-Public rawValue As String
-Public newValue As String
-Public fromAll As Boolean
+Public Value As String
+Public RawValue As String
+Public NewValue As String
+Public FromAll As Boolean
 
 Public Sub Class_Initialize()
 
-  value = ""
-  rawValue = ""
-  newValue = ""
-  fromAll = False
+  Value = ""
+  RawValue = ""
+  NewValue = ""
+  FromAll = False
     
 End Sub

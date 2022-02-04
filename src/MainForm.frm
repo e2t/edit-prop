@@ -13,10 +13,13 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
-
-
 Option Explicit
+
+Private Sub ApplyBut_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+
+  SetShiftStatus Shift
+
+End Sub
 
 Private Sub CodeBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
 
@@ -49,6 +52,30 @@ Private Sub MiniSignBox_Change()
       Me.CodeBox.Text = Me.CodeBox.List(0)
     End If
   End If
+
+End Sub
+
+Private Sub NameBox_Change()
+
+  CheckComboBoxAndWarnIfNeeded Me.NameBox
+
+End Sub
+
+Private Sub NameBoxEN_Change()
+
+  CheckTextBoxAndWarnIfNeeded Me.NameBoxEN
+
+End Sub
+
+Private Sub NameBoxPL_Change()
+
+  CheckTextBoxAndWarnIfNeeded Me.NameBoxPL
+
+End Sub
+
+Private Sub NameBoxUA_Change()
+
+  CheckTextBoxAndWarnIfNeeded Me.NameBoxUA
 
 End Sub
 

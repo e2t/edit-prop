@@ -43,6 +43,7 @@ Public Const Separator3 = ","
 Public Const SettingsFile = "Ќастройки.txt"
 Public Const sEmpty = " "
 Public Const CurrentChoice = "[текущ.]"
+Public Const MaxNamingLen = 60
 
 Enum ErrorCode
   Ok = 0
@@ -225,6 +226,17 @@ Function Init() As Boolean
   AppendPaperSize "A0x4", "A0x4", 3.36, 1.189
   AppendPaperSize "A0x5", "A0x5", 4.2, 1.189
   AppendPaperSize "A0x6", "A0x6", 5.04, 1.189
+  
+  AppendPaperSize "ANSI A гориз", "A", 0.28, 0.216
+  AppendPaperSize "ANSI A верт", "A", 0.216, 0.28
+  AppendPaperSize "ANSI B гориз", "B", 0.432, 0.279
+  AppendPaperSize "ANSI B верт", "B", 0.279, 0.432
+  AppendPaperSize "ANSI C гориз", "C", 0.559, 0.432
+  AppendPaperSize "ANSI C верт", "C", 0.432, 0.559
+  AppendPaperSize "ANSI D гориз", "D", 0.864, 0.559
+  AppendPaperSize "ANSI D верт", "D", 0.559, 0.864
+  AppendPaperSize "ANSI E гориз", "E", 1.121, 0.864
+  AppendPaperSize "ANSI E верт", "E", 0.864, 1.121
     
 End Function
 

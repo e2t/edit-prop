@@ -19,10 +19,9 @@ Function IsDrawing(Doc As ModelDoc2) As Boolean
     
 End Function
 
-Function IsEqual(A As Double, B As Double, Optional Accuracy As Double = 0.000001) As Boolean
+Function IsEqual(a As Double, B As Double, Optional Accuracy As Double = 0.000001) As Boolean
 
-  IsEqual = Abs(A - B) <= Accuracy
-  'If IsEqual Then MsgBox Str(A) & "x" & Str(B)
+  IsEqual = Abs(a - B) <= Accuracy
 
 End Function
 
@@ -475,3 +474,23 @@ Function SetProp2(Manager As CustomPropertyManager, Prop As String, Item As Data
   SetProp2 = Result
     
 End Function
+
+Sub CheckTextBoxAndWarnIfNeeded(Box As TextBox)
+
+  If Len(Box.Text) > MaxNamingLen Then
+    Box.BackColor = ColorConstants.vbYellow
+  Else
+    Box.BackColor = vbWhite
+  End If
+
+End Sub
+
+Sub CheckComboBoxAndWarnIfNeeded(Box As ComboBox)
+
+  If Len(Box.Text) > MaxNamingLen Then
+    Box.BackColor = ColorConstants.vbYellow
+  Else
+    Box.BackColor = vbWhite
+  End If
+
+End Sub

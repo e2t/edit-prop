@@ -36,9 +36,7 @@ Sub ResizeSheetFormat( _
   OldWidth As Double, OldHeight As Double, SizeName As String)
 
   Const RightBottomBorderWidth = 0.19
-  Const RightBottomBorderHeight = 0.06
-  Const RightBottomNameWidth = 0.055
-  Const RightBottomNameHeight = 0.004
+  Const RightBottomBorderHeight = 0.065
   Const UnusedZ = 0
 
   Dim Sk As Sketch
@@ -50,6 +48,7 @@ Sub ResizeSheetFormat( _
   Dim ANoteCoord As Variant
   Dim SizeNameArray As Variant
   
+  Set SelMgr = CurrentDoc.SelectionManager
   Set Sk = CurrentSheet.GetTemplateSketch
   For Each I In Sk.GetSketchPoints2
     Set P = I
@@ -57,18 +56,7 @@ Sub ResizeSheetFormat( _
       CurrentDraw.EditTemplate
       P.SetCoords Width, Height, UnusedZ
       
-      Set SelMgr = CurrentDoc.SelectionManager
-      
-      CurrentDoc.ClearSelection2 True
-      CurrentDoc.Extension.SketchBoxSelect OldWidth, 0, UnusedZ, OldWidth - RightBottomNameWidth, RightBottomNameHeight, UnusedZ
-      If SelMgr.GetSelectedObjectCount2(-1) > 0 Then
-        If SelMgr.GetSelectedObjectType3(1, -1) = swSelNOTES Then
-          Set ANote = SelMgr.GetSelectedObject6(1, -1)
-          SizeNameArray = Split(ANote.GetText, " ")
-          SizeNameArray(UBound(SizeNameArray)) = SizeName
-          ANote.SetText Join(SizeNameArray, " ")
-        End If
-      End If
+      SetProp gDrawManager, pPaperSize, SizeName
       
       CurrentDoc.ClearSelection2 True
       CurrentDoc.Extension.SketchBoxSelect OldWidth, 0, UnusedZ, OldWidth - RightBottomBorderWidth, RightBottomBorderHeight, UnusedZ

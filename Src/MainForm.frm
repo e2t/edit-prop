@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} MainForm 
-   Caption         =   "Редактор свойств"
+   Caption         =   "ГђГҐГ¤Г ГЄГІГ®Г° Г±ГўГ®Г©Г±ГІГў"
    ClientHeight    =   7725
    ClientLeft      =   45
    ClientTop       =   375
@@ -410,14 +410,14 @@ Private Sub ConfBox_Change()
   
   If ConfBox.Text = "" Then Exit Sub
       
-  If gItems.Exists(gCurConf) Then 'запись старой конфигурации
+  If gItems.Exists(gCurConf) Then 'Г§Г ГЇГЁГ±Гј Г±ГІГ Г°Г®Г© ГЄГ®Г­ГґГЁГЈГіГ°Г Г¶ГЁГЁ
     ReadForm gCurConf
   End If
 
-  gCurConf = ConfBox.Text  'до этого в gCurConf записана старая конфигурация
+  gCurConf = ConfBox.Text  'Г¤Г® ГЅГІГ®ГЈГ® Гў gCurConf Г§Г ГЇГЁГ±Г Г­Г  Г±ГІГ Г°Г Гї ГЄГ®Г­ГґГЁГЈГіГ°Г Г¶ГЁГї
   
   If Not gItems.Exists(gCurConf) Then
-    gModel.ShowConfiguration2 gCurConf 'ускоряет чтение свойств
+    gModel.ShowConfiguration2 gCurConf 'ГіГ±ГЄГ®Г°ГїГҐГІ Г·ГІГҐГ­ГЁГҐ Г±ГўГ®Г©Г±ГІГў
     ReadProp gModelExt.CustomPropertyManager(gCurConf), gCurConf, ModelProps
   End If
   ReloadForm gCurConf
@@ -502,7 +502,7 @@ Private Sub CloseBut_Click()
   Dim Options As swSaveAsOptions_e, Errors As swFileSaveError_e, Warnings As swFileSaveWarning_e
   
   If IsShiftPressed Then
-    gDoc.Save3 Options, Errors, Warnings  ' отсутствует проверка сохранения
+    gDoc.Save3 Options, Errors, Warnings  ' Г®ГІГ±ГіГІГ±ГІГўГіГҐГІ ГЇГ°Г®ГўГҐГ°ГЄГ  Г±Г®ГµГ°Г Г­ГҐГ­ГЁГї
     gApp.CloseDoc (gDoc.GetPathName)
   End If
   ExitApp

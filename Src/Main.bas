@@ -24,6 +24,19 @@ Public Const pTrueMaterial = "SW-Material"
 '√ë√Ø√•√∂√®√†√´√º√≠√Æ√• √±√¢√Æ√©√±√≤√¢√Æ √§√•√≤√†√´√•√©
 Public Const pIsFastener = "IsFastener"
 Public Const IsFastenerTrue = "1"
+<<<<<<< HEAD:src/Main.bas
+'—‚ÓÈÒÚ‚‡ ˜ÂÚÂÊ‡, Á‡ÔËÒ‡Ì˚ ‚ Ï‡ÒÒË‚Â drawProps
+Public Const pDrafter = "Õ‡˜ÂÚËÎ"
+Public Const pShortDrawingType = "œÓÏÂÚÍ‡"
+Public Const pLongDrawingType = "“ËÔ ‰ÓÍÛÏÂÌÚ‡"
+Public Const pOrganization = "Œ„‡ÌËÁ‡ˆËˇ"
+Public Const pChecking = "œÓ‚ÂËÎ"
+Public Const pApprover = "”Ú‚Â‰ËÎ"
+Public Const pTechControl = "“ÂıÍÓÌÚÓÎ¸"
+Public Const pNormControl = "ÕÓÏÓÍÓÌÚÓÎ¸"
+Public Const pBaseDesignation = "¡‡ÁÓ‚ÓÂ Ó·ÓÁÌ‡˜ÂÌËÂ"
+Public Const MaterialDB = "Ã‡ÚÂË‡Î˚"
+=======
 '√ë√¢√Æ√©√±√≤√¢√† √∑√•√∞√≤√•√¶√†, √ß√†√Ø√®√±√†√≠√ª √¢ √¨√†√±√±√®√¢√• drawProps
 Public Const pDrafter = "√ç√†√∑√•√∞√≤√®√´"
 Public Const pShortDrawingType = "√è√Æ√¨√•√≤√™√†"
@@ -36,6 +49,7 @@ Public Const pNormControl = "√ç√Æ√∞√¨√Æ√™√Æ√≠√≤√∞√Æ√´√º"
 Public Const pBaseDesignation = "√Å√†√ß√Æ√¢√Æ√• √Æ√°√Æ√ß√≠√†√∑√•√≠√®√•"
 Public Const pPaperSize = "√î√Æ√∞√¨√†√≤ √°√≥√¨√†√£√®"
 Public Const MaterialDB = "√å√†√≤√•√∞√®√†√´√ª"
+>>>>>>> 3c54761f01d01a704642e3827185b7a44335ea88:Src/Main.bas
 Public Const CommonSpace = ""
 Public Const Separator = ";"
 Public Const Separator2 = "="
@@ -44,6 +58,7 @@ Public Const SettingsFile = "√ç√†√±√≤√∞√Æ√©√™√®.txt"
 Public Const sEmpty = " "
 Public Const CurrentChoice = "[√≤√•√™√≥√π.]"
 Public Const MaxNamingLen = 60
+Public Const TagPaperSize = "PaperSize"
 
 Enum ErrorCode
   Ok = 0
@@ -319,6 +334,11 @@ Function InitWidgets() 'hide
     InitWidgetFrom MainForm.CheckingBox, UserChecking
     InitRealFormatBox '''√≥√±√≤√†√≠√Æ√¢√™√† √Æ√±√≠√Æ√¢√≠√ª√µ √≠√†√§√Ø√®√±√•√©
     gCodeRegexPattern = CreateCodeRegexPattern
+    If Not CheckIsFirstSheet(gDrawing, gSheet.GetName) Then
+      MainForm.FormatLab.Enabled = False
+      MainForm.FormatBox.Enabled = False
+      MainForm.FormatChk.Enabled = False
+    End If
   Else
     MainForm.MiniSignBox.Enabled = False
     MainForm.CodeBox.Enabled = False
@@ -505,7 +525,7 @@ Function EditorRun() As Boolean
   If gIsDrawing Then
     Set gDrawing = gDoc
     Set gSheet = gDrawing.GetCurrentSheet
-    If gSheet Is Nothing Or IsEmpty(gSheet.GetViews) Then
+    If gSheet Is Nothing Then
       HaveErrors = ErrorCode.EmptySheet
     Else
       SheetProperties = gSheet.GetProperties
@@ -513,11 +533,15 @@ Function EditorRun() As Boolean
       gSheetScale2 = SheetProperties(3)
       gIsFirstAngle = SheetProperties(4)
       Set AView = SelectView
-      Set gModel = AView.ReferencedDocument
-      If gModel Is Nothing Then
-        HaveErrors = ErrorCode.EmptyView
+      If AView Is Nothing Then
+        HaveErrors = ErrorCode.EmptySheet
       Else
-        gCurConf = AView.ReferencedConfiguration
+        Set gModel = AView.ReferencedDocument
+        If gModel Is Nothing Then
+          HaveErrors = ErrorCode.EmptyView
+        Else
+          gCurConf = AView.ReferencedConfiguration
+        End If
       End If
     End If
   Else
@@ -602,20 +626,28 @@ End Function
 
 Function FindView() As View
 
-  Dim PropView As String
-  Dim FirstView As View
+  Dim PropViewName As String
+  Dim AllViews As Variant  'array of array
+  Dim SheetViews As Variant
+  Dim J As Integer
+  Dim AView As View
   
-  PropView = gSheet.CustomPropertyView
-  Set FirstView = gDrawing.GetFirstView.GetNextView
-  Set FindView = FirstView
-  Do While FindView.GetName2 <> PropView
-    Set FindView = FindView.GetNextView
-    If FindView Is Nothing Then
-      Set FindView = FirstView
-      Exit Do
-    End If
-  Loop
-    
+  PropViewName = gSheet.CustomPropertyView
+  AllViews = gDrawing.GetViews
+  For Each SheetViews In AllViews
+    For J = 1 To UBound(SheetViews)
+      Set AView = SheetViews(J)
+      If AView.Name = PropViewName Then
+        Set FindView = AView
+        Exit Function
+      End If
+    Next
+  Next
+  If FindView Is Nothing Then
+    Set FindView = AllViews(0)(1)  'first view
+    'FIX IT: ERROR if 1st sheet don't have views
+  End If
+     
 End Function
 
 Function SelectView() As View
@@ -624,9 +656,9 @@ Function SelectView() As View
   
   Set Selected = gDrawing.SelectionManager.GetSelectedObject5(1)
   If Selected Is Nothing Then
-    Set SelectView = FindView()
+    Set SelectView = FindView
   ElseIf Not TypeOf Selected Is View Then
-    Set SelectView = FindView()
+    Set SelectView = FindView
   Else
     Set SelectView = Selected
   End If

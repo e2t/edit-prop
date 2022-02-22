@@ -494,3 +494,12 @@ Sub CheckComboBoxAndWarnIfNeeded(Box As ComboBox)
   End If
 
 End Sub
+
+Function CheckIsFirstSheet(Drawing As DrawingDoc, CurrentSheetName As String) As Boolean
+
+  Dim FirstSheetAsView As View
+
+  Set FirstSheetAsView = Drawing.GetViews(0)(0)
+  CheckIsFirstSheet = (FirstSheetAsView.Name = CurrentSheetName)
+
+End Function

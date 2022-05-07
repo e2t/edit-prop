@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} MainForm 
-   Caption         =   "ГђГҐГ¤Г ГЄГІГ®Г° Г±ГўГ®Г©Г±ГІГў"
+   Caption         =   "Editor of properties"
    ClientHeight    =   7725
    ClientLeft      =   45
    ClientTop       =   375
@@ -13,7 +13,6 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
 Option Explicit
 
 Private Sub ApplyBut_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
@@ -389,7 +388,6 @@ End Sub
 Private Sub UserForm_Initialize()
 
   Set gItems = New Dictionary
-  IsShiftPressed = False
   ReadOldAfterChecked = True
   InitWidgets
   ReadProp gModelManager, CommonSpace, ModelProps
@@ -411,14 +409,14 @@ Private Sub ConfBox_Change()
   
   If ConfBox.Text = "" Then Exit Sub
       
-  If gItems.Exists(gCurConf) Then 'Г§Г ГЇГЁГ±Гј Г±ГІГ Г°Г®Г© ГЄГ®Г­ГґГЁГЈГіГ°Г Г¶ГЁГЁ
+  If gItems.Exists(gCurConf) Then 'запись старой конфигурации
     ReadForm gCurConf
   End If
 
-  gCurConf = ConfBox.Text  'Г¤Г® ГЅГІГ®ГЈГ® Гў gCurConf Г§Г ГЇГЁГ±Г Г­Г  Г±ГІГ Г°Г Гї ГЄГ®Г­ГґГЁГЈГіГ°Г Г¶ГЁГї
+  gCurConf = ConfBox.Text  'до этого в gCurConf записана старая конфигурация
   
   If Not gItems.Exists(gCurConf) Then
-    gModel.ShowConfiguration2 gCurConf 'ГіГ±ГЄГ®Г°ГїГҐГІ Г·ГІГҐГ­ГЁГҐ Г±ГўГ®Г©Г±ГІГў
+    gModel.ShowConfiguration2 gCurConf 'ускоряет чтение свойств
     ReadProp gModelExt.CustomPropertyManager(gCurConf), gCurConf, ModelProps
   End If
   ReloadForm gCurConf
@@ -500,21 +498,12 @@ End Sub
 
 Private Sub CloseBut_Click()
 
-  Dim Options As swSaveAsOptions_e, Errors As swFileSaveError_e, Warnings As swFileSaveWarning_e
-  
-  If IsShiftPressed Then
-    gDoc.Save3 Options, Errors, Warnings  ' Г®ГІГ±ГіГІГ±ГІГўГіГҐГІ ГЇГ°Г®ГўГҐГ°ГЄГ  Г±Г®ГµГ°Г Г­ГҐГ­ГЁГї
-    gApp.CloseDoc (gDoc.GetPathName)
-  End If
   ExitApp
     
 End Sub
 
 Private Sub ApplyBut_Click()
 
-  Execute
-  If IsShiftPressed Then
-    ExitApp
-  End If
+  ApplyAndExitIfNeeded gIsShiftPressed
     
 End Sub

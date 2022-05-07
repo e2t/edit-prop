@@ -306,8 +306,8 @@ End Sub
 
 Sub TrySetPropToAll(Box As Object, Chk As CheckBox, Property As String)
 
-  If IsShiftPressed And Not Chk.Value Then
-    IsShiftPressed = False
+  If gIsShiftPressed And Not Chk.Value Then
+    gIsShiftPressed = False
     
     ReadOldAfterChecked = False
     Chk.Value = True
@@ -326,15 +326,6 @@ Sub SetValueInBox(Box As ComboBox, Index As Integer)
 
   If 0 <= Index And Index < Box.ListCount Then
     Box.Text = Box.List(Index)
-  End If
-    
-End Sub
-
-Sub ExitByKey(KeyCode As MSForms.ReturnInteger, Shift As Integer)
-
-  If Shift = 1 And KeyCode = vbKeyReturn Then
-    Execute
-    ExitApp
   End If
     
 End Sub

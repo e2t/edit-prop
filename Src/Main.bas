@@ -2,29 +2,31 @@ Attribute VB_Name = "Main"
 Option Explicit
 
 Public Const MacroName = "EditProp"
-Public Const MacroSection = "Main"
+Public Const MacroSection = "Main" 'registry
+Public Const IniFileName = "Settings.ini"
+Public Const MainSection = "Main" 'file.ini
+Const KeyApplyAndExit = "ApplyAndExit"
 
-'Г‘ГўГ®Г©Г±ГІГўГ  Г¬Г®Г¤ГҐГ«ГЁ, Г§Г ГЇГЁГ±Г Г­Г» Гў Г¬Г Г±Г±ГЁГўГҐ modelProps
-Public Const pDesignation = "ГЋГЎГ®Г§Г­Г Г·ГҐГ­ГЁГҐ"
-Public Const pMaterial = "ГЊГ ГІГҐГ°ГЁГ Г«"
-Public Const pName = "ГЌГ ГЁГ¬ГҐГ­Г®ГўГ Г­ГЁГҐ"
-Public Const pNameEN = "ГЌГ ГЁГ¬ГҐГ­Г®ГўГ Г­ГЁГҐ EN"
-Public Const pNamePL = "ГЌГ ГЁГ¬ГҐГ­Г®ГўГ Г­ГЁГҐ PL"
-Public Const pNameUA = "ГЌГ ГЁГ¬ГҐГ­Г®ГўГ Г­ГЁГҐ UA"
-Public Const pBlank = "Г‡Г ГЈГ®ГІГ®ГўГЄГ "
-Public Const pSize = "Г’ГЁГЇГ®Г°Г Г§Г¬ГҐГ°"
-Public Const pNote = "ГЏГ°ГЁГ¬ГҐГ·Г Г­ГЁГҐ"
-Public Const pDesigner = "ГђГ Г§Г°Г ГЎГ®ГІГ Г«"
-Public Const pFormat = "Г”Г®Г°Г¬Г ГІ"
-Public Const pMass = "ГЊГ Г±Г±Г "
-Public Const pLen = "Г„Г«ГЁГ­Г "
-Public Const pWid = "ГГЁГ°ГЁГ­Г "
-'Г‘ГЇГҐГ¶ГЁГ Г«ГјГ­Г®ГҐ Г±ГўГ®Г©Г±ГІГўГ® Г¤Г«Гї ГЇГ®Г«ГіГ·ГҐГ­ГЁГї Г¬Г ГІГҐГ°ГЁГ Г«Г 
+'Свойства модели, записаны в массиве modelProps
+Public Const pDesignation = "Обозначение"
+Public Const pMaterial = "Материал"
+Public Const pName = "Наименование"
+Public Const pNameEN = "Наименование EN"
+Public Const pNamePL = "Наименование PL"
+Public Const pNameUA = "Наименование UA"
+Public Const pBlank = "Заготовка"
+Public Const pSize = "Типоразмер"
+Public Const pNote = "Примечание"
+Public Const pDesigner = "Разработал"
+Public Const pFormat = "Формат"
+Public Const pMass = "Масса"
+Public Const pLen = "Длина"
+Public Const pWid = "Ширина"
+'Специальное свойство для получения материала
 Public Const pTrueMaterial = "SW-Material"
-'Г‘ГЇГҐГ¶ГЁГ Г«ГјГ­Г®ГҐ Г±ГўГ®Г©Г±ГІГўГ® Г¤ГҐГІГ Г«ГҐГ©
+'Специальное свойство деталей
 Public Const pIsFastener = "IsFastener"
 Public Const IsFastenerTrue = "1"
-<<<<<<< HEAD:src/Main.bas
 'Свойства чертежа, записаны в массиве drawProps
 Public Const pDrafter = "Начертил"
 Public Const pShortDrawingType = "Пометка"
@@ -36,27 +38,13 @@ Public Const pTechControl = "Техконтроль"
 Public Const pNormControl = "Нормоконтроль"
 Public Const pBaseDesignation = "Базовое обозначение"
 Public Const MaterialDB = "Материалы"
-=======
-'Г‘ГўГ®Г©Г±ГІГўГ  Г·ГҐГ°ГІГҐГ¦Г , Г§Г ГЇГЁГ±Г Г­Г» Гў Г¬Г Г±Г±ГЁГўГҐ drawProps
-Public Const pDrafter = "ГЌГ Г·ГҐГ°ГІГЁГ«"
-Public Const pShortDrawingType = "ГЏГ®Г¬ГҐГІГЄГ "
-Public Const pLongDrawingType = "Г’ГЁГЇ Г¤Г®ГЄГіГ¬ГҐГ­ГІГ "
-Public Const pOrganization = "ГЋГ°ГЈГ Г­ГЁГ§Г Г¶ГЁГї"
-Public Const pChecking = "ГЏГ°Г®ГўГҐГ°ГЁГ«"
-Public Const pApprover = "Г“ГІГўГҐГ°Г¤ГЁГ«"
-Public Const pTechControl = "Г’ГҐГµГЄГ®Г­ГІГ°Г®Г«Гј"
-Public Const pNormControl = "ГЌГ®Г°Г¬Г®ГЄГ®Г­ГІГ°Г®Г«Гј"
-Public Const pBaseDesignation = "ГЃГ Г§Г®ГўГ®ГҐ Г®ГЎГ®Г§Г­Г Г·ГҐГ­ГЁГҐ"
-Public Const pPaperSize = "Г”Г®Г°Г¬Г ГІ ГЎГіГ¬Г ГЈГЁ"
-Public Const MaterialDB = "ГЊГ ГІГҐГ°ГЁГ Г«Г»"
->>>>>>> 3c54761f01d01a704642e3827185b7a44335ea88:Src/Main.bas
 Public Const CommonSpace = ""
 Public Const Separator = ";"
 Public Const Separator2 = "="
 Public Const Separator3 = ","
-Public Const SettingsFile = "ГЌГ Г±ГІГ°Г®Г©ГЄГЁ.txt"
+Public Const SettingsFile = "Настройки.txt"
 Public Const sEmpty = " "
-Public Const CurrentChoice = "[ГІГҐГЄГіГ№.]"
+Public Const CurrentChoice = "[текущ.]"
 Public Const MaxNamingLen = 60
 Public Const TagPaperSize = "PaperSize"
 
@@ -66,13 +54,13 @@ Enum ErrorCode
   EmptySheet = 2
 End Enum
 
-Public gApp As Object
+Public swApp As Object
 Public gFSO As FileSystemObject
 
 Public gDoc As ModelDoc2
 Public gModel As ModelDoc2
 Public gModelExt As ModelDocExtension
-Public gCurConf As String 'ГўГ»ГЎГ°Г Г­Г­Г Гї Гў Г±ГЇГЁГ±ГЄГҐ ГЄГ®Г­ГґГЁГЈГіГ°Г Г¶ГЁГї
+Public gCurConf As String 'выбранная в списке конфигурация
 Public gIsAssembly As Boolean
 Public gIsDrawing As Boolean
 Public gModelManager As CustomPropertyManager
@@ -83,7 +71,8 @@ Public DrawProps(8) As String
 Public PaperSizes As Dictionary
 Public gItems As Dictionary
 Public ReadOldAfterChecked As Boolean
-Public IsShiftPressed As Boolean
+Public gIsShiftPressed As Boolean
+Public gIniFilePath As String
 
 Dim gConfigPath As String
 Dim gDrawExt As ModelDocExtension
@@ -93,7 +82,7 @@ Dim gDrawing As DrawingDoc
 Dim gSheetScale1 As Double
 Dim gSheetScale2 As Double
 Dim gIsFirstAngle As Double
-Dim gMainConf As String 'Г®Г±Г­Г®ГўГ­Г Гї ГЄГ®Г­ГґГЁГЈГіГ°Г Г¶ГЁГї Г­Г  Г·ГҐГ°ГІГҐГ¦ГҐ
+Dim gMainConf As String 'основная конфигурация на чертеже
 Dim gBaseDesignation As String
 Dim gChangeNumber As Long
 Dim gIsUnnamed As Boolean
@@ -116,13 +105,14 @@ Dim UserWid() As String
 Dim UserMaterials() As String
 Dim gCodeRegexPattern As String
 Dim gRegexMaterial As RegExp
+Dim gIsApplyAndExit As Boolean
 
 Sub Main()
 
   Init
-  Set gDoc = gApp.ActiveDoc
+  Set gDoc = swApp.ActiveDoc
   If gDoc Is Nothing Then
-    MsgBox "ГЌГҐГІ Г®ГІГЄГ°Г»ГІГ»Гµ Г¤Г®ГЄГіГ¬ГҐГ­ГІГ®Гў."
+    MsgBox "Нет открытых документов."
   Else
     EditorRun
   End If
@@ -131,7 +121,7 @@ End Sub
 
 Function Init() As Boolean
 
-  Set gApp = Application.SldWorks
+  Set swApp = Application.SldWorks
   Set gFSO = New FileSystemObject
   
   ReDim UserName(0)
@@ -197,7 +187,7 @@ Function Init() As Boolean
   DrawProps(7) = pNormControl
   DrawProps(8) = pBaseDesignation
   
-  gConfigPath = gApp.GetCurrentMacroPathFolder() + "\config\"
+  gConfigPath = swApp.GetCurrentMacroPathFolder() + "\config\"
   ReadSettings  'only after "gConfigPath = ..."
   
   Set gRegexMaterial = New RegExp
@@ -208,14 +198,14 @@ Function Init() As Boolean
   
   Set PaperSizes = New Dictionary
   AppendPaperSize "A4", "A4", 0.21, 0.297
-  AppendPaperSize "A3 ГЈГ®Г°ГЁГ§", "A3", 0.42, 0.297
-  AppendPaperSize "A3 ГўГҐГ°ГІ", "A3", 0.297, 0.42
-  AppendPaperSize "A2 ГЈГ®Г°ГЁГ§", "A2", 0.594, 0.42
-  AppendPaperSize "A2 ГўГҐГ°ГІ", "A2", 0.42, 0.594
-  AppendPaperSize "A1 ГЈГ®Г°ГЁГ§", "A1", 0.841, 0.594
-  AppendPaperSize "A1 ГўГҐГ°ГІ", "A1", 0.594, 0.841
-  AppendPaperSize "A0 ГЈГ®Г°ГЁГ§", "A0", 1.189, 0.841
-  AppendPaperSize "A0 ГўГҐГ°ГІ", "A0", 0.841, 1.189
+  AppendPaperSize "A3 гориз", "A3", 0.42, 0.297
+  AppendPaperSize "A3 верт", "A3", 0.297, 0.42
+  AppendPaperSize "A2 гориз", "A2", 0.594, 0.42
+  AppendPaperSize "A2 верт", "A2", 0.42, 0.594
+  AppendPaperSize "A1 гориз", "A1", 0.841, 0.594
+  AppendPaperSize "A1 верт", "A1", 0.594, 0.841
+  AppendPaperSize "A0 гориз", "A0", 1.189, 0.841
+  AppendPaperSize "A0 верт", "A0", 0.841, 1.189
   
   AppendPaperSize "A4x3", "A4x3", 0.63, 0.297
   AppendPaperSize "A4x4", "A4x4", 0.841, 0.297
@@ -242,17 +232,39 @@ Function Init() As Boolean
   AppendPaperSize "A0x5", "A0x5", 4.2, 1.189
   AppendPaperSize "A0x6", "A0x6", 5.04, 1.189
   
-  AppendPaperSize "ANSI A ГЈГ®Г°ГЁГ§", "A", 0.28, 0.216
-  AppendPaperSize "ANSI A ГўГҐГ°ГІ", "A", 0.216, 0.28
-  AppendPaperSize "ANSI B ГЈГ®Г°ГЁГ§", "B", 0.432, 0.279
-  AppendPaperSize "ANSI B ГўГҐГ°ГІ", "B", 0.279, 0.432
-  AppendPaperSize "ANSI C ГЈГ®Г°ГЁГ§", "C", 0.559, 0.432
-  AppendPaperSize "ANSI C ГўГҐГ°ГІ", "C", 0.432, 0.559
-  AppendPaperSize "ANSI D ГЈГ®Г°ГЁГ§", "D", 0.864, 0.559
-  AppendPaperSize "ANSI D ГўГҐГ°ГІ", "D", 0.559, 0.864
-  AppendPaperSize "ANSI E ГЈГ®Г°ГЁГ§", "E", 1.121, 0.864
-  AppendPaperSize "ANSI E ГўГҐГ°ГІ", "E", 0.864, 1.121
+  AppendPaperSize "ANSI A гориз", "A", 0.28, 0.216
+  AppendPaperSize "ANSI A верт", "A", 0.216, 0.28
+  AppendPaperSize "ANSI B гориз", "B", 0.432, 0.279
+  AppendPaperSize "ANSI B верт", "B", 0.279, 0.432
+  AppendPaperSize "ANSI C гориз", "C", 0.559, 0.432
+  AppendPaperSize "ANSI C верт", "C", 0.432, 0.559
+  AppendPaperSize "ANSI D гориз", "D", 0.864, 0.559
+  AppendPaperSize "ANSI D верт", "D", 0.559, 0.864
+  AppendPaperSize "ANSI E гориз", "E", 1.121, 0.864
+  AppendPaperSize "ANSI E верт", "E", 0.864, 1.121
+  
+  gIsShiftPressed = False
+  gIniFilePath = gFSO.BuildPath(swApp.GetCurrentMacroPathFolder, IniFileName)
+  If Not gFSO.FileExists(gIniFilePath) Then
+    CreateDefaultIniFile
+  End If
+  gIsApplyAndExit = GetBooleanSetting(KeyApplyAndExit)
     
+End Function
+ 
+Function CreateDefaultIniFile() 'hide
+
+  Const DefaultText = "[" + MainSection + "]" + vbNewLine _
+    + KeyApplyAndExit + " = False" + vbNewLine
+
+  Dim objStream As Stream
+      
+  Set objStream = New Stream
+  objStream.Open
+  objStream.WriteText DefaultText
+  objStream.SaveToFile gIniFilePath
+  objStream.Close
+
 End Function
 
 Function InitWidgets() 'hide
@@ -305,7 +317,7 @@ Function InitWidgets() 'hide
   Else
     MainForm.SizeBox.AddItem ("")  ' for Equation
     InitWidgetFrom MainForm.SizeBox, UserSize
-    Set BaseMaterials = ReadMaterialNames("ГЊГ ГІГҐГ°ГЁГ Г«Г».sldmat")
+    Set BaseMaterials = ReadMaterialNames("Материалы.sldmat")
     If BaseMaterials.Count > 0 Then
       ReDim ResultMaterials(BaseMaterials.Count - 1)
       K = 0
@@ -332,7 +344,7 @@ Function InitWidgets() 'hide
     InitWidgetFrom MainForm.OrgBox, UserOrganization
     InitWidgetFrom MainForm.DraftBox, UserDrafter
     InitWidgetFrom MainForm.CheckingBox, UserChecking
-    InitRealFormatBox '''ГіГ±ГІГ Г­Г®ГўГЄГ  Г®Г±Г­Г®ГўГ­Г»Гµ Г­Г Г¤ГЇГЁГ±ГҐГ©
+    InitRealFormatBox '''установка основных надписей
     gCodeRegexPattern = CreateCodeRegexPattern
     If Not CheckIsFirstSheet(gDrawing, gSheet.GetName) Then
       MainForm.FormatLab.Enabled = False
@@ -353,7 +365,11 @@ Function InitWidgets() 'hide
     MainForm.CheckingBox.Enabled = False
   End If
   
-  MainForm.tabConf.Tabs(0).Caption = "ГЉГ®Г­ГґГЁГЈГіГ°Г Г¶ГЁГЁ " & gModel.GetConfigurationCount
+  MainForm.tabConf.Tabs(0).Caption = "Конфигурации " & gModel.GetConfigurationCount
+  
+  If gIsApplyAndExit Then
+    MainForm.ApplyBut.Caption = "OK"
+  End If
     
 End Function
 
@@ -371,7 +387,7 @@ Function CheckScaleAndReport() 'hide
       Set AView = J
       AScale = AView.ScaleRatio
       If Not CheckIsStandardScale(AScale(0), AScale(1)) Then
-        MainForm.labWarningSelected.Caption = "ГЌГ…Г‘Г’ГЂГЌГ„ГЂГђГ’ГЌГ›Г‰ ГЊГЂГ‘ГГ’ГЂГЃ """ & AView.Name & """ " & Str(AScale(0)) & ":" & Str(AScale(1))
+        MainForm.labWarningSelected.Caption = "НЕСТАНДАРТНЫЙ МАСШТАБ """ & AView.Name & """ " & Str(AScale(0)) & ":" & Str(AScale(1))
         MainForm.labWarningSelected.ForeColor = &HFF&
         MainForm.labWarningSelected.Visible = True
         Exit Function
@@ -449,20 +465,20 @@ Function OpenSettingsFile() As Boolean
   Dim Fst As Object
   Dim DrawingCodes(13) As String
   
-  DrawingCodes(0) = ".AD=Г‘ГЎГ®Г°Г®Г·Г­Г»Г© Г·ГҐГ°ГІГҐГ¦,Assembly Drawing,Г‘ГЄГ«Г Г¤Г Г«ГјГ­ГЁГ© ГЄГ°ГҐГ±Г«ГҐГ­ГЁГЄ"
-  DrawingCodes(1) = ".ID=ГЊГ®Г­ГІГ Г¦Г­Г»Г© Г·ГҐГ°ГІГҐГ¦,Installation Drawing,ГЊГ®Г­ГІГ Г¦Г­ГЁГ© ГЄГ°ГҐГ±Г«ГҐГ­ГЁГЄ"
-  DrawingCodes(2) = ".DD=ГѓГ ГЎГ Г°ГЁГІГ­Г»Г© Г·ГҐГ°ГІГҐГ¦,Dimension Drawing,ГѓГ ГЎГ Г°ГЁГІГ­ГЁГ© ГЄГ°ГҐГ±Г«ГҐГ­ГЁГЄ"
-  DrawingCodes(3) = ".GA=Г—ГҐГ°ГІГҐГ¦ Г®ГЎГ№ГҐГЈГ® ГўГЁГ¤Г ,General Arrangement Drawing,ГЉГ°ГҐГ±Г«ГҐГ­ГЁГЄ Г§Г ГЈГ Г«ГјГ­Г®ГЈГ® ГўГЁГ¤Гі"
-  DrawingCodes(4) = ".TD=Г—ГҐГ°ГІГҐГ¦ 3D,3D-Drawing"
-  DrawingCodes(5) = ".MD=Г—ГҐГ°ГІГҐГ¦ ГЄГ®Г¬ГЇГ®Г­ГҐГ­ГІГ ,Component Drawing"
-  DrawingCodes(6) = ".ND=ГЉГ®Г¬ГЇГ®Г­Г®ГўГ®Г·Г­Г»Г© Г·ГҐГ°ГІГҐГ¦,Arrangement Drawing"
-  DrawingCodes(7) = ".CD=ГЉГ®Г­Г¶ГҐГЇГІГіГ Г«ГјГ­Г»Г© Г·ГҐГ°ГІГҐГ¦,Concept Drawing"
-  DrawingCodes(8) = ".LD=Г—ГҐГ°ГІГҐГ¦ Г°Г Г§Г¬ГҐГ№ГҐГ­ГЁГї,Layout Drawing"
-  DrawingCodes(9) = ".ED=ГђГ Г§Г­ГҐГ±ГҐГ­Г­Г»Г© Г·ГҐГ°ГІГҐГ¦,Exploded-view Drawing"
-  DrawingCodes(10) = "Г‘ГЃ=Г‘ГЎГ®Г°Г®Г·Г­Г»Г© Г·ГҐГ°ГІГҐГ¦,Г‘ГЄГ«Г Г¤Г Г«ГјГ­ГЁГ© ГЄГ°ГҐГ±Г«ГҐГ­ГЁГЄ"
-  DrawingCodes(11) = "ГЊГ—=ГЊГ®Г­ГІГ Г¦Г­Г»Г© Г·ГҐГ°ГІГҐГ¦,ГЊГ®Г­ГІГ Г¦Г­ГЁГ© ГЄГ°ГҐГ±Г«ГҐГ­ГЁГЄ"
-  DrawingCodes(12) = "ГѓГ—=ГѓГ ГЎГ Г°ГЁГІГ­Г»Г© Г·ГҐГ°ГІГҐГ¦,ГѓГ ГЎГ Г°ГЁГІГ­ГЁГ© ГЄГ°ГҐГ±Г«ГҐГ­ГЁГЄ"
-  DrawingCodes(13) = "Г‚ГЋ=Г—ГҐГ°ГІГҐГ¦ Г®ГЎГ№ГҐГЈГ® ГўГЁГ¤Г ,ГЉГ°ГҐГ±Г«ГҐГ­ГЁГЄ Г§Г ГЈГ Г«ГјГ­Г®ГЈГ® ГўГЁГ¤Гі"
+  DrawingCodes(0) = ".AD=Сборочный чертеж,Assembly Drawing,Складальний кресленик"
+  DrawingCodes(1) = ".ID=Монтажный чертеж,Installation Drawing,Монтажний кресленик"
+  DrawingCodes(2) = ".DD=Габаритный чертеж,Dimension Drawing,Габаритний кресленик"
+  DrawingCodes(3) = ".GA=Чертеж общего вида,General Arrangement Drawing,Кресленик загального виду"
+  DrawingCodes(4) = ".TD=Чертеж 3D,3D-Drawing"
+  DrawingCodes(5) = ".MD=Чертеж компонента,Component Drawing"
+  DrawingCodes(6) = ".ND=Компоновочный чертеж,Arrangement Drawing"
+  DrawingCodes(7) = ".CD=Концептуальный чертеж,Concept Drawing"
+  DrawingCodes(8) = ".LD=Чертеж размещения,Layout Drawing"
+  DrawingCodes(9) = ".ED=Разнесенный чертеж,Exploded-view Drawing"
+  DrawingCodes(10) = "СБ=Сборочный чертеж,Складальний кресленик"
+  DrawingCodes(11) = "МЧ=Монтажный чертеж,Монтажний кресленик"
+  DrawingCodes(12) = "ГЧ=Габаритный чертеж,Габаритний кресленик"
+  DrawingCodes(13) = "ВО=Чертеж общего вида,Кресленик загального виду"
   
   FileName = gConfigPath + SettingsFile
   If Not gFSO.FileExists(FileName) Then
@@ -472,21 +488,21 @@ Function OpenSettingsFile() As Boolean
       
     Text = _
       HeaderInFile(pBlank) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
-      HeaderInFile(pMass) + vbNewLine + "Г±Г¬. ГІГ ГЎГ«." + vbNewLine + vbNewLine + _
+      HeaderInFile(pMass) + vbNewLine + "см. табл." + vbNewLine + vbNewLine + _
       HeaderInFile(pName) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
-      HeaderInFile(pNormControl) + vbNewLine + "ГћГ°ГЁГЄГ®Гў" + vbNewLine + vbNewLine + _
+      HeaderInFile(pNormControl) + vbNewLine + "Юриков" + vbNewLine + vbNewLine + _
       HeaderInFile(pDrafter) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
-      HeaderInFile(pOrganization) + vbNewLine + "ГЋГЋГЋ ""ГќГЄГ®-Г€Г­ГўГҐГ±ГІ"";Г‡ГЂГЋ ГЌГЏГ” ""ГќГЄГ®ГІГ®Г­""" + vbNewLine + vbNewLine + _
+      HeaderInFile(pOrganization) + vbNewLine + "ООО ""Эко-Инвест"";ЗАО НПФ ""Экотон""" + vbNewLine + vbNewLine + _
       HeaderInFile(pShortDrawingType) + vbNewLine + _
       Join(DrawingCodes, Separator) + vbNewLine + vbNewLine + _
       HeaderInFile(pNote) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
-      HeaderInFile(pChecking) + vbNewLine + "ГћГ°ГЁГЄГ®Гў" + vbNewLine + vbNewLine + _
+      HeaderInFile(pChecking) + vbNewLine + "Юриков" + vbNewLine + vbNewLine + _
       HeaderInFile(pDesigner) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
-      HeaderInFile(pTechControl) + vbNewLine + "ГѓГіГ¬ГҐГ­Г­Г»Г©" + vbNewLine + vbNewLine + _
+      HeaderInFile(pTechControl) + vbNewLine + "Гуменный" + vbNewLine + vbNewLine + _
       HeaderInFile(pSize) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
-      HeaderInFile(pApprover) + vbNewLine + "ГѓГіГ¬ГҐГ­Г­Г»Г©" + vbNewLine + vbNewLine + _
-      HeaderInFile(pFormat) + vbNewLine + "ГЂ4;ГЂ3;ГЂ2;ГЂ1;ГЂ0;ГЃГ—;*;ГЂ4Гµ3;ГЂ4Гµ4;ГЂ3Гµ3;ГЂ3Гµ4" + vbNewLine + vbNewLine + _
-      HeaderInFile(pMaterial) + vbNewLine + "AISI 304;Г‘ГІ.3;EPDM" + vbNewLine + vbNewLine + _
+      HeaderInFile(pApprover) + vbNewLine + "Гуменный" + vbNewLine + vbNewLine + _
+      HeaderInFile(pFormat) + vbNewLine + "А4;А3;А2;А1;А0;БЧ;*;А4х3;А4х4;А3х3;А3х4" + vbNewLine + vbNewLine + _
+      HeaderInFile(pMaterial) + vbNewLine + "AISI 304;Ст.3;EPDM" + vbNewLine + vbNewLine + _
       HeaderInFile(pLen) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
       HeaderInFile(pWid) + vbNewLine + ";;;" + vbNewLine
       
@@ -579,9 +595,9 @@ Function EditorRun() As Boolean
       End If
       MainForm.Show
     Case ErrorCode.EmptyView
-      MsgBox ("ГЏГіГ±ГІГ®Г© ГўГЁГ¤. ГЌГҐГІ Г±Г±Г»Г«ГЄГЁ Г­Г  Г¬Г®Г¤ГҐГ«Гј.")
+      MsgBox ("Пустой вид. Нет ссылки на модель.")
     Case ErrorCode.EmptySheet
-      MsgBox ("ГЏГіГ±ГІГ®Г© Г«ГЁГ±ГІ. ГЊГ®Г¤ГҐГ«Гј Г­ГҐ Г®ГЎГ­Г Г°ГіГ¦ГҐГ­Г .")
+      MsgBox ("Пустой лист. Модель не обнаружена.")
   End Select
   
 End Function
@@ -670,7 +686,7 @@ Sub SaveAsMy(NewName As String, OldName As String)
   Dim Error As Long, Warning As Long
 
   If gFSO.FileExists(NewName) Then
-    If MsgBox("Г”Г Г©Г« Г± ГІГ ГЄГЁГ¬ ГЁГ¬ГҐГ­ГҐГ¬ Г±ГіГ№ГҐГ±ГІГўГіГҐГІ. Г‡Г Г¬ГҐГ­ГЁГІГј?", vbOKCancel) = vbCancel Then
+    If MsgBox("Файл с таким именем существует. Заменить?", vbOKCancel) = vbCancel Then
       Exit Sub
     End If
   End If
@@ -681,7 +697,7 @@ Sub SaveAsMy(NewName As String, OldName As String)
         Kill (OldName)
       End If
   Else
-    MsgBox ("ГЌГҐ ГіГ¤Г Г«Г®Г±Гј Г±Г®ГµГ°Г Г­ГЁГІГј ГґГ Г©Г«")
+    MsgBox ("Не удалось сохранить файл")
   End If
     
 End Sub
@@ -709,7 +725,7 @@ Function GetEquationThickness(Conf As String, ToAll As Boolean, NameModel As Str
   
   GetEquationThickness = ""
   Set Mgr = gModel.Extension.CustomPropertyManager(Conf)
-  VariantThicknessName(0) = "Г’Г®Г«Г№ГЁГ­Г "
+  VariantThicknessName(0) = "Толщина"
   VariantThicknessName(1) = "Thickness"
   'variantThicknessName(2) = "Grubos'c'"
   For Each ThName_ In VariantThicknessName
@@ -752,7 +768,7 @@ Function SetIsFastener() 'hide
 
 End Function
 
-' ГЃГҐГ§ ГІГ®Г·ГҐГЄ "." Гў Г­Г ГЁГ¬ГҐГ­Г®ГўГ Г­ГЁГЁ
+' Без точек "." в наименовании
 Sub SplitNameAndSign(Line As String, Conf As String, ByRef Designation As String, _
                      ByRef Name As String, ByRef Code As String)
                      
@@ -791,7 +807,7 @@ Sub SplitNameAndSign(Line As String, Conf As String, ByRef Designation As String
     Conf = Left(Conf, Len(Conf) - Len(Flat))
   End If
   If Not IsBaseConf(Conf) Then
-    Conf = Split(Conf)(0)  '-00 Г®ГІГЄГ°.
+    Conf = Split(Conf)(0)  '-00 откр.
     If Not IsBaseConf(Conf) Then
       MainForm.SignChk.Value = False ' running event
       Designation = Designation & "-" & Conf
@@ -803,7 +819,7 @@ End Sub
 Function IsBaseConf(Conf As String) As Boolean
 
   Select Case Conf
-    Case "00", "ГЏГ® ГіГ¬Г®Г«Г·Г Г­ГЁГѕ", "Default"
+    Case "00", "По умолчанию", "Default"
       IsBaseConf = True
     Case Else
       IsBaseConf = False
@@ -811,7 +827,7 @@ Function IsBaseConf(Conf As String) As Boolean
 
 End Function
 
-' Г“Г±ГІГ Г­Г ГўГ«ГЁГўГ ГҐГІ Г§Г­Г Г·ГҐГ­ГЁГї gItems ГЁГ§ Г±ГўГ®Г©Г±ГІГў, ГЁГЈГ­Г®Г°ГЁГ°ГіГї Г±ГіГ№ГҐГ±ГІГўГіГѕГ№ГЁГҐ
+' Устанавливает значения gItems из свойств, игнорируя существующие
 Sub ReadProp(Manager As CustomPropertyManager, Conf As String, props() As String)
 
   Const UseCached = False
@@ -918,8 +934,8 @@ Sub FromAllChecked(Chk As CheckBox, Box As Object, Prop As String, Conf As Strin
   
 End Sub
 
-' Г“Г±ГІГ Г­Г ГўГ«ГЁГўГ ГҐГІ Г§Г­Г Г·ГҐГ­ГЁГї gItems ГЁГ§ ГґГ®Г°Г¬Г»
-' conf - ГЄГ®Г­ГґГЁГЈГіГ°Г Г¶ГЁГї Г€Г‹Г€ ГЅГ«ГҐГ¬ГҐГ­ГІ Г±ГЇГЁГ±ГЄГ  ГўГ»Г°ГҐГ§Г®Гў
+' Устанавливает значения gItems из формы
+' conf - конфигурация ИЛИ элемент списка вырезов
 Sub ReadBox(Box As Object, Chk As CheckBox, Conf As String, Prop As String, forward As Boolean)
 
   Dim TargetConf As String
@@ -936,7 +952,7 @@ Sub ReadBox(Box As Object, Chk As CheckBox, Conf As String, Prop As String, forw
     gItems(CommonSpace)(Prop).NewValue = Box.Text
   ElseIf Prop = pMaterial Then
     gItems(Conf)(Prop).FromAll = False
-    gItems(Conf)(Prop).NewValue = Box.Text   'ГіГ°Г ГўГ­ГҐГ­ГЁГҐ MaterialEqual ГіГ±ГІГ Г­Г ГўГ«ГЁГўГ ГҐГІГ±Гї Гў SetProp2
+    gItems(Conf)(Prop).NewValue = Box.Text   'уравнение MaterialEqual устанавливается в SetProp2
   Else
     gItems(Conf)(Prop).FromAll = Chk.Value
     If forward Then
@@ -1118,7 +1134,7 @@ Function SetSpeedFormat() 'hide
     If FormatChoice <> CurrentChoice Then
       TemplateName = gFSO.BuildPath(gConfigPath, FormatChoice & ".SLDDRT")
       If Not gFSO.FileExists(TemplateName) Then
-        MsgBox ("Г”Г Г©Г« " + TemplateName + " Г­ГҐ Г­Г Г©Г¤ГҐГ­.")
+        MsgBox ("Файл " + TemplateName + " не найден.")
         Exit Function
       End If
       
@@ -1152,9 +1168,9 @@ Function OutputTypeAndName() 'hide
     MainForm.DrawNameBox.Text = gFSO.GetBaseName(gDoc.GetPathName)
   End If
   If gIsAssembly Then
-    MainForm.Controls("ModelNameLab").Caption = "Г”Г Г©Г« Г±ГЎГ®Г°ГЄГЁ"
+    MainForm.Controls("ModelNameLab").Caption = "Файл сборки"
   Else
-    MainForm.Controls("ModelNameLab").Caption = "Г”Г Г©Г« Г¤ГҐГІГ Г«ГЁ"
+    MainForm.Controls("ModelNameLab").Caption = "Файл детали"
   End If
     
 End Function
@@ -1171,7 +1187,7 @@ Function CreateCodeRegexPattern() As String
     Next
     CreateCodeRegexPattern = Join(Codes, "|")
   Else
-    CreateCodeRegexPattern = "Г‘ГЃ|ГЊГ—|Г“Г—|ГђГ‘ГЃ"
+    CreateCodeRegexPattern = "СБ|МЧ|УЧ|РСБ"
   End If
   'Debug.Print CreateCodeRegexPattern
   
@@ -1247,7 +1263,7 @@ Function WriteModelProperties() 'hide
     
 End Function
 
-'TODO: ГіГЎГ°Г ГІГј Г·ГҐГ°ГІГҐГ¦Г­Г»ГҐ Г±ГўГ®Г©Г±ГІГўГ  ГЁГ§ gItems, Г·ГЁГІГ ГІГј ГЁГµ ГЇГ°ГїГ¬Г® ГЁГ§ ГґГ®Г°Г¬Г»
+'TODO: убрать чертежные свойства из gItems, читать их прямо из формы
 Function WriteDrawingProperties() 'hide
 
   Dim ToAll As Boolean
@@ -1257,7 +1273,7 @@ Function WriteDrawingProperties() 'hide
   ToAll = True
   Set Item = gItems(CommonSpace)
   DrawingCode = MainForm.MiniSignBox.Text
-  'Г±Г¬. Г¬Г Г±Г±ГЁГў drawProps
+  'см. массив drawProps
   SetProp gDrawManager, pShortDrawingType, DrawingCode
   SetProp2 gDrawManager, pOrganization, Item(pOrganization)
   SetProp2 gDrawManager, pDrafter, Item(pDrafter)
@@ -1272,6 +1288,27 @@ End Function
 
 Sub SetShiftStatus(Shift As Integer)
   
-  IsShiftPressed = Shift And 1
+  gIsShiftPressed = Shift And 1
   
+End Sub
+
+Sub ApplyAndExitIfNeeded(IsShiftPressed As Boolean)
+
+  Dim NeedExit As Boolean
+  
+  NeedExit = gIsApplyAndExit Xor IsShiftPressed
+
+  Execute
+  If NeedExit Then
+    ExitApp
+  End If
+
+End Sub
+
+Sub ExitByKey(KeyCode As MSForms.ReturnInteger, Shift As Integer)
+  
+  If KeyCode = vbKeyReturn Then
+    ApplyAndExitIfNeeded Shift = 1
+  End If
+    
 End Sub

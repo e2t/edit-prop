@@ -1,6 +1,8 @@
 Attribute VB_Name = "Settings"
 Option Explicit
 
+Const kLangTranslate = "LangTranslate"
+
 Sub SaveSetting2(ByRef Key As String, ByRef Value As String)
 
   SaveSetting MacroName, MacroSection, Key, Value
@@ -62,3 +64,15 @@ Function BoolToStr(Value As Boolean) As String
   BoolToStr = Str(CInt(Value))
     
 End Function
+
+Function GetLangTranslateSetting() As Integer
+
+  GetLangTranslateSetting = GetIntSetting(kLangTranslate)
+
+End Function
+
+Sub SaveLangTranslate(Index As Integer)
+
+  SaveIntSetting kLangTranslate, Index
+
+End Sub

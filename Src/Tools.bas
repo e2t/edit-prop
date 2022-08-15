@@ -254,33 +254,6 @@ Function GetBaseDesignation(Designation As String) As String
   
 End Function
 
-Sub RewriteNameAndSign(Source As String, Conf As String)
-
-  Dim Designation As String
-  Dim Name As String
-  Dim Code As String
-  Dim I As Integer
-  Dim IsCodeFound As Boolean
-  
-  Designation = ""
-  Name = ""
-  SplitNameAndSign Source, Conf, Designation, Name, Code
-  MainForm.SignBox.Text = Designation
-  MainForm.NameBox.Text = Name
-  If gIsDrawing Then
-    IsCodeFound = False
-    I = 0
-    While (I < MainForm.MiniSignBox.ListCount) And (Not IsCodeFound)
-      IsCodeFound = (StrComp(MainForm.MiniSignBox.List(I), Code, vbTextCompare) = 0)
-      If IsCodeFound Then
-        MainForm.MiniSignBox.ListIndex = I
-      End If
-      I = I + 1
-    Wend
-  End If
-  
-End Sub
-
 Function ExistsInCombo(Box As ComboBox, Value As String)
 
   Dim I As Variant
@@ -330,29 +303,6 @@ Sub SetValueInBox(Box As ComboBox, Index As Integer)
     
 End Sub
 
-Function SetPartCaptionIfEmptyDrawingCode() As Boolean
-
-  SetPartCaptionIfEmptyDrawingCode = (MainForm.MiniSignBox.Text = "")
-  If SetPartCaptionIfEmptyDrawingCode Then
-    MainForm.CodeBox.AddItem "Деталь"
-    MainForm.CodeBox.Text = MainForm.CodeBox.List(0)
-    MainForm.CodeBox.Enabled = False
-  End If
-
-End Function
-
-Function InitPaperSizeBox() 'hide
-
-  Dim I As Variant
-  
-  MainForm.PaperSizeBox.AddItem CurrentChoice
-  MainForm.PaperSizeBox.Text = MainForm.PaperSizeBox.List(0)
-  For Each I In PaperSizes.Keys
-    MainForm.PaperSizeBox.AddItem I
-  Next
-
-End Function
-
 Function Equal(swProp As String, ToAll As Boolean, Conf As String, NameModel As String) As String
 
   Dim ConfText As String
@@ -364,92 +314,6 @@ Function Equal(swProp As String, ToAll As Boolean, Conf As String, NameModel As 
   Equal = """" + swProp + ConfText + "@" + NameModel + """"
     
 End Function
-
-Sub TryRenameDraft(sName As String)
-
-  Dim NewName As String, OldName As String
-
-  If sName = "" Then
-    Exit Sub
-  End If
-  OldName = gDoc.GetPathName
-  If OldName = "" Then
-    NewName = gFSO.BuildPath(gFSO.GetParentFolderName(gModel.GetPathName), sName + ".SLDDRW")
-    SaveAsMy NewName, OldName
-  Else
-    NewName = gFSO.BuildPath(gFSO.GetParentFolderName(OldName), sName + ".SLDDRW")
-    If OldName <> NewName Then
-      SaveAsMy NewName, OldName
-    End If
-  End If
-    
-End Sub
-
-Sub ReloadForm(Conf As String)
-
-  ReadOldAfterChecked = False
-
-  If gIsDrawing Then
-    SetBoxValue2 Nothing, pShortDrawingType, CommonSpace
-    SetBoxValue2 Nothing, pLongDrawingType, CommonSpace
-    SetBoxValue2 Nothing, pOrganization, CommonSpace
-    SetBoxValue2 Nothing, pDrafter, CommonSpace
-    SetBoxValue2 Nothing, pChecking, CommonSpace
-  End If
-  
-  SetBoxValue2 MainForm.DevelChk, pDesigner, Conf
-  SetBoxValue2 MainForm.SignChk, pDesignation, Conf
-  
-  SetBoxValue2 MainForm.NameChk, pName, Conf
-  ChangeChecked pNameEN
-  ChangeChecked pNamePL
-  ChangeChecked pNameUA
-  
-  SetBoxValue2 MainForm.FormatChk, pFormat, Conf
-  SetBoxValue2 MainForm.NoteChk, pNote, Conf
-  SetBoxValue2 MainForm.MassChk, pMass, Conf
-  
-  If Not gIsAssembly Then
-    SetBoxValue2 MainForm.BlankChk, pBlank, Conf
-    SetBoxValue2 MainForm.SizeChk, pSize, Conf
-    SetBoxValue2 Nothing, pMaterial, Conf
-    SetBoxValue2 MainForm.lenChk, pLen, Conf
-    SetBoxValue2 MainForm.widChk, pWid, Conf
-  End If
-  ReadOldAfterChecked = True
-    
-End Sub
-
-Sub ReadForm(Conf As String)
-
-  ReadBox MainForm.NameBox, MainForm.NameChk, Conf, pName, True
-  ReadBox MainForm.NameBoxEN, MainForm.NameChk, Conf, pNameEN, True
-  ReadBox MainForm.NameBoxPL, MainForm.NameChk, Conf, pNamePL, True
-  ReadBox MainForm.NameBoxUA, MainForm.NameChk, Conf, pNameUA, True
-  
-  ReadBox MainForm.DevelBox, MainForm.DevelChk, Conf, pDesigner, True
-  ReadBox MainForm.SignBox, MainForm.SignChk, Conf, pDesignation, True
-  ReadBox MainForm.FormatBox, MainForm.FormatChk, Conf, pFormat, True
-  ReadBox MainForm.NoteBox, MainForm.NoteChk, Conf, pNote, True
-  ReadBox MainForm.MassBox, MainForm.MassChk, Conf, pMass, True
-  
-  If gIsDrawing Then
-    ReadBox MainForm.MiniSignBox, Nothing, CommonSpace, pShortDrawingType, True
-    ReadBox MainForm.CodeBox, Nothing, CommonSpace, pLongDrawingType, True
-    ReadBox MainForm.OrgBox, Nothing, CommonSpace, pOrganization, True
-    ReadBox MainForm.DraftBox, Nothing, CommonSpace, pDrafter, True
-    ReadBox MainForm.CheckingBox, Nothing, CommonSpace, pChecking, True
-  End If
-  
-  If Not gIsAssembly Then
-    ReadBox MainForm.BlankBox, MainForm.BlankChk, Conf, pBlank, True
-    ReadBox MainForm.SizeBox, MainForm.SizeChk, Conf, pSize, True
-    ReadBox MainForm.MaterialBox, Nothing, Conf, pMaterial, True
-    ReadBox MainForm.lenBox, MainForm.lenChk, Conf, pLen, True
-    ReadBox MainForm.widBox, MainForm.widChk, Conf, pWid, True
-  End If
-  
-End Sub
 
 Function SetProp2(Manager As CustomPropertyManager, Prop As String, Item As DataItem, _
                   Optional Conf As String = CommonSpace) As Boolean

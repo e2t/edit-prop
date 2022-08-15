@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} MainForm 
    Caption         =   "Editor of properties"
-   ClientHeight    =   7725
+   ClientHeight    =   6720
    ClientLeft      =   45
    ClientTop       =   375
    ClientWidth     =   15030
@@ -13,7 +13,11 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
+
+Dim PreviousNameXX As String
+Dim IsInitialized As Boolean
 
 Private Sub ApplyBut_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
 
@@ -61,39 +65,15 @@ Private Sub NameBox_Change()
 
 End Sub
 
-Private Sub NameBoxEN_Change()
+Private Sub NameBoxTranslate_Change()
 
-  CheckTextBoxAndWarnIfNeeded Me.NameBoxEN
-
-End Sub
-
-Private Sub NameBoxPL_Change()
-
-  CheckTextBoxAndWarnIfNeeded Me.NameBoxPL
-
-End Sub
-
-Private Sub NameBoxUA_Change()
-
-  CheckTextBoxAndWarnIfNeeded Me.NameBoxUA
-
-End Sub
-
-Private Sub RealFormatLab_Click()
-
-  SetValueInBox Me.RealFormatBox, 1
+  CheckTextBoxAndWarnIfNeeded Me.NameBoxTranslate
 
 End Sub
 
 Private Sub widLab_Click()
 
   Me.widBox.Text = ""
-    
-End Sub
-
-Private Sub MassChk_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-
-  SetShiftStatus Shift
     
 End Sub
 
@@ -117,12 +97,6 @@ Private Sub BlankChk_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, 
 End Sub
 
 Private Sub SizeChk_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-  
-  SetShiftStatus Shift
-  
-End Sub
-
-Private Sub FormatChk_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
   
   SetShiftStatus Shift
   
@@ -182,12 +156,6 @@ Private Sub CheckingLab_Click()
   
 End Sub
 
-Private Sub FormatLab_Click()
-  
-  SetValueInBox FormatBox, 0
-  
-End Sub
-
 Private Sub MaterialLab_Click()
   
   SetValueInBox MaterialBox, 1
@@ -238,19 +206,7 @@ Private Sub NameBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift 
   
 End Sub
 
-Private Sub NameBoxEN_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
-  
-  ExitByKey KeyCode, Shift
-  
-End Sub
-
-Private Sub NameBoxPL_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
-  
-  ExitByKey KeyCode, Shift
-  
-End Sub
-
-Private Sub NameBoxUA_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+Private Sub NameBoxTranslate_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
   
   ExitByKey KeyCode, Shift
   
@@ -269,12 +225,6 @@ Private Sub SizeBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift 
 End Sub
 
 Private Sub MaterialBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
-  
-  ExitByKey KeyCode, Shift
-  
-End Sub
-
-Private Sub FormatBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
   
   ExitByKey KeyCode, Shift
   
@@ -385,8 +335,29 @@ Private Sub DrawNameLab_Click()
     
 End Sub
 
+Private Sub NameLang_Change()
+
+  Dim pNameXX  As String
+
+  pNameXX = GetNameXX
+  If IsInitialized Then
+    ReadNameLang gCurConf, PreviousNameXX
+    ChangeChecked pNameXX  'because ConfBox is set after "IsInitialized = True"
+  End If
+  SaveLangTranslate Me.NameLang.ListIndex
+  
+  'It should be last
+  PreviousNameXX = pNameXX
+
+End Sub
+
 Private Sub UserForm_Initialize()
 
+  Dim I As Variant
+  Dim LangIndex As Integer
+
+  IsInitialized = False
+  
   Set gItems = New Dictionary
   ReadOldAfterChecked = True
   InitWidgets
@@ -399,6 +370,19 @@ Private Sub UserForm_Initialize()
   If Not gIsAssembly Then
     Me.IsFastenerChk.Value = GetIsFastener
   End If
+  
+  PreviousNameXX = ""
+  For Each I In NameTranslateLangs.Keys
+    Me.NameLang.AddItem I
+  Next
+  LangIndex = GetLangTranslateSetting
+  If LangIndex >= 0 And LangIndex < Me.NameLang.ListCount Then
+    Me.NameLang.ListIndex = LangIndex
+  Else
+    Me.NameLang.ListIndex = 0
+  End If
+  
+  IsInitialized = True
   Me.ConfBox.Text = gCurConf
     
 End Sub
@@ -433,9 +417,7 @@ End Sub
 Private Sub NameChk_Change()
 
   TrySetPropToAll NameBox, NameChk, pName
-  TrySetPropToAll NameBoxEN, NameChk, pNameEN
-  TrySetPropToAll NameBoxPL, NameChk, pNamePL
-  TrySetPropToAll NameBoxUA, NameChk, pNameUA
+  TrySetPropToAll NameBoxTranslate, NameChk, GetNameXX
   Me.ConfBox.SetFocus
   
 End Sub
@@ -443,13 +425,6 @@ End Sub
 Private Sub BlankChk_Change()
 
   TrySetPropToAll BlankBox, BlankChk, pBlank
-  Me.ConfBox.SetFocus
-  
-End Sub
-
-Private Sub FormatChk_Change()
-
-  TrySetPropToAll FormatBox, FormatChk, pFormat
   Me.ConfBox.SetFocus
   
 End Sub
@@ -475,13 +450,6 @@ Private Sub SizeChk_Change()
   
 End Sub
 
-Private Sub MassChk_Change()
-
-  TrySetPropToAll MassBox, MassChk, pMass
-  Me.ConfBox.SetFocus
-  
-End Sub
-  
 Private Sub lenChk_Change()
 
   TrySetPropToAll lenBox, lenChk, pLen

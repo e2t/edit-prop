@@ -14,6 +14,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
+
 Option Explicit
 
 Dim PreviousNameXX As String
@@ -160,14 +161,6 @@ Private Sub MaterialLab_Click()
   
   SetValueInBox MaterialBox, 1
   
-End Sub
-
-Private Sub NameLab_Click()
-
-  If gIsDrawing Then
-    DrawNameBox.Value = DrawNameBox.Value & " " & NameBox.Value
-  End If
-    
 End Sub
 
 Private Sub NoteLab_Click()
@@ -323,14 +316,22 @@ End Sub
 
 Private Sub ModelNameLab_Click()
 
-  RewriteNameAndSign ModelNameBox.Text, ConfBox.Text
+  FillNameAndSignByModel ModelNameBox.Text, ConfBox.Text
   
 End Sub
 
 Private Sub DrawNameLab_Click()
 
   If gIsDrawing Then
-    RewriteNameAndSign DrawNameBox.Text, ConfBox.Text
+    FillNameAndSignByModelAndDrawing ModelNameBox.Text, ConfBox.Text, DrawNameBox.Text
+  End If
+    
+End Sub
+
+Private Sub SignLab_Click()
+
+  If gIsDrawing Then
+    FillNameAndSignByDrawing DrawNameBox.Text, ConfBox.Text
   End If
     
 End Sub

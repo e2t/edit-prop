@@ -1310,19 +1310,45 @@ Sub ExitByKey(KeyCode As MSForms.ReturnInteger, Shift As Integer)
     
 End Sub
 
-Sub RewriteNameAndSign(Source As String, Conf As String)
+Sub FillNameAndSignByModel(FullModelName As String, Conf As String)
 
-  Dim Designation As String
-  Dim Name As String
+  Dim ModelDsg As String
+  Dim ModelName As String
+  Dim Code As String
+  
+  SplitNameAndSign FullModelName, Conf, ModelDsg, ModelName, Code
+  MainForm.SignBox.Text = ModelDsg
+  MainForm.NameBox.Text = ModelName
+
+End Sub
+
+Sub FillNameAndSignByDrawing(FullDrawingName As String, Conf As String)
+
+  Dim DrawDsg As String
+  Dim DrawName As String
+  Dim Code As String
+  
+  SplitNameAndSign FullDrawingName, Conf, DrawDsg, DrawName, Code
+  MainForm.SignBox.Text = DrawDsg
+  MainForm.NameBox.Text = DrawName
+
+End Sub
+
+Sub FillNameAndSignByModelAndDrawing(FullModelName As String, Conf As String, FullDrawingName As String)
+
+  Dim ModelDsg As String
+  Dim ModelName As String
+  Dim DrawDsg As String
+  Dim DrawName As String
   Dim Code As String
   Dim I As Integer
   Dim IsCodeFound As Boolean
   
-  Designation = ""
-  Name = ""
-  SplitNameAndSign Source, Conf, Designation, Name, Code
-  MainForm.SignBox.Text = Designation
-  MainForm.NameBox.Text = Name
+  SplitNameAndSign FullModelName, Conf, ModelDsg, ModelName, Code
+  SplitNameAndSign FullDrawingName, Conf, DrawDsg, DrawName, Code
+  MainForm.SignBox.Text = DrawDsg
+  MainForm.NameBox.Text = ModelName
+  MainForm.NameBoxTranslate.Text = DrawName
   If gIsDrawing Then
     IsCodeFound = False
     I = 0

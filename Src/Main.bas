@@ -1074,7 +1074,7 @@ End Function
 Sub ChangeMassEqual(Conf As String)
 
   If Not gIsUnnamed Then
-    MainForm.MassBox.List(0) = Equal("SW-Mass", gItems(Conf)(pMass).FromAll, Conf, gNameModel)
+    MainForm.MassBox.List(0) = Equal("SW-Mass", False, Conf, gNameModel)
   End If
     
 End Sub
@@ -1331,6 +1331,7 @@ Sub FillNameAndSignByDrawing(FullDrawingName As String, Conf As String)
   SplitNameAndSign FullDrawingName, Conf, DrawDsg, DrawName, Code
   MainForm.SignBox.Text = DrawDsg
   MainForm.NameBox.Text = DrawName
+  SetCodeDrawing Code
 
 End Sub
 
@@ -1341,26 +1342,29 @@ Sub FillNameAndSignByModelAndDrawing(FullModelName As String, Conf As String, Fu
   Dim DrawDsg As String
   Dim DrawName As String
   Dim Code As String
-  Dim I As Integer
-  Dim IsCodeFound As Boolean
   
   SplitNameAndSign FullModelName, Conf, ModelDsg, ModelName, Code
   SplitNameAndSign FullDrawingName, Conf, DrawDsg, DrawName, Code
   MainForm.SignBox.Text = DrawDsg
   MainForm.NameBox.Text = ModelName
   MainForm.NameBoxTranslate.Text = DrawName
-  If gIsDrawing Then
-    IsCodeFound = False
-    I = 0
-    While (I < MainForm.MiniSignBox.ListCount) And (Not IsCodeFound)
-      IsCodeFound = (StrComp(MainForm.MiniSignBox.List(I), Code, vbTextCompare) = 0)
-      If IsCodeFound Then
-        MainForm.MiniSignBox.ListIndex = I
-      End If
-      I = I + 1
-    Wend
-  End If
+  SetCodeDrawing Code
+
+End Sub
+
+Sub SetCodeDrawing(Code As String)
+  Dim I As Integer
+  Dim IsCodeFound As Boolean
   
+  IsCodeFound = False
+  I = 0
+  While (I < MainForm.MiniSignBox.ListCount) And (Not IsCodeFound)
+    IsCodeFound = (StrComp(MainForm.MiniSignBox.List(I), Code, vbTextCompare) = 0)
+    If IsCodeFound Then
+      MainForm.MiniSignBox.ListIndex = I
+    End If
+    I = I + 1
+  Wend
 End Sub
 
 Function SetPartCaptionIfEmptyDrawingCode() As Boolean

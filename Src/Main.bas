@@ -80,7 +80,7 @@ Public gIniFilePath As String
 Dim gConfigPath As String
 Dim gDrawExt As ModelDocExtension
 Dim gSheet As Sheet
-Dim gModelConfNames() As String
+Public gModelConfNames As Dictionary  'Conf + Description: Conf
 Dim gDrawing As DrawingDoc
 Dim gSheetScale1 As Double
 Dim gSheetScale2 As Double
@@ -126,6 +126,7 @@ Function Init() As Boolean
 
   Set swApp = Application.SldWorks
   Set gFSO = New FileSystemObject
+  Set gModelConfNames = New Dictionary
   
   ReDim UserName(0)
   UserName(0) = ""
@@ -282,10 +283,11 @@ Function InitWidgets() 'hide
   Dim ResultMaterials() As String
   Dim I As Variant
   Dim K As Integer
-
-  OutputTypeAndName
-  GetConfNames  'set gModelConfNames
-  InitWidgetFrom MainForm.ConfBox, gModelConfNames
+    
+    OutputTypeAndName
+    GetConfNames  'set gModelConfNames
+  
+  InitWidgetFrom MainForm.ConfBox, gModelConfNames.Keys
   InitWidgetFrom MainForm.DevelBox, UserDesigner
   InitWidgetFrom MainForm.NameBox, UserName
   InitWidgetFrom MainForm.NoteBox, UserNote
@@ -829,6 +831,8 @@ End Function
 
 ' ”станавливает значени€ gItems из свойств, игнориру€ существующие
 Sub ReadProp(Manager As CustomPropertyManager, Conf As String, props() As String)
+
+    Debug.Assert Not Manager Is Nothing
   
   Const UseCached = False
   Dim I As Variant
@@ -971,7 +975,7 @@ Sub SetPropToAll(Box As Object, Chk As CheckBox, Property As String)
   Dim Conf As String
   Dim ConfManager As CustomPropertyManager
   
-  For Each I In gModelConfNames
+  For Each I In gModelConfNames.Values
     Conf = I
     Set ConfManager = gModelExt.CustomPropertyManager(Conf)
     ConfManager.Delete2 Property
@@ -1154,7 +1158,7 @@ Function SetSpeedFormat() 'hide
 End Function
 
 Function OutputTypeAndName() 'hide
-
+  
   MainForm.ModelNameBox.Text = gFSO.GetBaseName(gNameModel)
   If gIsDrawing Then
     MainForm.DrawNameBox.Enabled = True
@@ -1187,11 +1191,28 @@ Function CreateCodeRegexPattern() As String
   
 End Function
 
-Function GetConfNames() 'hide
-
-  gModelConfNames = gModel.GetConfigurationNames
-  QuickSort gModelConfNames, LBound(gModelConfNames), UBound(gModelConfNames) 'configurations list is not sorted
+Function CreateConfItem(ConfName As String) As String
+    Dim Conf As Configuration
     
+    Set Conf = gModel.GetConfigurationByName(ConfName)
+    If Conf.Description = Conf.Name Or Conf.Description = "" Then
+        CreateConfItem = Conf.Name
+    Else
+        CreateConfItem = Conf.Name + "  """ + Conf.Description + """"
+    End If
+End Function
+
+Function GetConfNames() 'hide
+    Dim Confs As Variant
+    Dim Conf As Configuration
+    Dim I As Variant
+
+    Confs = gModel.GetConfigurationNames
+    QuickSort Confs, LBound(Confs), UBound(Confs) 'configurations list is not sorted
+    For Each I In Confs
+        Set Conf = gModel.GetConfigurationByName(I)
+        gModelConfNames.Add CreateConfItem(Conf.Name), Conf.Name
+    Next
 End Function
 
 Function InitRealFormatBox() 'hide

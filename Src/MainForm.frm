@@ -13,6 +13,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 Dim PreviousNameXX As String
@@ -360,7 +362,9 @@ Private Sub UserForm_Initialize()
   Set gItems = New Dictionary
   ReadOldAfterChecked = True
   InitWidgets
+  
   ReadProp gModelManager, CommonSpace, ModelProps
+  
   If gIsDrawing Then
     ReadProp gDrawManager, CommonSpace, DrawProps
     SetPartCaptionIfEmptyDrawingCode
@@ -369,7 +373,7 @@ Private Sub UserForm_Initialize()
   If Not gIsAssembly Then
     Me.IsFastenerChk.Value = GetIsFastener
   End If
-  
+
   PreviousNameXX = ""
   For Each I In NameTranslateLangs.Keys
     Me.NameLang.AddItem I
@@ -380,10 +384,9 @@ Private Sub UserForm_Initialize()
   Else
     Me.NameLang.ListIndex = 0
   End If
-  
+
   IsInitialized = True
-  Me.ConfBox.Text = gCurConf
-    
+  Me.ConfBox.Text = CreateConfItem(gCurConf)
 End Sub
 
 Private Sub ConfBox_Change()
@@ -396,7 +399,7 @@ Private Sub ConfBox_Change()
     ReadForm gCurConf
   End If
 
-  gCurConf = ConfBox.Text  'до этого в gCurConf записана старая конфигурация
+  gCurConf = gModelConfNames(ConfBox.Text)    'до этого в gCurConf записана старая конфигурация
   
   If Not gItems.Exists(gCurConf) Then
     gModel.ShowConfiguration2 gCurConf 'ускоряет чтение свойств

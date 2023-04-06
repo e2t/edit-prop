@@ -722,13 +722,13 @@ Function GetEquationThickness(Conf As String, ToAll As Boolean, NameModel As Str
   Dim ThName As String
   Dim ResolvedValue As String
   Dim RawValue As String
-  Dim VariantThicknessName(1) As String
+  Dim VariantThicknessName(2) As String
   
   GetEquationThickness = ""
   Set Mgr = gModel.Extension.CustomPropertyManager(Conf)
   VariantThicknessName(0) = "Толщина"
   VariantThicknessName(1) = "Thickness"
-  'variantThicknessName(2) = "Grubos'c'"
+  VariantThicknessName(2) = "Grubo" + ChrW(347) + ChrW(263)
   For Each ThName_ In VariantThicknessName
     ThName = ThName_
     SetProp Mgr, Temp, Equal(ThName, ToAll, Conf, gNameModel)

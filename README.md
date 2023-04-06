@@ -1,5 +1,8 @@
-﻿# EditProp
-Макрос для редактирования свойств моделей и чертежей SolidWorks.
+# EditProp
+Макрос для редагування полей (властивостей) документів SolidWorks.
+
+![зображення](https://user-images.githubusercontent.com/28775275/223138011-da318a71-3f27-4cfe-95cc-0a0ddbbb6fb2.png)
+
 
 ### Зависимости
 - SolidWorks 2014+

@@ -3,6 +3,12 @@
 [//]: # (YYYY-MM-DD)
 [//]: # (Added, Changed, Fixed, Deprecated, Removed, Security)
 
+## [23.3] 2023-06-23
+
+### Added
+
+- Додано формат паперу А4 горизонтальний.
+
 ## [23.2] 2023-06-23
 
 ### Added

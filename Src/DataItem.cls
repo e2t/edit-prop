@@ -15,10 +15,8 @@ Public NewValue As String
 Public FromAll As Boolean
 
 Public Sub Class_Initialize()
-
-  Value = ""
-  RawValue = ""
-  NewValue = ""
-  FromAll = False
-    
+    Value = ""
+    RawValue = ""
+    NewValue = ""
+    FromAll = False
 End Sub

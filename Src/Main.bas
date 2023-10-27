@@ -49,6 +49,10 @@ Public Const CurrentChoice = "[текущ.]"
 Public Const MaxNamingLen = 60
 Public Const TagPaperSize = "PaperSize"
 'Интерфейс формы
+Public Const LangEN = "EN"
+Public Const LangUA = "UA"
+Public Const LangPL = "PL"
+Public Const LangLT = "LT"
 Public NameTranslateLangs As Dictionary
 
 Enum ErrorCode
@@ -105,10 +109,11 @@ Dim UserTechControl() As String
 Dim UserNormControl() As String
 Dim UserLen() As String
 Dim UserWid() As String
-Dim UserMaterials() As String
 Dim gCodeRegexPattern As String
 Dim gRegexMaterial As RegExp
+Dim gRegexDescription As RegExp
 Dim gIsApplyAndExit As Boolean
+Dim gMaterials As Dictionary
 
 Sub Main()
     Init
@@ -158,8 +163,6 @@ Function Init() As Boolean
     UserWid(0) = ""
     ReDim UserLen(0)
     UserLen(0) = ""
-    ReDim UserMaterials(0)
-    UserMaterials(0) = ""
     ReDim UserPreExclude(0)
     UserPreExclude(0) = ""
     
@@ -195,7 +198,14 @@ Function Init() As Boolean
     gRegexMaterial.Global = True
     gRegexMaterial.MultiLine = True
     gRegexMaterial.IgnoreCase = True
-    gRegexMaterial.Pattern = "material name=""([^""]+)"""
+    gRegexMaterial.Pattern = "<material name=""([^""]+)""([^<>]*)>"
+    '<material name="AISI 304" matid="571" envdata="1" appdata="" description="" propertysource="">
+    
+    Set gRegexDescription = New RegExp
+    gRegexDescription.Global = False
+    gRegexDescription.MultiLine = False
+    gRegexDescription.IgnoreCase = True
+    gRegexDescription.Pattern = "description=""([^""]*)"""
     
     Set PaperSizes = New Dictionary
     AppendPaperSize "A4", "A4", 0.21, 0.297
@@ -253,10 +263,12 @@ Function Init() As Boolean
     gIsApplyAndExit = GetBooleanSetting(KeyApplyAndExit)
     
     Set NameTranslateLangs = New Dictionary
-    NameTranslateLangs.Add "EN", pNameEN
-    NameTranslateLangs.Add "UA", pNameUA
-    NameTranslateLangs.Add "PL", pNamePL
-    NameTranslateLangs.Add "LT", pNameLT
+    NameTranslateLangs.Add LangEN, pNameEN
+    NameTranslateLangs.Add LangUA, pNameUA
+    NameTranslateLangs.Add LangPL, pNamePL
+    NameTranslateLangs.Add LangLT, pNameLT
+    
+    Set gMaterials = ReadMaterialNames("Материалы.sldmat")
 End Function
  
 Function CreateDefaultIniFile() 'hide
@@ -273,8 +285,6 @@ Function CreateDefaultIniFile() 'hide
 End Function
 
 Function InitWidgets() 'hide
-    Dim BaseMaterials As Dictionary
-    Dim ResultMaterials() As String
     Dim I As Variant
     Dim K As Integer
       
@@ -320,27 +330,11 @@ Function InitWidgets() 'hide
     Else
         MainForm.SizeBox.AddItem ("")  ' for Equation
         InitWidgetFrom MainForm.SizeBox, UserSize
-        Set BaseMaterials = ReadMaterialNames("Материалы.sldmat")
-        If BaseMaterials.Count > 0 Then
-            ReDim ResultMaterials(BaseMaterials.Count - 1)
-            K = 0
-            For Each I In UserMaterials
-                If BaseMaterials.Exists(I) Then
-                    ResultMaterials(K) = I
-                    K = K + 1
-                    BaseMaterials.Remove I
-                End If
-            Next
-            
-            For Each I In BaseMaterials.Keys
-                ResultMaterials(K) = I
-                K = K + 1
-            Next
-        End If
         MainForm.MaterialBox.AddItem sEmpty
-        InitWidgetFrom MainForm.MaterialBox, ResultMaterials
+        InitWidgetFrom MainForm.MaterialBox, gMaterials.Keys
     End If
     
+    gCodeRegexPattern = CreateCodeRegexPattern
     If gIsDrawing Then
         MainForm.MiniSignBox.AddItem ""
         InitWidgetFrom MainForm.MiniSignBox, UserDrawingTypes.Keys
@@ -348,7 +342,6 @@ Function InitWidgets() 'hide
         InitWidgetFrom MainForm.DraftBox, UserDrafter
         InitWidgetFrom MainForm.CheckingBox, UserChecking
         InitRealFormatBox '''установка основных надписей
-        gCodeRegexPattern = CreateCodeRegexPattern
     Else
         MainForm.MiniSignBox.Enabled = False
         MainForm.CodeBox.Enabled = False
@@ -441,8 +434,6 @@ Function ReadSettings() As Boolean
                     ReadHeaderValues UserLen, I, Lines, EndLines
                 Case HeaderInFile(pWid)
                     ReadHeaderValues UserWid, I, Lines, EndLines
-                Case HeaderInFile(pMaterial)
-                    ReadHeaderValues UserMaterials, I, Lines, EndLines
             End Select
             I = I + 1
         Wend
@@ -492,7 +483,6 @@ Function OpenSettingsFile() As Boolean
             HeaderInFile(pTechControl) + vbNewLine + "Гуменный" + vbNewLine + vbNewLine + _
             HeaderInFile(pSize) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
             HeaderInFile(pApprover) + vbNewLine + "Гуменный" + vbNewLine + vbNewLine + _
-            HeaderInFile(pMaterial) + vbNewLine + "AISI 304;Ст.3;EPDM" + vbNewLine + vbNewLine + _
             HeaderInFile(pLen) + vbNewLine + ";;;" + vbNewLine + vbNewLine + _
             HeaderInFile(pWid) + vbNewLine + ";;;" + vbNewLine
           
@@ -602,6 +592,10 @@ Function ReadMaterialNames(FileName As String) As Dictionary
     Dim Matches As MatchCollection
     Dim FStream As TextStream
     Dim TextAll As String
+    Dim Material As String
+    Dim NonParsed As String
+    Dim Description As String
+    Dim Key As String
     
     Set Result = New Dictionary
     FullFilename = gConfigPath + FileName
@@ -612,7 +606,18 @@ Function ReadMaterialNames(FileName As String) As Dictionary
         If gRegexMaterial.Test(TextAll) Then
             Set Matches = gRegexMaterial.Execute(TextAll)
             For Each I In Matches
-                Result.Add I.SubMatches(0), ""
+                Material = I.SubMatches(0)
+                NonParsed = I.SubMatches(1)
+                Description = ""
+                If gRegexDescription.Test(NonParsed) Then
+                    Description = gRegexDescription.Execute(NonParsed)(0).SubMatches(0)
+                End If
+                'If MsgBox(Material + " - [" + Description + "]", vbOKCancel) = vbCancel Then End
+                Key = Material
+                If Description <> "" Then
+                    Key = Key + "  """ + Description + """"
+                End If
+                Result.Add Key, Material
             Next
         End If
     End If
@@ -735,7 +740,7 @@ End Function
 Sub SplitNameAndSign(Line As String, Conf As String, ByRef Designation As String, _
                      ByRef Name As String, ByRef Code As String)
     Const Flat As String = "SM-FLAT-PATTERN"
-    Const NameWithSuffix = "([^.]+[^)]) *(\(.*\))?"
+    Const DsgExpr = " *([^ ]+)"
     Dim RegexAsm As RegExp
     Dim RegexPrt As RegExp
     Dim Matches As Object
@@ -746,12 +751,12 @@ Sub SplitNameAndSign(Line As String, Conf As String, ByRef Designation As String
     Code = ""
     
     Set RegexAsm = New RegExp
-    RegexAsm.Pattern = "(.*\..*[0-9] *)(" + gCodeRegexPattern + ") " + NameWithSuffix + "$"
+    RegexAsm.Pattern = DsgExpr + " *(" + gCodeRegexPattern + ") +(.*)$"
     RegexAsm.IgnoreCase = True
     RegexAsm.Global = True
     
     Set RegexPrt = New RegExp
-    RegexPrt.Pattern = "(.*\.[^ ]+) " + NameWithSuffix + "$"
+    RegexPrt.Pattern = DsgExpr + " +(.*)$"
     RegexPrt.IgnoreCase = True
     RegexPrt.Global = True
     
@@ -823,12 +828,24 @@ Sub ReadProp(Manager As CustomPropertyManager, Conf As String, props() As String
         End If
         
         If Prop = pMaterial Then
-            Item.NewValue = Item.Value
+            Item.NewValue = GetMaterialItem(Item.Value)
         Else
             Item.NewValue = Item.RawValue
         End If
     Next
 End Sub
+
+Function GetMaterialItem(MaterialName As String) As String
+    Dim I As Variant
+    
+    GetMaterialItem = ""
+    For Each I In gMaterials.Keys
+        If gMaterials(I) = MaterialName Then
+            GetMaterialItem = I
+            Exit For
+        End If
+    Next
+End Function
 
 Sub SetBoxValue2(Chk As CheckBox, Prop As String, Conf As String)
     Dim Item As DataItem
@@ -1040,7 +1057,7 @@ End Function
 Sub SetMaterial(Conf As String)
     Dim NewMaterial As String
     
-    NewMaterial = gItems(Conf)(pMaterial).NewValue
+    NewMaterial = gMaterials(gItems(Conf)(pMaterial).NewValue)
     If NewMaterial <> sEmpty And NewMaterial <> "" Then
         gModel.SetMaterialPropertyName2 Conf, MaterialDB, NewMaterial  'it's method of PartDoc
     End If
@@ -1245,40 +1262,22 @@ Sub ExitByKey(KeyCode As MSForms.ReturnInteger, Shift As Integer)
     End If
 End Sub
 
-Sub FillNameAndSignByModel(FullModelName As String, Conf As String)
-    Dim ModelDsg As String
-    Dim ModelName As String
+Sub FillNameAndSign(DsgAndName As String, Conf As String)
+    Dim Dsg As String
+    Dim Name As String
     Dim Code As String
     
-    SplitNameAndSign FullModelName, Conf, ModelDsg, ModelName, Code
-    MainForm.SignBox.Text = ModelDsg
-    MainForm.NameBox.Text = ModelName
-End Sub
-
-Sub FillNameAndSignByDrawing(FullDrawingName As String, Conf As String)
-    Dim DrawDsg As String
-    Dim DrawName As String
-    Dim Code As String
-    
-    SplitNameAndSign FullDrawingName, Conf, DrawDsg, DrawName, Code
-    MainForm.SignBox.Text = DrawDsg
-    MainForm.NameBox.Text = DrawName
-    SetCodeDrawing Code
-End Sub
-
-Sub FillNameAndSignByModelAndDrawing(FullModelName As String, Conf As String, FullDrawingName As String)
-    Dim ModelDsg As String
-    Dim ModelName As String
-    Dim DrawDsg As String
-    Dim DrawName As String
-    Dim Code As String
-    
-    SplitNameAndSign FullModelName, Conf, ModelDsg, ModelName, Code
-    SplitNameAndSign FullDrawingName, Conf, DrawDsg, DrawName, Code
-    MainForm.SignBox.Text = DrawDsg
-    MainForm.NameBox.Text = ModelName
-    MainForm.NameBoxTranslate.Text = DrawName
-    SetCodeDrawing Code
+    SplitNameAndSign DsgAndName, Conf, Dsg, Name, Code
+    With MainForm
+        .SignBox.Text = Dsg
+        .NameBox.Text = Name
+        If .NameLang.Value = LangEN Then
+            .NameBoxTranslate.Text = Name
+        End If
+    End With
+    If gIsDrawing Then
+        SetCodeDrawing Code
+    End If
 End Sub
 
 Sub SetCodeDrawing(Code As String)

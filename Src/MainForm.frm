@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} MainForm 
-   Caption         =   "EditProp 23.3"
+   Caption         =   "EditProp 23.4"
    ClientHeight    =   6720
    ClientLeft      =   45
    ClientTop       =   375
@@ -223,18 +223,12 @@ Private Sub SettingBut_Click()
 End Sub
 
 Private Sub ModelNameLab_Click()
-    FillNameAndSignByModel ModelNameBox.Text, ConfBox.Text
+    FillNameAndSign ModelNameBox.Text, ConfBox.Text
 End Sub
 
 Private Sub DrawNameLab_Click()
     If gIsDrawing Then
-        FillNameAndSignByModelAndDrawing ModelNameBox.Text, ConfBox.Text, DrawNameBox.Text
-    End If
-End Sub
-
-Private Sub SignLab_Click()
-    If gIsDrawing Then
-        FillNameAndSignByDrawing DrawNameBox.Text, ConfBox.Text
+        FillNameAndSign DrawNameBox.Text, ConfBox.Text
     End If
 End Sub
 

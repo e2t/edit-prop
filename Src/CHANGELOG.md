@@ -3,6 +3,12 @@
 [//]: # (YYYY-MM-DD)
 [//]: # (Added, Changed, Fixed, Deprecated, Removed, Security)
 
+## [23.4.1] 2023-10-30
+
+### Fixed
+
+- Тепер логотип переміщуться разом з основним написом.
+
 ## [23.4] 2023-10-27
 
 ### Changed

@@ -59,14 +59,10 @@ Sub ResizeSheetFormat( _
     Const RightBottomBorderHeight = 0.065
     Const UnusedZ = 0
     
+    Dim SelMgr As SelectionMgr
     Dim Sk As Sketch
     Dim I As Variant
-    Dim J As Integer
     Dim P As SketchPoint
-    Dim SelMgr As SelectionMgr
-    Dim ANote As Note
-    Dim ANoteCoord As Variant
-    Dim SizeNameArray As Variant
     
     Set SelMgr = CurrentDoc.SelectionManager
     Set Sk = CurrentSheet.GetTemplateSketch
@@ -74,19 +70,13 @@ Sub ResizeSheetFormat( _
         Set P = I
         If IsEqual(P.X, OldWidth) And IsEqual(P.Y, OldHeight) Then
             CurrentDraw.EditTemplate
-            P.SetCoords Width, Height, UnusedZ
             
             SetPaperSizeToSheetFormat SizeName, CurrentSheet
             
             CurrentDoc.ClearSelection2 True
-            CurrentDoc.Extension.SketchBoxSelect OldWidth, 0, UnusedZ, OldWidth - RightBottomBorderWidth, RightBottomBorderHeight, UnusedZ
-            For J = 1 To SelMgr.GetSelectedObjectCount2(-1)
-                If SelMgr.GetSelectedObjectType3(J, -1) = swSelNOTES Then
-                    Set ANote = SelMgr.GetSelectedObject6(J, -1)
-                    ANoteCoord = ANote.GetTextPoint2
-                    ANote.SetTextPoint ANoteCoord(0) + Width - OldWidth, ANoteCoord(1), ANoteCoord(2)
-                End If
-            Next
+            CurrentDoc.Extension.SketchBoxSelect OldWidth, 0, UnusedZ, OldWidth - RightBottomBorderWidth, Height, UnusedZ
+            gDoc.Extension.MoveOrCopy False, 0, True, 0, 0, 0, Width - OldWidth, 0, 0
+            P.SetCoords P.X, Height, P.Z
             
             CurrentDraw.EditSheet
             Exit For

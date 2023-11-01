@@ -55,31 +55,41 @@ Sub ResizeSheetFormat( _
     Width As Double, Height As Double, CurrentSheet As Sheet, CurrentDoc As ModelDoc2, CurrentDraw As DrawingDoc, _
     OldWidth As Double, OldHeight As Double, SizeName As String)
     
-    Const RightBottomBorderWidth = 0.19
-    Const RightBottomBorderHeight = 0.065
     Const UnusedZ = 0
-    
     Dim SelMgr As SelectionMgr
+    
+    Set SelMgr = CurrentDoc.SelectionManager
+    CurrentDraw.EditTemplate
+    SetPaperSizeToSheetFormat SizeName, CurrentSheet
+    
     Dim Sk As Sketch
     Dim I As Variant
     Dim P As SketchPoint
     
-    Set SelMgr = CurrentDoc.SelectionManager
     Set Sk = CurrentSheet.GetTemplateSketch
     For Each I In Sk.GetSketchPoints2
         Set P = I
         If IsEqual(P.X, OldWidth) And IsEqual(P.Y, OldHeight) Then
-            CurrentDraw.EditTemplate
-            
-            SetPaperSizeToSheetFormat SizeName, CurrentSheet
-            
-            CurrentDoc.ClearSelection2 True
-            CurrentDoc.Extension.SketchBoxSelect OldWidth, 0, UnusedZ, OldWidth - RightBottomBorderWidth, Height, UnusedZ
-            gDoc.Extension.MoveOrCopy False, 0, True, 0, 0, 0, Width - OldWidth, 0, 0
-            P.SetCoords P.X, Height, P.Z
-            
-            CurrentDraw.EditSheet
             Exit For
         End If
     Next
+    
+    If OldHeight <> Height Then
+        CurrentDoc.ClearSelection2 True
+        CurrentDoc.Extension.SketchBoxSelect OldWidth, OldHeight, UnusedZ, OldWidth - 0.1, OldHeight - 0.1, UnusedZ
+        gDoc.Extension.MoveOrCopy False, 0, True, 0, OldHeight, UnusedZ, 0, Height, UnusedZ
+    End If
+    
+    If OldWidth <> Width Then
+        CurrentDoc.ClearSelection2 True
+        CurrentDoc.Extension.SketchBoxSelect OldWidth, 0, UnusedZ, OldWidth - 0.19, Height, UnusedZ
+        gDoc.Extension.MoveOrCopy False, 0, True, OldWidth, 0, UnusedZ, Width, 0, UnusedZ
+        'Иногда рамка не перемещается. Нижний блок заставляет управляющую точку смещаться,
+        'пока это не случится. Есть риск зависания.
+        While IsEqual(P.X, OldWidth)
+            P.SetCoords Width, P.Y, P.Z
+        Wend
+    End If
+    
+    CurrentDraw.EditSheet
 End Sub

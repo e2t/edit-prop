@@ -30,41 +30,17 @@ Sub GetSheetSizes( _
     End If
 End Sub
 
-Sub SetPaperSizeToSheetFormat(SizeName As String, CurrentSheet As Sheet)
-    Dim I As Variant
-    Dim J As Variant
-    Dim AView As View
-    Dim ANote As Note
-    Dim CurrentDrawing As DrawingDoc
-    
-    Set CurrentDrawing = gDoc
-    For Each I In CurrentDrawing.GetViews 'array of array
-        Set AView = I(0)
-        If AView.Name = CurrentSheet.GetName Then
-            For Each J In AView.GetNotes
-                Set ANote = J
-                If ANote.TagName = TagPaperSize Then
-                    ANote.SetText SizeName
-                End If
-            Next
-        End If
-    Next
-End Sub
-
 Sub ResizeSheetFormat( _
-    Width As Double, Height As Double, CurrentSheet As Sheet, CurrentDoc As ModelDoc2, CurrentDraw As DrawingDoc, _
-    OldWidth As Double, OldHeight As Double, SizeName As String)
+    Width As Double, Height As Double, CurrentSheet As Sheet, CurrentDoc As ModelDoc2, _
+    CurrentDraw As DrawingDoc, OldWidth As Double, OldHeight As Double, SizeName As String)
     
     Const UnusedZ = 0
-    Dim SelMgr As SelectionMgr
-    
-    Set SelMgr = CurrentDoc.SelectionManager
-    CurrentDraw.EditTemplate
-    SetPaperSizeToSheetFormat SizeName, CurrentSheet
-    
     Dim Sk As Sketch
     Dim I As Variant
     Dim P As SketchPoint
+    
+    SetProp gDrawManager, pPaperSize, SizeName
+    CurrentDraw.EditTemplate
     
     Set Sk = CurrentSheet.GetTemplateSketch
     For Each I In Sk.GetSketchPoints2

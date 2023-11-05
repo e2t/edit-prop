@@ -38,6 +38,7 @@ Public Const pApprover = "Утвердил"
 Public Const pTechControl = "Техконтроль"
 Public Const pNormControl = "Нормоконтроль"
 Public Const pBaseDesignation = "Базовое обозначение"
+Public Const pPaperSize = "Формат"
 Public Const MaterialDB = "Материалы"
 Public Const CommonSpace = ""
 Public Const Separator = ";"
@@ -47,7 +48,6 @@ Public Const SettingsFile = "Настройки.txt"
 Public Const sEmpty = " "
 Public Const CurrentChoice = "[текущ.]"
 Public Const MaxNamingLen = 60
-Public Const TagPaperSize = "PaperSize"
 'Интерфейс формы
 Public Const LangEN = "EN"
 Public Const LangUA = "UA"
@@ -840,7 +840,7 @@ Function GetMaterialItem(MaterialName As String) As String
     
     GetMaterialItem = ""
     For Each I In gMaterials.Keys
-        If gMaterials(I) = MaterialName Then
+        If StrComp(gMaterials(I), MaterialName, vbTextCompare) = 0 Then
             GetMaterialItem = I
             Exit For
         End If
@@ -1072,6 +1072,7 @@ Function SetSpeedFormat() 'hide
     Dim SizeName As String
     Dim PaperChoice As String
     Dim FormatChoice As String
+    Dim a As Boolean
     
     FormatChoice = MainForm.RealFormatBox.Text
     PaperChoice = MainForm.PaperSizeBox.Text
@@ -1086,13 +1087,15 @@ Function SetSpeedFormat() 'hide
                 Exit Function
             End If
             
+            gSheet.SetTemplateName ""
             gDrawing.SetupSheet5 _
-                gSheet.GetName, swDwgPapersUserDefined, swDwgTemplateCustom, _
-                gSheetScale1, gSheetScale2, gIsFirstAngle, TemplateName, 0, 0, _
-                gSheet.CustomPropertyView, True
+                    gSheet.GetName, swDwgPapersUserDefined, swDwgTemplateCustom, _
+                    gSheetScale1, gSheetScale2, gIsFirstAngle, TemplateName, 0, 0, _
+                    gSheet.CustomPropertyView, True
               
             gSheet.GetSize OldWidth, OldHeight
             
+            'Без команды ниже лист остается без рамки.
             gDrawing.SetupSheet5 _
                 gSheet.GetName, swDwgPapersUserDefined, swDwgTemplateNone, _
                 gSheetScale1, gSheetScale2, gIsFirstAngle, "", Width, Height, _
@@ -1408,9 +1411,21 @@ Sub SetWeightLbs(Conf As String)
     Dim MassLb As Double
     Dim PropMgr As CustomPropertyManager
     Dim IsSuccess As Boolean
+    Dim MassFormat As String
     
     Set PropMgr = gModelExt.CustomPropertyManager(Conf)
     GetPropRes = PropMgr.Get5(pMass, UseCached, RawValue, Value, WasResolved)
     MassLb = Val(Value) * 2.20462262
-    SetProp PropMgr, pMassLbs, Format(MassLb, "0.0##")
+    
+    Select Case MassLb
+    Case Is < 1
+        MassFormat = "0.000"
+    Case Is < 10
+        MassFormat = "0.00"
+    Case Is < 100
+        MassFormat = "0.0"
+    Case Else
+        MassFormat = "0"
+    End Select
+    SetProp PropMgr, pMassLbs, Format(MassLb, MassFormat)
 End Sub

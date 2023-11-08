@@ -48,6 +48,7 @@ Public Const SettingsFile = "Настройки.txt"
 Public Const sEmpty = " "
 Public Const CurrentChoice = "[текущ.]"
 Public Const MaxNamingLen = 60
+Public Const TagPaperSize = "PaperSize"
 'Интерфейс формы
 Public Const LangEN = "EN"
 Public Const LangUA = "UA"

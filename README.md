@@ -1,3 +1,5 @@
+This project has been moved to https://codeberg.org/e2t/edit-prop
+
 # EditProp
 Макрос для редагування властивостей документів SolidWorks.
 
